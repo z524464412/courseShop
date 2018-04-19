@@ -1,6 +1,6 @@
 <template>
     <div>
-         课程详情
+         课程活动
     </div>
 </template>
 
