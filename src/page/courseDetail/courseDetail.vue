@@ -9,6 +9,7 @@
             {{item.title}}
           </div>
         </div>
+        <div class="courseheight"></div>
         <div class="detailsDiv" v-show="list[0].show">
           <div class="infoBox">
             <div class="infoTitle">
@@ -55,6 +56,10 @@
           <div class="lineheight"></div> 
         </div>
       </div>
+      <div class="packageBox">
+        <i class="packageIcon">1</i>
+        <img src="../../images/package1.png">
+      </div>
       <shop-cart></shop-cart>
     </div>
 </template>
@@ -83,10 +88,18 @@ import shopList from 'src/components/common/shopList'
         shopList
       },
       mounted () {
+
          this.$nextTick(() => {
           window.addEventListener('scroll', this.throttleScroll, false);
+          // window.addEventListener('touchstart',function(e){
+          //    console.log(e.changedTouches[0]);
+          //   console.log(e.targetTouches[0]);
+          //   console.log(e.touches[0]);
+          // },false)
+
         });
          this.throttleScroll = throttle(this.handleScroll, 100);
+         this.dropCart('.packageBox');
       },
       deactivated() {
         //离开页面需要remove这个监听器，不然还是卡到爆。
@@ -101,15 +114,61 @@ import shopList from 'src/components/common/shopList'
 
           if (wh > h) {
             this.isFixed = true;
+             $('.courseheight').show();
           } else {
             this.isFixed = false;
+             $('.courseheight').hide();
           }
         },
+        //切换学科
         checkType(item,list){
           for (let elem of list) {
             elem.show = false;
           }
           item.show =true;
+        },
+        //拖拽书包图标
+        dropCart(el){
+          var _x_start,_y_start,_x_move,_y_move,_x_end,_y_end,left_start,top_start;
+          document.querySelector(el).addEventListener("touchstart",function(e)
+          {
+              _x_start=e.touches[0].pageX;
+              _y_start=e.touches[0].pageY;
+              left_start=document.querySelector(el).offsetLeft;
+              top_start=document.querySelector(el).offsetTop;
+          })
+          document.querySelector(el).addEventListener("touchmove",function(e)
+          {
+            document.querySelector('body').style.overflow ='hidden'
+              _x_move=e.touches[0].pageX;
+              _y_move=e.touches[0].pageY;
+              console.log(_x_move,_y_move)
+              console.log( e.view.innerWidth,e.view.innerHeight)
+              if(_x_move > e.view.innerWidth-28){
+                _x_move = e.view.innerWidth-28
+              }
+              if(_y_move > e.view.innerHeight-28){
+                _y_move = e.view.innerHeight-28
+              }
+              if(_x_move < 50){
+                _x_move = 50
+              }
+              if(_y_move < 50){
+                _y_move = 50
+              }
+              console.log(_x_move,_y_move)
+               document.querySelector(el).style.left = parseFloat(_x_move)-parseFloat(_x_start)+parseFloat(left_start)+"px"
+              document.querySelector(el).style.top = parseFloat(_y_move)-parseFloat(_y_start)+parseFloat(top_start)+"px"
+          })
+          document.querySelector(el).addEventListener("touchend",function(e)
+          {
+            document.querySelector('body').style.overflow ='auto'
+              var _x_end=e.changedTouches[0].pageX;
+              var _y_end=e.changedTouches[0].pageY;
+              
+          })
+          //阻止浏览器下拉事件
+          
         }
       },
   }
@@ -237,8 +296,8 @@ import shopList from 'src/components/common/shopList'
   margin-bottom: 10px;
   div:nth-of-type(1){
     width: 70px;
-    height: 70px;
-    margin: 13px auto 9px;
+    margin: 0 auto 9px;
+    padding-top: 10px;
   }
   div:nth-of-type(2){
     font-size: 15px;
@@ -273,6 +332,26 @@ import shopList from 'src/components/common/shopList'
     left: -10px;
     background: red;
     border-radius: 5px;
+  }
+}
+.courseheight{
+    display: none;
+    height: 46px;
+  }
+.packageBox{
+  position: fixed;
+  right: 10px;
+  bottom: 81px;
+  width: 55px;
+  z-index: 15;
+  i{
+    position: absolute;
+    right: 5px;
+    background: rgb(218,46,46);
+    border-radius: 50%;
+    width: 14px;
+    text-align: center;
+    color: #f4f4f4;
   }
 }
 </style>

@@ -20,7 +20,7 @@
             
         },
         computed: {
-
+            
         },
         props:['foods', 'shopId'],
         methods: {
@@ -50,7 +50,7 @@
     @import '../../style/mixin';
 	.cart_module{
         .add_icon{
-            width: 30px;
+            width: 20px;
             position: relative;
             z-index: 12;
         }

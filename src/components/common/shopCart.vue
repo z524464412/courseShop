@@ -4,17 +4,17 @@
             共1门课程已减<span class="red">¥200</span>，再选<span class="red">¥5520</span>减<span class="red">¥800</span>!
           </section>
           <section class="cart_icon_num">
-              <div class="cart_icon_container" ref="cartContainer">
+              <!-- <div class="cart_icon_container" ref="cartContainer">
                   <span v-if="totalNum" class="cart_list_length">
                       {{totalNum}}
                   </span>
                   <div class="cart_icon">
                     <img src="../../images/package.png">  
                   </div>
-              </div>
+              </div> -->
               <div class="cart_num">
                   <div>¥ {{totalPrice}}</div>
-                  <div>¥{{discountPrice}}</div>
+                  <!-- <div>¥{{discountPrice}}</div> -->
               </div>
           </section>
           <router-link :to="{path:'/payList'}" class="gotopay" >
@@ -73,6 +73,7 @@
             .cart_num{
                 @include ct;
                 left: 3.5rem;
+                left: 12px;
                 div:nth-of-type(1){
                     font-size: 18px;
                     font-weight: bold;

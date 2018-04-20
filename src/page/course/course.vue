@@ -15,11 +15,10 @@
             筛选
           </div>
         </div>
-        <shop-list v-for="item in 10">
+        <shop-list v-for="item in 10" @click="gotoPage('/courseDetail',{id:123})">
         </shop-list>
       </div>
-      <div class="lineheight"></div> 
-      <div class="lineheight"></div> 
+      
       <shop-cart></shop-cart>
       <div class="typeBox" v-show="typeShow">
         <div @click="selectType(0)" class="typeItem active">全部课程</div>
@@ -62,6 +61,10 @@ import shopList from 'src/components/common/shopList'
         shopList
       },
       methods:{
+        //跳转页面
+        gotoPage(path,query){
+          this.$router.push({path,query})
+        },
         //选择科目
         selectType(type){
           if(type == 99){
@@ -144,12 +147,13 @@ import shopList from 'src/components/common/shopList'
       text-align: center;
     }
   }
-  .courseLists{
-    background :#fff;
-    .courseheight{
+  .courseheight{
       display: none;
       height: 46px;
     }
+  .courseLists{
+    background :#fff;
+    
     .courseTitle{
       line-height: 46px;
       padding: 0px 12px;
