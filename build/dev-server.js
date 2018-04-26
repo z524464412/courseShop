@@ -37,14 +37,16 @@ compiler.plugin('compilation', function(compilation) {
 var context = config.dev.context
 
 switch(process.env.NODE_ENV){
-    case 'local': var proxypath = 'http://localhost:8001'; break;
-    case 'dev': var proxypath = 'http://tifang.com'; break;
+    case 'local': var proxypath = 'http://localhost:8002'; break;
+    case 'dev': var proxypath = 'http://192.168.1.129:8080'; break;
     default:  var proxypath = config.dev.proxypath; 
 }
+
 var options = {
     target: proxypath,
     changeOrigin: true,
 }
+console.log(options)
 if (context.length) {
     server.use(proxyMiddleware(context, options))
 }

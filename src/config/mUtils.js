@@ -1,3 +1,26 @@
+
+import { MessageBox } from 'mint-ui';
+/**
+ * 请求错误处理
+ */
+export const catchError = function(error){
+    if(error){
+        MessageBox('服务端异常，请联系技术支持');
+    }
+    if (error.response) {
+    switch (error.response.status) {
+      case 400:
+        MessageBox('请求参数异常')
+        break;
+      case 403:
+        MessageBox('无访问权限，请联系企业管理员');
+        break;
+      default:
+        MessageBox('服务端异常，请联系技术支持');
+    }
+  }
+  return Promise.reject(error);
+}
 /**
  * 存储localStorage
  */

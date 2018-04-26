@@ -1,34 +1,55 @@
 <template>
 	<section class="buy_cart_container">
-          <section class="cart_icon_num buy_cart_info">
-            共1门课程已减<span class="red">¥200</span>，再选<span class="red">¥5520</span>减<span class="red">¥800</span>!
+          <section class="cart_icon_num buy_cart_info" v-show="allNum>0">
+            共{{allNum}}门课程已减<span class="red">¥200</span>，再选<span class="red">¥5520</span>减<span class="red">¥800</span>!
           </section>
           <section class="cart_icon_num">
-              <!-- <div class="cart_icon_container" ref="cartContainer">
-                  <span v-if="totalNum" class="cart_list_length">
-                      {{totalNum}}
+              <div class="cart_icon_container" ref="cartContainer" v-if="noIcon=='index'">
+                  <span v-if="allNum" class="cart_list_length">
+                      {{allNum}}
                   </span>
-                  <div class="cart_icon">
+                  <div class="cart_icon noIcon" >
                     <img src="../../images/package.png">  
                   </div>
-              </div> -->
-              <div class="cart_num">
-                  <div>¥ {{totalPrice}}</div>
-                  <!-- <div>¥{{discountPrice}}</div> -->
+              </div>
+              <div class="cart_num" :class="{noIcon:noIcon!='index'}">
+                  <div>¥ {{allPrice || 0}}</div>
+                  <div v-if="noIcon!='detail'">¥ {{allPrice || 0}}</div>
               </div>
           </section>
           <router-link :to="{path:'/payList'}" class="gotopay" >
-           <section class="gotopay_button_style">立即支付</section>
+           <section class="gotopay_button_style" :class="{noPay:noPay}">立即支付</section>
           </router-link>
       </section>
 </template>
 <script>
+  import {mapState, mapMutations} from 'vuex'
 	export default{
+    props:['noIcon','allNum','allPrice'],
+    computed:{
+      ...mapState([
+          'latitude','longitude','cartList'
+      ]),
+      //当前商店购物信息
+      shopCart: function (){
+          return {...this.cartList[this.shopId]};
+      },
+    },
+    mounted(){
+      
+    },
+    methods:{
+
+    },
+    watch:{
+
+    },
 		data(){
 			return{
-				totalNum:3,//选择数
-				totalPrice: 2690, //总共价格
-      	discountPrice:2690,//折扣价格
+				totalNum:0,//选择数
+				totalPrice: 0, //总共价格
+      	discountPrice:0,//折扣价格
+        noPay:true
 			}
 		}
 	}
@@ -73,7 +94,9 @@
             .cart_num{
                 @include ct;
                 left: 3.5rem;
-                left: 12px;
+                &.noIcon{
+                  left: 12px;
+                }
                 div:nth-of-type(1){
                     font-size: 18px;
                     font-weight: bold;
@@ -108,6 +131,10 @@
                 @include sc(.7rem, #f6cece);
                 font-weight: bold;
                 letter-spacing: 2px;
+            }
+            .noPay{
+              @include sc(.7rem, #bbb);
+              color: #fff;
             }
         }
     }

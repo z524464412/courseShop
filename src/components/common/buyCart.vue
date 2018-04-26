@@ -3,7 +3,8 @@
         <section class="cart_button">
             <transition name="fade">
             </transition>
-            <img class="add_icon" @click.stop="addToCart($event)" src="../../images/plus.png">
+            <img class="add_icon" v-show="!btnType" @click.stop="addToCart($event)" src="../../images/plus.png" >
+            <img class="add_icon" v-show="btnType" @click.stop="removeOutCart($event)" src="../../images/tick.png">
         </section>
     </section>
 </template>
@@ -14,19 +15,31 @@
     	data(){
             return{
                showMoveDot: [], //控制下落的小圆点显示隐藏
+               btnType:false
             }
         },
-        mounted(){
-            
-        },
         computed: {
-            
+            ...mapState([
+                'cartList'
+            ])
         },
-        props:['foods', 'shopId'],
+        props:['courseList'],
+        mounted(){
+            this.btnType = this.courseList.choose;
+        },
         methods: {
+             ...mapMutations([
+                'ADD_CART','REDUCE_CART',
+            ]),
+            removeOutCart(){
+                this.btnType =!this.btnType;
+                this.REDUCE_CART(this.courseList);
+            },
             //加入购物车，计算按钮位置。
             addToCart(event){
-                console.log(event)
+                console.log()
+                this.ADD_CART(this.courseList);
+                this.btnType =!this.btnType;
                 let elLeft = event.target.getBoundingClientRect().left;
                 let elBottom = event.target.getBoundingClientRect().bottom;
                 this.showMoveDot.push(true);

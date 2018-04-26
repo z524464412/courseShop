@@ -1,36 +1,42 @@
 <template>
-    <div>
-      <div @click="swipeClick" id="swipeDiv"ref="header">
+    <div class="page-infinite-wrapper" ref="wrapper" :style="{ height: wrapperHeight + 'px' }">
+      <div @click="swipeClick" id="swipeDiv" ref="header">
         <mt-swipe class="myswipe" :auto="3000" >
-          <mt-swipe-item v-for="(banner,index) in 3" :data-value="banner.url" class="swiper-slide">
-            <img src="../../images/banner.png">
+          <mt-swipe-item v-for="(banner,index) in 1" :data-value="banner.url" class="swiper-slide">
+            <img src="static/img/banner.png">
           </mt-swipe-item>
         </mt-swipe>
       </div>
       <div class="courseLists" >
         <div class="courseheight"></div>
         <div class="courseTitle" ref="nav" :class="{isFixed:isFixed}">
-          <div class="left courseType">全部课程</div>
-          <div class="right courseScreening" @click="selectType(99)">
+          <div class="left courseType">{{courseTypeName}}</div>
+          <div class="right courseScreening" @click="selectType(99,'全部课程')">
             筛选
           </div>
         </div>
-        <shop-list v-for="item in 10" @click="gotoPage('/courseDetail',{id:123})">
-        </shop-list>
-      </div>
-      
-      <shop-cart></shop-cart>
+          <ul class="page-infinite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+            <shop-list v-for="courseList in courseLists" :courseList=courseList>
+            </shop-list>
+          </ul>
+          <p v-show="loading" class="page-infinite-loading">
+            <mt-spinner type="fading-circle"></mt-spinner>
+            加载中...
+          </p>
+        <div class="null-empty" v-show="showEmpty">
+          <img src="static/img/empty.png">
+        </div>
+      </div> 
+      <div class="lineheight"></div>
+      <div class="lineheight"></div>
+      <shop-cart :allNum=allNum :allPrice=allPrice :noIcon="'index'"></shop-cart>
       <div class="typeBox" v-show="typeShow">
-        <div @click="selectType(0)" class="typeItem active">全部课程</div>
-        <div @click="selectType(1)" class="typeItem">语文</div>
-        <div @click="selectType(2)" class="typeItem">数学</div>
-        <div @click="selectType(3)" class="typeItem">英语</div>
-        <div @click="selectType(4)" class="typeItem">物理</div>
-        <div @click="selectType(5)" class="typeItem">化学</div>
-        <div @click="selectType(6)" class="typeItem">地理</div>
-        <div @click="selectType(7)" class="typeItem">政治</div>
-        <div @click="selectType(8)" class="typeItem">专项课程</div>
-        <div class="closeBtn" @click="selectType">
+        <div @click="selectType('','课程')" class="typeItem active">全部课程</div>
+        <div @click="selectType(typename.name,typename.name)" v-text="typename.name" class="typeItem" v-for="typename in courseTypeList">
+
+        </div>
+        <!-- <div @click="selectType(8,'')" class="typeItem">专项课程</div> -->
+        <div class="closeBtn" @click="selectType(98)">
           <img src="../../images/close.png">
         </div>
       </div>
@@ -38,8 +44,13 @@
 </template>
 <script>
 var throttle = require('lodash/throttle'); //从lodash中引入的throttle节流函数
+import {mapState, mapMutations} from 'vuex'
 import shopCart from 'src/components/common/shopCart'
 import shopList from 'src/components/common/shopList'
+import { courseList , CourseType } from 'src/service/course'
+import { MessageBox } from 'mint-ui';
+import { Indicator } from 'mint-ui';
+import { Spinner } from 'mint-ui';
   export default {
       data() {
         return {
@@ -47,32 +58,295 @@ import shopList from 'src/components/common/shopList'
           isFixed: false, //是否固定的
           throttleScroll: null, //定义一个截流函数的变量
           typeShow:false,//是否显示类型
+          showEmpty: false, //无数据
+          loading: false, //底部加载
+          listEnd: false, //底部提示
+          courseLists: [],
+          lastPage: 1,
+          currentPage: 0,
+          pageSize:10,
+          allLoaded:false,
+          wrapperHeight: 0,
+          list:[],
+          curPage:1,
+          courseTypeName:'全部课程',
+          allNum:0,
+          allPrice:0,
+          gradeId:'',
+          courseTypeList:{},
+          tag:''
         }
       },
+
+      created(){
+        Indicator.open('加载中...');
+        console.log(this.$route.query)
+        this.gradeId = this.$route.query.gradeId;
+        this.INIT_BUYCART();
+      },
       mounted () {
-        
         this.$nextTick(() => {
           window.addEventListener('scroll', this.throttleScroll, false);
+          this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top;
         });
          this.throttleScroll = throttle(this.handleScroll, 100);
+         this.getCourseType();
+         this.getCourseList();
       },
       components:{
         shopCart,
         shopList
       },
-      methods:{
-        //跳转页面
-        gotoPage(path,query){
-          this.$router.push({path,query})
+      computed: {
+        ...mapState([
+            'cartList'
+        ]),
+        //当前商店购物信息
+        shopCart: function (){
+          return {...this.cartList};
         },
+      },
+      methods:{
+        //vuex数据
+        ...mapMutations([
+            'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
+        ]),
+        //下拉加载
+        loadMore() {
+          const _this = this;
+          console.log(_this.lastPage , _this.curPage)
+          if (_this.lastPage > _this.curPage) {
+            if (_this.curPage != 0) {//首次加载不显示loading
+              _this.loading = true;
+              setTimeout(function(){
+                 _this.curPage++;
+                 _this.getCourseList();
+              },500)
+            }
+          }
+        },
+        //获取所有类型
+        getCourseType(){
+          var _this =this;
+          var param = {};
+          param.type = 'subject'
+          param.grade = this.gradeId;
+          CourseType(param).then(res =>{
+            _this.courseTypeList = res.data.data;
+          })
+        },
+        //获取课程列表
+        getCourseList(){
+          var _this = this;
+          var param = {};
+          param.grade = this.gradeId;
+          param.pageSize = this.pageSize;
+          if(this.tag){
+            param.tag = encodeURI(this.tag);
+          }
+          param.pageNo = _this.curPage;
+          courseList(param).then(res =>{
+            // var res={};
+            // res.data = {
+            //  "respCode": "0",
+            //  "respMsg": "成功",
+            //  "data": {
+            //          "classes":[{
+            //          "id":'1',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'2',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'3',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'4',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'5',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'6',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'7',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'8',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'9',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          },{
+            //          "id":'10',
+            //          "title":"【18暑】37讲学完英语新概念2上半册班",
+            //          "avatar":"课程图片地址",
+            //          "price":"2880",
+            //         "lesson_hour":"总课时",
+            //          "gradeId":"1",//年级id
+            //         "grade":"小学3年级",
+            //          "teacher":"黄老师",
+            //         "t_avatar":"图片地址"
+            //          }],
+            //          "paging": { //分页数据
+            //          "total": 20, //总条数
+            //          "perPage": 10, //每页显示条数
+            //          "currentPage": 1, //当前页数
+            //          "lastPage":2 //最后页数
+            //         }
+            //      }
+            //  }
+
+            setTimeout(()=>{
+              Indicator.close();
+              if(res.data.respCode == 0){
+                if(res.data.data.classes.length>0){
+                  for(let i in res.data.data.classes){
+                    if(!isNaN(i)){
+                       this.courseLists.push(res.data.data.classes[i])
+                    }
+                  }
+                  this.initCartList()
+                  this.lastPage = res.data.data.paging.lastPage;
+                  this.currentPage = res.data.data.paging.currentPage;
+                }else{
+                  
+                }
+              }else{
+                MessageBox(res.data.respMsg);
+              }
+              if(_this.courseLists.length < 0){
+                _this.showEmpty = true;
+              }
+              _this.loading = false;
+           },200)
+          },function(res){
+            Indicator.close();
+            this.loading = false;
+            MessageBox('系统错误,请刷新!')
+          }); 
+        },
+        //初始化和shopCart变化时
+        initCartList(){
+          let _this =this;
+          _this.allNum = 0;
+          _this.allPrice = 0;
+          console.log(_this.courseLists)
+          // for(let list of _this.courseLists){
+          //   for (let cart of Object.values(_this.shopCart)) {
+          //     if(cart.id == list.id){
+          //       if(cart.num == 1){
+          //         _this.allNum++;
+          //         _this.allPrice += parseInt(cart.price);
+          //         list.choose =true
+          //       }else{
+          //         list.choose =false
+          //       }
+          //     }
+          //   }
+          // }
+          for(let cart of Object.values(_this.shopCart)){
+            if(cart.num == 1){
+              _this.allNum++
+              _this.allPrice += parseInt(cart.price);
+            }
+            for(let list of _this.courseLists){
+              if((cart.id == list.id) && (cart.num == 1)){
+                list.choose =true;
+              }
+            }
+          }
+        },
+        
         //选择科目
-        selectType(type){
+        selectType(type,name){
+
           if(type == 99){
             $('body').css('overflow','hidden');
+            this.typeShow =!this.typeShow;
+          }else if(type== 98){
+            this.typeShow = !this.typeShow
+            $('body').css('overflow','auto');
           }else{
             $('body').css('overflow','auto');
+            
+            if(name=='课程'){
+              this.courseTypeName = '全部课程'
+              this.tag = '';
+            }else{
+              this.courseTypeName = name
+              this.tag = name;
+            }
+            
+            this.curPage = 1;
+            this.courseLists =[];
+            this.getCourseList();
+            this.typeShow =!this.typeShow;
           }
-          this.typeShow =!this.typeShow;
         },
         //轮播跳转
         swipeClick(){
@@ -95,6 +369,18 @@ import shopList from 'src/components/common/shopList'
       deactivated() {
         //离开页面需要remove这个监听器，不然还是卡到爆。
         window.removeEventListener('scroll', this.throttleScroll);
+      },
+      watch: {
+        shopCart: function (value){
+          this.initCartList();
+        },
+        // 'currentPage': function() { //加载到最后一页监控
+        //   if (this.lastPage == this.currentPage) {
+        //     if (this.currentPage != 1 || this.courseLists.length > 8) {
+        //       this.listEnd = true;
+        //     }
+        //   }
+        // }
       }
   }
 
@@ -103,7 +389,11 @@ import shopList from 'src/components/common/shopList'
 <style lang="scss" scoped>
   @import 'src/style/common';
   @import 'src/style/mixin';
-
+  .detailHtml img{
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+  }
   .typeBox{
         position: fixed;
         top: 0;
@@ -141,7 +431,7 @@ import shopList from 'src/components/common/shopList'
   }
   #swipeDiv{
     .mint-swipe {
-      height: 145px;
+      height: 6rem;
       color: #fff;
       font-size: 30px;
       text-align: center;
@@ -152,7 +442,7 @@ import shopList from 'src/components/common/shopList'
       height: 46px;
     }
   .courseLists{
-    background :#fff;
+    // background :#fff;
     
     .courseTitle{
       line-height: 46px;
@@ -205,5 +495,12 @@ import shopList from 'src/components/common/shopList'
       background: rgba(253,249,216,0.9)
     }
   }
-
+  .content_bd{
+    position: absolute;
+    top: 152px;
+    bottom: 60px;
+    width: 100%;
+    overflow: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
 </style>

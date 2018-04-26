@@ -21,15 +21,17 @@ const router = new VueRouter({
 	mode: routerMode,
 	// strict: process.env.NODE_ENV !== 'production',
 	scrollBehavior (to, from, savedPosition) {
+		console.log(savedPosition)
 	    if (savedPosition) {
 		    return savedPosition
 		} else {
-			if (from.meta.keepAlive) {
-				//记录缓存页面的高度
-				from.meta.savedPosition = document.body.scrollTop;
-			}
+			// if (from.meta.keepAlive) {
+			// 	//记录缓存页面的高度
+			// 	from.meta.savedPosition = document.body.scrollTop;
+			// }
 			//根据记录的缓存的页面高度,显示页面的高度
-		    return { x: 0, y: to.meta.savedPosition ||0}
+		    // return { x: 0, y: to.meta.savedPosition ||0}
+		    return {x:0,y: 0}
 		}
 	}
 })

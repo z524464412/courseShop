@@ -2,7 +2,8 @@
   	<div>
       <div class="fixtop2">
         <header class="header" ref="header">
-          <img src="../../images/info.png">
+          <img :src="imgBaseUrl + courseDetail.avatar" v-if="courseDetail.avatar">
+          <img src="static/img/info.png" v-else>
         </header>
         <div class="nav" ref="nav" :class="{isFixed:isFixed}">
           <div class="box" :class="{active:item.show}" v-for="(item,index) in list" :key="index" @click="checkType(item,list)">
@@ -13,37 +14,39 @@
         <div class="detailsDiv" v-show="list[0].show">
           <div class="infoBox">
             <div class="infoTitle">
-              【18暑】37讲学完英语新概念2上半册班
+              {{courseDetail.title || '名称'}}
             </div>
             <div class="info">
-              <div class="infoTime">有效期:<span>{{infoTime}}天</span></div>
-              <div class="infoNumber">购买人数:<span>{{infoNumber}}人</span></div>
+              <div class="infoTime">有效期:<span>{{courseDetail.endTime}}天</span></div>
+              <div class="infoNumber">购买人数:<span>{{courseDetail.number}}人</span></div>
             </div>
           </div>
           <div class="detailHtml">
             <div class="detailTitle">
               课程简介
             </div>
-            <div v-html="'<p>123123</p>'">
-              
+            <div v-html="decodeURI(courseDetail.content)" class="">
             </div>
           </div>
         </div>
         <div class="arrangeDiv" v-show="list[1].show">
-          <div class="arrangeList" v-for="item in 10">
-            <span>第1讲:</span><span>2018-07-07</span><span>08:00-10:00</span>
+          <div class="arrangeList" v-for="item in courseTimeList">
+            <span>{{item.title}}:</span><span>{{item.date}}</span><span>{{item.begin}}-{{item.end}}</span>
           </div>
+          
         </div>
         <div class="teacherDiv" v-show="list[2].show">
           <div class="userBox">
             <div>
-              <img src="../../images/avatar.png">
+              <img :src="imgBaseUrl + teacher.avatar" v-if="teacher.avatar">
+              <img src="static/img/avatar.png" v-else>
             </div>
             <div>
-              小帅老师
+              {{teacher.name || '老师名字'}}
             </div>
             <div>
-              上海市某顶级八校重点中学青年骨干数学教师，华东师范大学理学硕士，五届高三毕业班教学经验。
+                {{teacher.info ||'老师介绍'}}
+              
             </div>
           </div>
           <div class="courseBox">
@@ -51,23 +54,33 @@
               在教课程
             </div>
           </div>
-          <shop-list v-for="item in 10"></shop-list>
-          <div class="lineheight"></div> 
-          <div class="lineheight"></div> 
+          <shop-list v-for="item in teacher.courseList" :courseList=item></shop-list>
+          <div class="listend">
+              没有更多的内容..
+          </div>
         </div>
+        
+        <div class="lineheight"></div> 
       </div>
-      <div class="packageBox">
-        <i class="packageIcon">1</i>
-        <img src="../../images/package1.png">
+      <div class="packageBox" :class="{showCart:showCart}">
+        <i class="packageIcon" v-if="allNum>0">{{allNum}}</i>
+        <img src="static/img/package1.png">
       </div>
-      <shop-cart></shop-cart>
+      <shop-cart :noIcon="'detail'" :allPrice=courseDetail.price></shop-cart>
     </div>
 </template>
 <script>
 var throttle = require('lodash/throttle'); //从lodash中引入的throttle节流函数
+import {mapState, mapMutations} from 'vuex'
+import {imgBaseUrl} from 'src/config/env'
+import { courseDetail } from 'src/service/course'
 import buyCart from 'src/components/common/buyCart'
 import shopCart from 'src/components/common/shopCart'
 import shopList from 'src/components/common/shopList'
+import { MessageBox } from 'mint-ui';
+import { Indicator } from 'mint-ui';
+import { Spinner } from 'mint-ui';
+
   export default {
       data() {
         return {
@@ -78,8 +91,14 @@ import shopList from 'src/components/common/shopList'
           ],
           isFixed: false, //是否固定的
           throttleScroll: null, //定义一个截流函数的变量
-          infoTime:'365',
-          infoNumber:3,
+          showCart:false,
+          query:{},
+          courseDetail:{},
+          courseTimeList:{},
+          teacher:{},
+          allNum:0,
+          allPrice:0,
+          imgBaseUrl
         };
       },
       components:{
@@ -87,26 +106,105 @@ import shopList from 'src/components/common/shopList'
         buyCart,
         shopList
       },
+      created(){
+        //缓存中取数据
+        this.INIT_BUYCART();
+      },
       mounted () {
-
+        this.query = this.$route.query
+        var _this = this;
          this.$nextTick(() => {
           window.addEventListener('scroll', this.throttleScroll, false);
-          // window.addEventListener('touchstart',function(e){
-          //    console.log(e.changedTouches[0]);
-          //   console.log(e.targetTouches[0]);
-          //   console.log(e.touches[0]);
-          // },false)
-
+          window.addEventListener('touchmove',this.showCartT,false)
+          window.addEventListener('touchend',this.showCartF,false)
         });
          this.throttleScroll = throttle(this.handleScroll, 100);
+         this.showCartT = function(){_this.showCart = true}
+         this.showCartF = function(){_this.showCart = false}
          this.dropCart('.packageBox');
+         this.getDetail();
       },
       deactivated() {
         //离开页面需要remove这个监听器，不然还是卡到爆。
         window.removeEventListener('scroll', this.throttleScroll);
+        window.removeEventListener('touchmove', this.showCartT);
+        window.removeEventListener('touchend', this.showCartF);
+      },
+      computed:{
+        ...mapState([
+            'cartList'
+        ]),
+        // 当前商店购物信息
+        shopCart: function (){
+          return {...this.cartList};
+        },
       },
       methods:{
-         //滚动的函数
+        //vuex数据
+        ...mapMutations([
+            'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
+        ]),
+        getDetail(){
+          var _this= this;
+         var param = {};
+         param.courseId = this.query.id;
+          courseDetail(param).then(res =>{
+            console.log(res)
+            // var res ={}
+            // res.data= {
+            //  "respCode": "0",
+            //  "respMsg": "成功",
+            //  "data": {
+            //          "courseDetail":{
+            //              "title":"【18暑】37讲学完英语新概念2上半册班",//课程名称
+            //              "endTime":"364",//有效时间
+            //              "price":2800,//价格
+            //              "number":"3",//购买人数
+            //              "content":"课程简介",//课程详情的html
+            //              "avatar":'qwe',
+            //          },
+            //          "courseTimeList":[{
+            //              "title":"第一讲",//课程title
+            //               "date":"2018-07-07",
+            //               "begin":"08:00",
+            //               "end":"09:00",
+            //              //title和time合并？
+            //          }],
+            //          "teacher":{
+            //              "avatar":"用户头像地址",
+            //              "name":"小帅老师",
+            //              "time":"共18课时",
+            //              "info":"上海市某顶级八校重点中学青年骨干数学教师，华东师范大学理学硕士，五届高三毕业班教学经验。",
+            //              "courseList":[{
+            //               "id":'111',
+            //               "title":"【18暑】37讲学完英语新概念2上半册班",
+            //               "avatar":"课程图片地址",
+            //               "price":2880,
+            //               "totalHour":"总课时",
+            //               "gradeId":"1",//年级id
+            //               "grade":"小学3年级",
+            //               "tagId":1,//学科
+            //               "tag":"英语",//tag为可选标签属性，此处为学科
+            //               "teacherId":1,//老师ID
+            //               "teacher":"黄老师",
+            //               "t_avatar":"图片地址"
+            //              }]
+            //            }
+            //      }
+            //   }
+            if(res.data.respCode == 0){
+              let data = res.data.data;
+              _this.courseDetail = data.courseDetail;
+              _this.courseTimeList = data.courseTimeList;
+              _this.teacher = data.teacher;
+              this.initCartList()
+            }else{
+              Indicator.close();
+            MessageBox('系统错误,请刷新!')
+            }
+          })
+        },
+        //滚动的函数
         handleScroll() {
           let h = $(this.$refs.header).outerHeight(); //header的高度
           let wh = $(window).scrollTop(); //滚动的距离的，为什么这里使用的jq，因为不用考虑的什么的兼容问题
@@ -126,6 +224,27 @@ import shopList from 'src/components/common/shopList'
             elem.show = false;
           }
           item.show =true;
+        },
+        //初始化和shopCart变化时
+        initCartList(){
+          let _this =this
+          _this.allNum = 0
+          _this.allPrice = 0;
+            if(!_this.teacher.courseList){
+              return
+            }
+          for(let cart of Object.values(_this.shopCart)){
+            if(cart.num == 1){
+              _this.allNum++
+            }
+            for(let list of _this.teacher.courseList){
+              if(cart.num == 1 && cart.id == list.id){
+                list.choose =true
+              }else{
+                list.choose =false
+              }
+            }
+          }
         },
         //拖拽书包图标
         dropCart(el){
@@ -167,16 +286,26 @@ import shopList from 'src/components/common/shopList'
               var _y_end=e.changedTouches[0].pageY;
               
           })
-          //阻止浏览器下拉事件
-          
+          //阻止浏览器下拉事件 
         }
       },
+      watch: {
+        shopCart: function (value){
+          this.initCartList();
+        },
+      }
   }
 
 </script>
 
 <style lang="scss" scoped>
+  .listend{
+    text-align: center;
+    font-size: .7rem;
+    margin: 10px 0;
+  }
   .fixtop2 {
+    line-height: 40px;
   min-height: 100vh;
 }
 
@@ -228,7 +357,8 @@ import shopList from 'src/components/common/shopList'
 }
 .detailHtml{
   background: #fff;
-  padding: 0 12px;
+  padding: 0 12px 12px;
+  width: 100%;
   .detailTitle{
     margin-left: 4px;
     font-size: 14px;
@@ -255,7 +385,7 @@ import shopList from 'src/components/common/shopList'
   div{
     flex:1;
     position: relative;
-    padding:10px 0 0px 20px;
+    padding:0px 0 0px 20px;
     letter-spacing: 1px;
     &:before{
       position: absolute;
@@ -290,14 +420,19 @@ import shopList from 'src/components/common/shopList'
     padding-right: 18px
   }
 }
+.arrangeDiv{
+  margin-bottom: 60px;
+}
 .userBox{
   text-align: center;
   background: #fff;
   margin-bottom: 10px;
   div:nth-of-type(1){
     width: 70px;
+    height: 70px;
     margin: 0 auto 9px;
     padding-top: 10px;
+
   }
   div:nth-of-type(2){
     font-size: 15px;
@@ -344,6 +479,7 @@ import shopList from 'src/components/common/shopList'
   bottom: 81px;
   width: 55px;
   z-index: 15;
+  transition: all 0.5s ease-in;
   i{
     position: absolute;
     right: 5px;
@@ -354,4 +490,7 @@ import shopList from 'src/components/common/shopList'
     color: #f4f4f4;
   }
 }
+  .showCart{
+    right: -40px;
+  }
 </style>

@@ -10,7 +10,7 @@
 let baseUrl = ''; 
 // let routerMode = 'history';
 let routerMode = 'hash';
-let imgBaseUrl = 'http://tifang.com/';
+let imgBaseUrl = 'http://img.tifangedu.com/';
 
 
 if (process.env.NODE_ENV == 'development') {

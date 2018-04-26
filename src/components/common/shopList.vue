@@ -1,27 +1,30 @@
 <template>
-  <div class="courseList" >
+  <div v-if="courseList" class="courseList" @click="gotoPage('/courseDetail',{id:courseList.id})">
     <div class="courseImg">
-        <img src="../../images/info.png">
+        <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
+        <img src="static/img/info.png" v-else>
     </div>
     <div class="courseInfo">
-      <div class="courseName">【18暑】37讲学完英语新概念2上半册班
+      <div class="courseName">{{courseList.title || '测试1'}}
       </div>
       <div class="userBox">
         <div class="manAvatar" v-if="!noBuy">
-          <img src="../../images/avatar.png">
+          <img :src="imgBaseUrl + courseList.t_avatar" v-if="courseList.t_avatar">
+          <img src="static/img/avatar.png" v-else>
         </div>
         <div class="manName userItem" v-if="!noBuy">
           <div>
-            小帅老师
+            {{courseList.teacher || '小帅老师1' }}
           </div>
           <div class="gray">
-            共18课时
+            {{courseList.totalHour || '共18课时1'}}
           </div>
         </div>
         <div class="courseMoney userItem">
-          ￥2880
+          {{'￥'+courseList.price}}
         </div>
-        <buy-cart v-if="!noBuy" class="coursePlus" :shopId='1123' :foods='123'  @showMoveDot="showMoveDotFun"></buy-cart>
+        <buy-cart v-if="!noBuy" class="coursePlus" :courseList=courseList  @showMoveDot="showMoveDotFun">
+        </buy-cart>
       </div>
     </div>
     <transition
@@ -39,6 +42,7 @@
 </template>
 <script>
 import buyCart from 'src/components/common/buyCart'
+import {imgBaseUrl} from 'src/config/env'
   export default{
     data(){
       return{
@@ -48,13 +52,18 @@ import buyCart from 'src/components/common/buyCart'
           elBottom:0,
           windowHeight:null,
           receiveInCart:false,
+          imgBaseUrl,
       }
     },
-    props:['noBuy'],
+    props:['noBuy','courseList'],
     mounted(){
       this.windowHeight = window.innerHeight;
     },
     methods:{
+      //跳转页面
+         gotoPage(path,query){
+          this.$router.push({path,query})
+        },
       //显示加入购物购物特效
       showMoveDotFun(showMoveDot, elLeft, elBottom){
           this.showMoveDot = [...this.showMoveDot, ...showMoveDot];
