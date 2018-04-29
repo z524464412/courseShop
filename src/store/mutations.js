@@ -28,6 +28,8 @@ import {
 	SAVE_QUESTION,
 	ADD_ADDRESS,
 	BUY_CART,
+	ADD_DISCOUNT,
+	INIT_DISCOUNT
 } from './mutation-types.js'
 
 import {setStore, getStore} from '../config/mUtils'
@@ -69,10 +71,19 @@ export default {
 				state.cartList = {...cart};
 				//存入localStorage
 				setStore('buyCart', state.cartList);
-			} else {
-				//商品数量为0，则清空当前商品的信息
-				item[food_id] = null;
 			}
+		}
+	},
+	//网页初始化缓存中加入优惠规则
+	[ADD_DISCOUNT](state,discountList){
+		state.discount = discountList;
+		setStore('discount',state.discount)
+	},
+	//网页初始化从缓存中获取优惠规则
+	[INIT_DISCOUNT](state){
+		let initDiscount = getStore('discount');
+		if(initDiscount){
+			state.discount = JSON.parse(initDiscount);
 		}
 	},
 	//网页初始化时从本地缓存获取购物车数据
@@ -84,8 +95,7 @@ export default {
 	},
 	//清空当前商品的购物车信息
 	[CLEAR_CART](state, shopid) {
-		console.log(shopid)
-		state.cartList[shopid] = null;
+		state.cartList = null;
 		state.cartList = {...state.cartList};
 		setStore('buyCart', state.cartList);
 	},
@@ -93,7 +103,7 @@ export default {
 	[RECORD_USERINFO](state, info) {
 		state.userInfo = info;
 		state.login = true;
-		setStore('user_id', info.user_id);
+		setStore('user', info);
 	},
 	//获取用户信息存入vuex
 	[GET_USERINFO](state, info) {
@@ -108,105 +118,5 @@ export default {
 		} else {
 			state.userInfo = null;
 		}
-	},
-	//修改用户名
-	[RETSET_NAME](state,username) {
-		state.userInfo = Object.assign({}, state.userInfo,{username})
-	},
-	//保存商铺id
-	[SAVE_SHOPID](state, shopid) {
-		state.shopid = shopid;
-	},
-	//记录订单页面用户选择的备注, 传递给订单确认页面
-	[CONFIRM_REMARK](state, {
-		remarkText,
-		inputText
-	}) {
-		state.remarkText = remarkText;
-		state.inputText = inputText;
-	},
-	//是否开发票
-	[CONFIRM_INVOICE](state, invoice) {
-		state.invoice = invoice;
-	},
-	//选择搜索的地址
-	[CHOOSE_SEARCH_ADDRESS](state, place) {
-		state.searchAddress = place;
-	},
-	//保存geohash
-	[SAVE_GEOHASH](state, geohash) {
-		state.geohash = geohash;
-		
-	},
-	//确认订单页添加新的的地址
-	[CONFIRM_ADDRESS](state, newAddress) {
-		state.newAddress.push(newAddress);
-	},
-	//选择的地址
-	[CHOOSE_ADDRESS](state, {
-		address,
-		index
-	}) {
-		state.choosedAddress = address;
-		state.addressIndex = index;
-	},
-	//保存下单需要验证的返回值
-	[NEED_VALIDATION](state, needValidation) {
-		state.needValidation = needValidation;
-	},
-	//保存下单后购物id 和 sig
-	[SAVE_CART_ID_SIG](state, {
-		cart_id,
-		sig
-	}) {
-		state.cart_id = cart_id;
-		state.sig = sig;
-	},
-	//保存下单参数，用户验证页面调用
-	[SAVE_ORDER_PARAM](state, orderParam) {
-		state.orderParam = orderParam;
-	},
-	//修改下单参数
-	[CHANGE_ORDER_PARAM](state, newParam) {
-		state.orderParam = Object.assign({}, state.orderParam, newParam);
-	},
-	//下单成功，保存订单返回信息
-	[ORDER_SUCCESS](state, order) {
-		state.cartPrice = null;
-		state.orderMessage = order;
-	},
-	//进入订单详情页前保存该订单信息
-	[SAVE_ORDER](state, orderDetail) {
-		state.orderDetail = orderDetail;
-	},
-	//退出登录
-	[OUT_LOGIN](state) {
-		state.userInfo = {};
-		state.login = false;
-	},
-	//保存图片
-	[SAVE_AVANDER](state, imgPath) {
-		state.imgPath = imgPath;
-	},
-	//删除地址列表
-	[SAVE_ADDRESS](state, newAdress) {
-		state.removeAddress = newAdress
-	},
-	//添加地址name
-	[SAVE_ADDDETAIL](state, addAddress){
-		state.addAddress=addAddress;
-	},
-	//保存所选问题标题和详情
-	[SAVE_QUESTION](state, question) {
-		state.question = {...question};
-	},
-	//增加地址
-	[ADD_ADDRESS](state, obj) {
-		state.removeAddress = [obj, ...state.removeAddress];
-	},
-	//会员卡价格纪录
-	[BUY_CART](state, price) {
-		state.cartPrice = price;
-	},
-
+	}
 }

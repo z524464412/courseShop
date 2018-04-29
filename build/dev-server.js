@@ -38,7 +38,7 @@ var context = config.dev.context
 
 switch(process.env.NODE_ENV){
     case 'local': var proxypath = 'http://localhost:8002'; break;
-    case 'dev': var proxypath = 'http://192.168.1.129:8080'; break;
+    case 'dev': var proxypath = 'http://api.tifangedu.com:745'; break;
     default:  var proxypath = config.dev.proxypath; 
 }
 

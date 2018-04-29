@@ -6,6 +6,7 @@ const courseDetail =r =>require.ensure([],()=>r(require('../page/courseDetail/co
 const payList =r =>require.ensure([],()=>r(require('../page/payList/payList')),'payList')
 const wxpay =r =>require.ensure([],()=>r(require('../page/wxpay/wxpay')),'wxpay')
 const activity =r =>require.ensure([],()=>r(require('../page/activity/activity')),'activity')
+const orderList =r =>require.ensure([],()=>r(require('../page/orderList/orderList')),'orderList')
 
 export default [{
     path: '/',
@@ -36,6 +37,11 @@ export default [{
           path: '/payList',
           component: payList
         },
+        //订单展示页面
+        {
+          path: '/orderList',
+          component: orderList
+        },
         //支付
         {
           path: '/wxpay',
@@ -45,6 +51,7 @@ export default [{
         {
           path: '/activity',
           component: activity
-        }
+        },
+
     ]
 }]

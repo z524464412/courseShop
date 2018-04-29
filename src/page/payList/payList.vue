@@ -1,60 +1,25 @@
 <template>
   <div class="package">
-      <div class="userItems">
-        <div class="userItem">
-          <div>姓名:<span class="red">张三</span></div>
-          <div>手机号码:<span class="red">137xxxxxx</span></div>
-        </div>
-        <div class="userItem">
-          <mt-button type="danger" v-show="btnType" @click="checkBtn">已确定</mt-button>
-          <mt-button type="danger" v-show="!btnType" plain @click="checkBtn">确认</mt-button>
-        </div>
-      </div>
-      <div class="item" v-for="(item,index) in 1" v-cloak>
+      <div class="item" v-for="(courseList,index) in chooseList" v-cloak>
         <mt-cell-swipe class="cell_swipe" :data-id="index"  :right="[  
                 {  
                     content: '删除',  
                     style: { 'background': 'red', 'color': '#fff', 'width':'100px','text-align':'center','line-height':'107px','font-size':'18px'},  
-                    handler: () => delBtn(index)  
+                    handler: () => delBtn(courseList)  
                 }  
             ]">
-          <shop-list :noBuy="true">
+          <shop-list :noBuy='true' :courseList=courseList :payTitle="'创建订单'">
           </shop-list>
         </mt-cell-swipe>
       </div>
-    <div class="payBox">
-      <div class="wxpay payItem" @click="choosePay('wx')">
-        <div class="payContaienr">
-          <div class="icon">
-            <img src="../../images/weixin.png" >
-          </div>
-          <span>微信支付</span>
-          <div class="tickIcon">
-            <img src="../../images/tick.png" v-show="chooseType == 'wx'">
-          </div>
-          <div class="noChoose" v-show="chooseType != 'wx'">
-          </div>
-        </div>
-      </div>
-      <div class="payItem" @click="choosePay('zfb')">
-         <div class="payContaienr">
-          <div class="icon">
-            <img src="../../images/zhifubao.png">
-          </div>
-          <span>支付宝支付</span>
-          <div class="tickIcon" v-show="chooseType != 'wx'">
-            <img src="../../images/tick.png">
-          </div>
-          <div class="noChoose" v-show="chooseType == 'wx'">
-          </div>
-        </div>
-      </div>
-    </div>
-    <shop-cart></shop-cart>   
+     <div class="lineheight"></div>
+    <shop-cart :allNum=allNum :allPrice=allPrice :payTitle="'创建订单'" ></shop-cart>   
   </div>  
 </template>
-
 <script>
+
+  import { mapState,mapMutations} from 'vuex';
+  import {setStore} from 'src/config/mUtils'
   import { Toast } from 'mint-ui';
   import { Indicator } from 'mint-ui';
   import shopList from 'src/components/common/shopList'
@@ -69,31 +34,64 @@
           btnType:true,
           payWay:1,
           value:'',
-          chooseType:'wx'
+          chooseType:'wx',
+          allNum:0,
+          allPrice:0,
+          chooseList:[]
         }
       },
+      created(){
+        this.INIT_BUYCART();
+      },
       mounted () {
-      
+        // this.initCartList();
+      },
+      computed:{
+        ...mapState([
+          'cartList'
+        ]),
+        //当前商店购物信息
+        shopCart: function (){
+          return {...this.cartList};
+        },
       },
       methods:{
+        ...mapMutations([
+          'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
+        ]), 
+        initCartList(){
+          let _this =this;
+          let newCart ={}
+          _this.chooseList=[];
+          _this.allNum = 0;
+          _this.allPrice = 0;
+          for(let cart of Object.values(_this.shopCart)){
+            if(cart.num == 1){
+              _this.allNum++
+              _this.allPrice += parseInt(cart.price);
+              _this.chooseList.push(cart);
+            }
+          }
+        },
         choosePay(type){
           this.chooseType =type;
         },
-        delBtn(id){
-          var _this =this;
-          this.$messagebox.confirm('确定删除金额').then(function(){
-            _this.delItem(id);
+        delBtn(courseList){
+          let _this =this;
+          this.$messagebox.confirm('确定删除订单').then(function(){
+            _this.REDUCE_CART(courseList);
+            _this.initCartList();
           },function(){
 
           })
         },
-        delItem(id){
-          console.log(id);
-        },
-        checkBtn(){
-          this.btnType = !this.btnType;
+      },
+      watch: {
+        shopCart:function(value){
+          this.initCartList();
         }
       }
+
   }
 
 </script>

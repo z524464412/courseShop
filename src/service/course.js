@@ -19,7 +19,33 @@ export const CourseType = params => instance.get('/v1/sys/getSysLookup',{params}
 //钉钉自动登录
 export const AuthLogin = params => instance.get('/v1/auth/dingLogin',{params});
 
+//根据手机号获取名字
+export const manName =	params => instance.get('/v1/user/getUserByPhoneNo',{params});
+
 //获取验证码
-export const getCodeMsg = params => instance.get('/v1/auth/getCodeMsg',{params});
+export const getCodeMsg = params => instance.get('/v1/auth/sendSMSVerify',{params});
+
+//验证验证码
+export const checkCode = params => instance.get('/v1/auth/checkVerify',{params});
+
+//创建订单
+
+export const addOrder = params => instance.post('/v1/bill/createBill',params);
+
+//微信签名
+export const getwxConfig = params =>instance.get('/v1/sys/wxConfig',{params});
+
+//钉钉测试免登
+
+export const testInit = params =>instance.get('/v1/bill/setLogonSale?saleId=17');
+
+//钉钉签名
+
+export const getDingDing = params =>instance.get('/v1/sys/getDingSignature?'+params);
+//获取优惠规则
+export const discount = params =>instance.post('/v1/classes/getDiscountConfig',{params});
+
+//订单详情
+export const orderDetail = params =>instance.get('/v1/bill/getBillDetail',{params});
 
 

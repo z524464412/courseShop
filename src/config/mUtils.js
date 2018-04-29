@@ -1,4 +1,3 @@
-
 import { MessageBox } from 'mint-ui';
 /**
  * 请求错误处理
@@ -296,4 +295,50 @@ export const animate = (element, target, duration = 400, mode = 'ease-out', call
             }
         })
     }, 20);
+}
+
+/**
+
+*分享朋友，朋友圈
+
+*@param {title, desc, link, icon} title 分享标题，desc 分享描述，link 分享链接，icon 分享图标
+
+*/
+var shareOpt = {
+  title:'',
+  desc:'',
+  link:'',
+  icon:''
+} 
+ 
+export {shareOpt}
+//初始化微信
+
+export function wxReady(){
+//初始化微信设置
+    wx.ready(function(){
+      wx.onMenuShareTimeline({
+        title: shareOpt.title, // 分享标题
+        link: shareOpt.link, // 分享链接
+        imgUrl: shareOpt.icon, // 分享图标
+        success: function () { 
+          _czc.push(['_trackEvent', '邀请好友', '分享', '分享朋友圈']);
+        },
+        cancel: function () { 
+          _czc.push(['_trackEvent', '邀请好友', '分享', '取消分享朋友圈']);
+        }
+      });
+      wx.onMenuShareAppMessage({
+        title: shareOpt.title, // 分享标题
+        desc: shareOpt.desc, // 分享描述
+        link: shareOpt.link, // 分享链接
+        imgUrl: shareOpt.icon, // 分享图标
+        success: function () { 
+          _czc.push(['_trackEvent', '邀请好友', '分享', '分享微信好友']);
+        },
+        cancel: function () { 
+          _czc.push(['_trackEvent', '邀请好友', '分享', '取消分享微信好友']);
+            }
+          });
+        })
 }

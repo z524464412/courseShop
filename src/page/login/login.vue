@@ -2,23 +2,31 @@
   	<div class="login">
       <img src="../../images/background.png">
       <div class="formDiv">
-        <div class="phoneDiv DivItem">
+        <div class="phoneDiv DivItem" v-if="!login || type=='dingding'">
             <img src="../../images/phone.png"/>
-            <input type="text" pattern="[0-9]*" v-model="mobile" name="phone" placeholder="手机号码"/>
+            <input @blur="getName()" maxlength="20" type="text" pattern="[0-9]*" v-model="mobile" name="phone" placeholder="手机号码"/>
         </div>
-        <div class="keyDiv DivItem">
+        <div class="keyDiv DivItem" v-if="!login">
             <img src="../../images/key.png">
             <input type="text" name="code" v-model="code" placeholder="输入验证码" />
             <button class="getCode" @click="sendCode" v-text="sendText"></button>
         </div>
-        <div class="gradeDiv">
+        <div class="keyDiv DivItem" v-if="!login || type=='dingding'">
+            <img src="../../images/man1.png">
+            <input type="text" name="man" v-model="man" placeholder="用户姓名" />
+            <button class="getCode"></button>
+        </div>
+        <div class="gradeDiv" v-if="(type=='wx' && login) || type=='dingding'">
           <div class="left">在读年级:</div>
           <div class="gradeSelect" @click="showPicker">
               {{popUpOldTitle}}
           </div>
         </div>
-        <div class="gradeBtn" @click="gotoCourse">
+        <div class="gradeBtn" @click="gotoCourse" v-if="type!= 'wx' || login">
           开始选课
+        </div>
+        <div class="payMoney" @click="payMoney" v-else>
+          确认信息
         </div>
       </div>
       <mt-popup v-model="pickerVisible" position="bottom" class="mint-popup">
@@ -28,7 +36,10 @@
     </div>
 </template>
 <script>
-import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
+import{ mapState,mapMutations} from 'vuex';
+import { Toast } from 'mint-ui';
+import {setStore,getStore} from 'src/config/mUtils';
+import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/service/course'
 
   export default {
       data() {
@@ -39,10 +50,13 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
           sending:'',
           code:'',
           mobile:'',
+          man:'',
+          login:true,
+          type:'wx',
           popUpSlots: [
             { //live picker select
               flex: 1,
-              values: [{'id':12,'name':'小学'},{'id':122,'name':'小学1'},{'id':122,'name':'小学1'}],
+              values: [],
               className: 'slot1',
               textAlign: 'right',
               defaultIndex: 0
@@ -54,7 +68,7 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
             },
             {
               flex: 1,
-              values: [{'id':1233,'name':'初中'},{'id':1222,'name':'初中2'},{'id':1212,'name':'初中1'}],
+              values: [],
               className: 'slot3',
               textAlign: 'left'
             }
@@ -62,39 +76,64 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
           popUpTitle:'小学三年级',
           popUpOldTitle:'小学三年级',
           gradeId:'',
-          gradeOid:''
+          gradeOid:'',
+          query:'',
+          ids:''
         }
       },
       created(){
-        dd.ready(function() {
-          dd.runtime.permission.requestAuthCode({
-              corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
-              onSuccess: function(result) {
-                let param = {};
-                param.code = result.code;
-                AuthLogin(param).then(res=>{
-                  console.log(res)
-                })
-              },
-              onFail : function(err) {
-                console.log(err)
-              }
-          })
-        });
+        let _this =this;
+        _this.query = _this.$route.query;
+
+        console.log(_this.query)
+        if(_this.query.classes){
+          _this.ids = _this.query.classes;
+          _this.login = _this.query.login;
+          console.log(123)
+        }else{
+          this.login = true;
+        }
+        console.log(this.login)
+      },
+
+      deactivated() {
+        console.log(_this.info);
+
       },
       mounted () {
         this.getGradeList();
+        window.localStorage.removeItem('buyCart');
+        this.INIT_DISCOUNT();
+        this.CLEAR_CART();
+        dd.ready(function() {
+          dd.runtime.permission.requestAuthCode({
+            corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
+            onSuccess: function(result) {
+              let param = {};
+              param.code = result.code;
+              AuthLogin(param).then(res=>{
+                if(res.data.respCode == 0){
+                  this.type = 'dingding'
+                }
+              })
+            },
+            onFail : function(err) {
+              console.log(err)
+            }
+          })
+        });
       },
       methods:{
+        ...mapMutations([
+          'INIT_DISCOUNT','CLEAR_CART','RECORD_USERINFO'
+
+        ]),
         getGradeList(){
           let _this =this;
           let param = {};
           param.type = 'subject'
           gradeList(param).then(res =>{
-            // var res={};
-            // res.data ={"respCode":0,"respMsg":"成功","data":[{"id":"125539","name":"小学课程","pid":null,"group":"scope","sub":[{"id":"125540","name":"小学三年级","pid":"125539","group":"grade","sub":null},{"id":"125541","name":"小学四年级","pid":"125539","group":"grade","sub":null},{"id":"125542","name":"小学五年级","pid":"125539","group":"grade","sub":null}]},{"id":"125543","name":"初中课程","pid":null,"group":"scope","sub":[{"id":"125545","name":"初中一年级","pid":"125543","group":"grade","sub":null},{"id":"125546","name":"初中二年级","pid":"125543","group":"grade","sub":null},{"id":"125547","name":"初中三年级","pid":"125543","group":"grade","sub":null},{"id":"125551","name":"初中预备","pid":"125543","group":"grade","sub":null}]},{"id":"125544","name":"高中课程","pid":null,"group":"scope","sub":[{"id":"125548","name":"高中一年级","pid":"125544","group":"grade","sub":null},{"id":"125549","name":"高中二年级","pid":"125544","group":"grade","sub":null},{"id":"125550","name":"高中三年级","pid":"125544","group":"grade","sub":null}]},{"id":"125552","name":"专项课程","pid":null,"group":"scope","sub":[{"id":"125553","name":"小学专项","pid":"125552","group":"grade","sub":null},{"id":"125554","name":"初中专项","pid":"125552","group":"grade","sub":null},{"id":"125555","name":"高中专项","pid":"125552","group":"grade","sub":null}]}]} 
             if(res.data.respCode == 0){
-              console.log(res.data.data)
               _this.allData = res.data.data;
               var allName =  _this.getNameDta(res.data.data);
               _this.popUpSlots[0].values = allName;
@@ -107,16 +146,30 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
             MessageBox('系统错误,请刷新!')
           })
         },
-
+        //获取姓名
+        getName(){
+          if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
+            let param ={};
+            param.phoneNo = this.mobile;
+            manName(param).then(res=>{
+              if(res.data.respCode == 0){
+                this.man = res.data.data.username
+              }
+            })
+          }
+        },
         //获取验证码
         sendCode() {
-          console.log(this.mobile)
           if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
             if(!this.sending){
               this.sending = true;
               var t = 60;
-              var s1;     
-              getCodeMsg(this.mobile); 
+              var s1;
+              let param = {};
+              param.phoneNo = this.mobile;
+              getCodeMsg(param).then(res=>{
+                console.log(res)
+              }); 
               s1 = setInterval(() => {
                 if(t>1){
                   this.sending = true;
@@ -191,11 +244,114 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
           this.popUpOldTitle = this.popUpTitle;
           this.gradeOid =this.gradeId;
         },
+        //去选课
         gotoCourse(){
-          console.log(this.gradeOid)
-          console.log(this.gradeId)
           let gradeId = this.gradeOid || this.gradeId;
-          this.$router.push({path:'/course',query:{gradeId:gradeId}})
+          let param ={};
+          param.vCode = this.code
+          let info = {};
+          info.code = this.code;
+          info.name = this.man;
+          info.phone = this.mobile;
+          info.login = this.login;
+          info.type = this.type;
+          setStore('user',info);
+          if(info.type == 'dingding'){
+            if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
+
+            }else{
+              var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
+              container1.appendTo($("body"));
+              setTimeout(function(){
+                container1.remove();
+              },1500)
+              return 
+            }
+            if(!info.name){
+              var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请输入姓名</div></div></div></div>');
+              container1.appendTo($("body"));
+              setTimeout(function(){
+                container1.remove();
+              },1500)
+              return
+            }else{
+            }
+            this.$router.push({path:'/course',query:{gradeId:gradeId}})
+          }
+          if(info.type == 'wx' && info.login){
+            this.$router.push({path:'/course',query:{gradeId:gradeId}})
+          }
+          if(info.type =='wx' && !info.login){
+            if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
+            }else{
+              var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
+              container1.appendTo($("body"));
+              setTimeout(function(){
+                container1.remove();
+              },1500)
+              return 
+            }
+            if(!info.name){
+              var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请输入姓名</div></div></div></div>');
+              container1.appendTo($("body"));
+              setTimeout(function(){
+                container1.remove();
+              },1500)
+              return
+            }
+          }
+        },
+        payMoney(){
+          let info = {};
+          let _this = this;
+          info.code = this.code;
+          info.name = this.man;
+          info.phone = this.mobile;
+          info.login = this.login;
+          info.type = this.type;
+          setStore('user',info);
+          var param ={};
+          param.vCode = this.code;
+          param.phoneNo = this.mobile;
+          if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
+          }else{
+            var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
+            container1.appendTo($("body"));
+            setTimeout(function(){
+              container1.remove();
+            },1500)
+            return 
+          }
+          if(!info.name){
+            var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请输入姓名</div></div></div></div>');
+            container1.appendTo($("body"));
+            setTimeout(function(){
+              container1.remove();
+            },1500)
+            return
+          }
+
+          checkCode(param).then(res=>{
+            if(res.data.respCode == 0){
+              _this.query.phoneNo = _this.mobile;
+              _this.query.userName = _this.man;
+              let params = {};
+              params.classes = _this.query.classes;
+              params.discount = _this.query.discount;
+              params.phoneNo = _this.mobile;
+              params.price = _this.query.price;
+              params.userName = _this.man;
+              console.log(JSON.stringify(params))
+            addOrder(params).then(res=>{
+              if(res.data.respCode == 0){
+                _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+              }
+            })
+            }else{
+              Toast(res.data.respMsg)
+              return
+            }
+          })
         }
       }
   }
@@ -213,6 +369,27 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
     top: 25.3%;
     left: 17.3%;
   }
+  .namelabel{
+    float: left;
+    line-height: 30px;
+    color: #fff;
+  }
+  // .nameDiv{
+  //   position: relative;
+  //   border-bottom:1px solid #fff;
+  //   margin-left: 60px;
+  //   line-height: 30px;
+  //   font-size: #fff;
+  //   input{
+  //     background: transparent;
+  //     color: #fff;
+  //   }
+  //   input::-webkit-input-placeholder {
+  //      color: #fff;
+  //      font-size: 12px;
+  //      opacity: 0.7;
+  //   }
+  // }
   .DivItem{
     position: relative;
     border-bottom: 1px solid #fff;
@@ -223,6 +400,7 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
       position: absolute;
       left: 0;
       bottom: 1px;
+      object-fit: contain
     }
     input::-webkit-input-placeholder {
        color: #fff;
@@ -283,5 +461,14 @@ import { gradeList,AuthLogin,getCodeMsg} from 'src/service/course'
       line-height: 40px;
       background: #fff;
       box-shadow: 0 4px 10px 0 #62a2fb;
+    }
+    .payMoney{
+      color: #fff;
+      font-size: 18px;
+      border-radius: 5px;
+      width: 100%;
+      text-align: center;
+      line-height: 40px;
+      background: #ffa351;
     }
 </style>

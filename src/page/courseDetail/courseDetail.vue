@@ -3,7 +3,7 @@
       <div class="fixtop2">
         <header class="header" ref="header">
           <img :src="imgBaseUrl + courseDetail.avatar" v-if="courseDetail.avatar">
-          <img src="static/img/info.png" v-else>
+          <img src="../../images/info.png" v-else>
         </header>
         <div class="nav" ref="nav" :class="{isFixed:isFixed}">
           <div class="box" :class="{active:item.show}" v-for="(item,index) in list" :key="index" @click="checkType(item,list)">
@@ -39,7 +39,7 @@
           <div class="userBox">
             <div>
               <img :src="imgBaseUrl + teacher.avatar" v-if="teacher.avatar">
-              <img src="static/img/avatar.png" v-else>
+              <img src="../../images/avatar.png" v-else>
             </div>
             <div>
               {{teacher.name || '老师名字'}}
@@ -64,9 +64,9 @@
       </div>
       <div class="packageBox" :class="{showCart:showCart}">
         <i class="packageIcon" v-if="allNum>0">{{allNum}}</i>
-        <img src="static/img/package1.png">
+        <img src="../../images/package1.png">
       </div>
-      <shop-cart :noIcon="'detail'" :allPrice=courseDetail.price></shop-cart>
+      <shop-cart :noIcon="'detail'" :allPrice=query.price></shop-cart>
     </div>
 </template>
 <script>
@@ -98,7 +98,7 @@ import { Spinner } from 'mint-ui';
           teacher:{},
           allNum:0,
           allPrice:0,
-          imgBaseUrl
+          imgBaseUrl,
         };
       },
       components:{
@@ -149,49 +149,6 @@ import { Spinner } from 'mint-ui';
          var param = {};
          param.courseId = this.query.id;
           courseDetail(param).then(res =>{
-            console.log(res)
-            // var res ={}
-            // res.data= {
-            //  "respCode": "0",
-            //  "respMsg": "成功",
-            //  "data": {
-            //          "courseDetail":{
-            //              "title":"【18暑】37讲学完英语新概念2上半册班",//课程名称
-            //              "endTime":"364",//有效时间
-            //              "price":2800,//价格
-            //              "number":"3",//购买人数
-            //              "content":"课程简介",//课程详情的html
-            //              "avatar":'qwe',
-            //          },
-            //          "courseTimeList":[{
-            //              "title":"第一讲",//课程title
-            //               "date":"2018-07-07",
-            //               "begin":"08:00",
-            //               "end":"09:00",
-            //              //title和time合并？
-            //          }],
-            //          "teacher":{
-            //              "avatar":"用户头像地址",
-            //              "name":"小帅老师",
-            //              "time":"共18课时",
-            //              "info":"上海市某顶级八校重点中学青年骨干数学教师，华东师范大学理学硕士，五届高三毕业班教学经验。",
-            //              "courseList":[{
-            //               "id":'111',
-            //               "title":"【18暑】37讲学完英语新概念2上半册班",
-            //               "avatar":"课程图片地址",
-            //               "price":2880,
-            //               "totalHour":"总课时",
-            //               "gradeId":"1",//年级id
-            //               "grade":"小学3年级",
-            //               "tagId":1,//学科
-            //               "tag":"英语",//tag为可选标签属性，此处为学科
-            //               "teacherId":1,//老师ID
-            //               "teacher":"黄老师",
-            //               "t_avatar":"图片地址"
-            //              }]
-            //            }
-            //      }
-            //   }
             if(res.data.respCode == 0){
               let data = res.data.data;
               _this.courseDetail = data.courseDetail;
@@ -209,7 +166,6 @@ import { Spinner } from 'mint-ui';
           let h = $(this.$refs.header).outerHeight(); //header的高度
           let wh = $(window).scrollTop(); //滚动的距离的，为什么这里使用的jq，因为不用考虑的什么的兼容问题
           let navH = $(this.$refs.nav).outerHeight(); //nav的高度
-
           if (wh > h) {
             this.isFixed = true;
              $('.courseheight').show();
@@ -230,21 +186,20 @@ import { Spinner } from 'mint-ui';
           let _this =this
           _this.allNum = 0
           _this.allPrice = 0;
-            if(!_this.teacher.courseList){
-              return
-            }
+          if(!_this.teacher.courseList){
+            return
+          }
           for(let cart of Object.values(_this.shopCart)){
             if(cart.num == 1){
               _this.allNum++
             }
             for(let list of _this.teacher.courseList){
-              if(cart.num == 1 && cart.id == list.id){
-                list.choose =true
-              }else{
-                list.choose =false
+              if((cart.id == list.id) && (cart.num == 1)){
+                list.choose =true;
               }
             }
           }
+          // console.log(_this.teacher.courseList)
         },
         //拖拽书包图标
         dropCart(el){
@@ -261,8 +216,6 @@ import { Spinner } from 'mint-ui';
             document.querySelector('body').style.overflow ='hidden'
               _x_move=e.touches[0].pageX;
               _y_move=e.touches[0].pageY;
-              console.log(_x_move,_y_move)
-              console.log( e.view.innerWidth,e.view.innerHeight)
               if(_x_move > e.view.innerWidth-28){
                 _x_move = e.view.innerWidth-28
               }
@@ -275,7 +228,6 @@ import { Spinner } from 'mint-ui';
               if(_y_move < 50){
                 _y_move = 50
               }
-              console.log(_x_move,_y_move)
                document.querySelector(el).style.left = parseFloat(_x_move)-parseFloat(_x_start)+parseFloat(left_start)+"px"
               document.querySelector(el).style.top = parseFloat(_y_move)-parseFloat(_y_start)+parseFloat(top_start)+"px"
           })
@@ -405,7 +357,7 @@ import { Spinner } from 'mint-ui';
   div:nth-of-type(2){
     &:before{
       top: 12px;
-      background: url(../../images/number.png) no-repeat;
+      background: url(../../images/man.png) no-repeat;
       background-size: 100% auto;
     }
   }

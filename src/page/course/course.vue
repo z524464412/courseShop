@@ -3,7 +3,7 @@
       <div @click="swipeClick" id="swipeDiv" ref="header">
         <mt-swipe class="myswipe" :auto="3000" >
           <mt-swipe-item v-for="(banner,index) in 1" :data-value="banner.url" class="swiper-slide">
-            <img src="static/img/banner.png">
+            <img src="../../images/banner.png">
           </mt-swipe-item>
         </mt-swipe>
       </div>
@@ -24,7 +24,7 @@
             加载中...
           </p>
         <div class="null-empty" v-show="showEmpty">
-          <img src="static/img/empty.png">
+          <img src="../../images/empty.png">
         </div>
       </div> 
       <div class="lineheight"></div>
@@ -47,10 +47,11 @@ var throttle = require('lodash/throttle'); //从lodash中引入的throttle节流
 import {mapState, mapMutations} from 'vuex'
 import shopCart from 'src/components/common/shopCart'
 import shopList from 'src/components/common/shopList'
-import { courseList , CourseType } from 'src/service/course'
+import { courseList , CourseType,discount} from 'src/service/course'
 import { MessageBox } from 'mint-ui';
 import { Indicator } from 'mint-ui';
 import { Spinner } from 'mint-ui';
+
   export default {
       data() {
         return {
@@ -77,12 +78,11 @@ import { Spinner } from 'mint-ui';
           tag:''
         }
       },
-
       created(){
         Indicator.open('加载中...');
-        console.log(this.$route.query)
         this.gradeId = this.$route.query.gradeId;
         this.INIT_BUYCART();
+        this.getdiscount();
       },
       mounted () {
         this.$nextTick(() => {
@@ -99,22 +99,30 @@ import { Spinner } from 'mint-ui';
       },
       computed: {
         ...mapState([
-            'cartList'
+            'cartList','discount'
         ]),
         //当前商店购物信息
         shopCart: function (){
           return {...this.cartList};
         },
+
       },
       methods:{
         //vuex数据
         ...mapMutations([
-            'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
+            'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL','ADD_DISCOUNT','INIT_DISCOUNT'
         ]),
+        getdiscount(){
+          var _this =this;
+          discount().then(res=>{
+            if(res.data.respCode == 0){
+             _this.ADD_DISCOUNT(res.data.data)
+            }
+          })
+        },
         //下拉加载
         loadMore() {
           const _this = this;
-          console.log(_this.lastPage , _this.curPage)
           if (_this.lastPage > _this.curPage) {
             if (_this.curPage != 0) {//首次加载不显示loading
               _this.loading = true;
@@ -146,121 +154,6 @@ import { Spinner } from 'mint-ui';
           }
           param.pageNo = _this.curPage;
           courseList(param).then(res =>{
-            // var res={};
-            // res.data = {
-            //  "respCode": "0",
-            //  "respMsg": "成功",
-            //  "data": {
-            //          "classes":[{
-            //          "id":'1',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'2',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'3',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'4',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'5',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'6',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'7',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'8',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'9',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          },{
-            //          "id":'10',
-            //          "title":"【18暑】37讲学完英语新概念2上半册班",
-            //          "avatar":"课程图片地址",
-            //          "price":"2880",
-            //         "lesson_hour":"总课时",
-            //          "gradeId":"1",//年级id
-            //         "grade":"小学3年级",
-            //          "teacher":"黄老师",
-            //         "t_avatar":"图片地址"
-            //          }],
-            //          "paging": { //分页数据
-            //          "total": 20, //总条数
-            //          "perPage": 10, //每页显示条数
-            //          "currentPage": 1, //当前页数
-            //          "lastPage":2 //最后页数
-            //         }
-            //      }
-            //  }
-
             setTimeout(()=>{
               Indicator.close();
               if(res.data.respCode == 0){
@@ -279,8 +172,10 @@ import { Spinner } from 'mint-ui';
               }else{
                 MessageBox(res.data.respMsg);
               }
-              if(_this.courseLists.length < 0){
+              if(_this.courseLists.length <= 0){
                 _this.showEmpty = true;
+              }else{
+                _this.showEmpty = false;
               }
               _this.loading = false;
            },200)
@@ -295,20 +190,6 @@ import { Spinner } from 'mint-ui';
           let _this =this;
           _this.allNum = 0;
           _this.allPrice = 0;
-          console.log(_this.courseLists)
-          // for(let list of _this.courseLists){
-          //   for (let cart of Object.values(_this.shopCart)) {
-          //     if(cart.id == list.id){
-          //       if(cart.num == 1){
-          //         _this.allNum++;
-          //         _this.allPrice += parseInt(cart.price);
-          //         list.choose =true
-          //       }else{
-          //         list.choose =false
-          //       }
-          //     }
-          //   }
-          // }
           for(let cart of Object.values(_this.shopCart)){
             if(cart.num == 1){
               _this.allNum++
@@ -324,7 +205,6 @@ import { Spinner } from 'mint-ui';
         
         //选择科目
         selectType(type,name){
-
           if(type == 99){
             $('body').css('overflow','hidden');
             this.typeShow =!this.typeShow;

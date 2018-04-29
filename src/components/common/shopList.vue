@@ -1,23 +1,23 @@
 <template>
-  <div v-if="courseList" class="courseList" @click="gotoPage('/courseDetail',{id:courseList.id})">
+  <div v-if="courseList" class="courseList" @click="gotoPage()">
     <div class="courseImg">
         <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
-        <img src="static/img/info.png" v-else>
+        <img src="../../images/info.png" v-else>
     </div>
     <div class="courseInfo">
-      <div class="courseName">{{courseList.title || '测试1'}}
+      <div class="courseName">{{courseList.title || '课程题目'}}
       </div>
       <div class="userBox">
         <div class="manAvatar" v-if="!noBuy">
           <img :src="imgBaseUrl + courseList.t_avatar" v-if="courseList.t_avatar">
-          <img src="static/img/avatar.png" v-else>
+          <img src="../../images/avatar.png" v-else>
         </div>
         <div class="manName userItem" v-if="!noBuy">
           <div>
-            {{courseList.teacher || '小帅老师1' }}
+            {{courseList.name || '小帅老师1' }}
           </div>
           <div class="gray">
-            {{courseList.totalHour || '共18课时1'}}
+            {{'共'+courseList.totalHour+'课时' || 'xx课时'}}
           </div>
         </div>
         <div class="courseMoney userItem">
@@ -55,14 +55,18 @@ import {imgBaseUrl} from 'src/config/env'
           imgBaseUrl,
       }
     },
-    props:['noBuy','courseList'],
+    props:['noBuy','courseList','payTitle'],
     mounted(){
       this.windowHeight = window.innerHeight;
     },
     methods:{
       //跳转页面
-         gotoPage(path,query){
-          this.$router.push({path,query})
+         gotoPage(){
+          if(this.payTitle == '创建订单'){
+            
+          }else{
+            this.$router.push({path:'/courseDetail',query:{id:this.courseList.id,price:this.courseList.price}})
+          }
         },
       //显示加入购物购物特效
       showMoveDotFun(showMoveDot, elLeft, elBottom){
