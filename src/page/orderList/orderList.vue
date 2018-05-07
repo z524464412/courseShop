@@ -6,15 +6,16 @@
           <div>手机号码:<span class="red">{{payList.phoneNo}}</span></div>
         </div>
         <div class="userItem">
-          <mt-button type="danger" v-show="!btnType" @click="checkBtn">已确定</mt-button>
-          <mt-button type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
+          <mt-button disabled type="danger" v-if="payStatus == 1" v-show="!btnType" @click="checkBtn">已确定</mt-button>
+          <mt-button v-else  type="danger" v-show="!btnType" @click="checkBtn">已确定</mt-button>
+          <mt-button  type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
         </div>
       </div>
       <div class="item" v-for="(item,index) in 1" v-cloak>
           <shop-list :noBuy="true" v-for="courseList in courseLists" :courseList=courseList>
           </shop-list>
       </div>
-    <div class="payBox">
+    <div class="payBox" v-if="payStatus == 0">
       <div class="wxpay payItem" @click="choosePay('wx')">
         <div class="payContaienr">
           <div class="icon">
@@ -42,7 +43,7 @@
         </div>
       </div>
     </div>
-    <shop-cart :payList=payList :btnChoose=btnType :chooseType=chooseType></shop-cart>   
+    <shop-cart :payList=payList :btnChoose=btnType :chooseType=chooseType :payTitle =payTitle></shop-cart>   
   </div>  
 </template>
 
@@ -65,7 +66,9 @@
           chooseType:'wx',
           query :{},
           courseLists:'',
-          payList:''
+          payList:'',
+          payStatus:0,
+          payTitle:''
         }
       },
       mounted () {
@@ -77,8 +80,18 @@
             if(res.data.respCode == 0){
               _this.payList = res.data.data;
               _this.courseLists = res.data.data.courseList;
+              _this.payStatus = res.data.data.payStatus;
+              if(_this.payStatus == 1){
+                _this.btnType = false;
+                _this.payTitle = '已支付'
+              }else{
+                _this.btnType = true;
+              }
+            }else{
+              _this.payStatus = 1
+              _this.btnType = false;
+              Toast(res.data.respMsg)
             }
-            
           })
       },
       methods:{

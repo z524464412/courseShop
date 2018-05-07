@@ -54,8 +54,12 @@ import { Toast } from 'mint-ui'
           var _this =this;
           this.param.billId = this.billId
           checkPayResult(this.param).then((res)=>{
+            res.data.resPcode =0;
           if(res.data.resPcode == 0){
             this.paySucc = 0;
+            setTimeout(function(){
+              _this.$router.push({path:'/orderList',query:{id:_this.param.billId}})
+            },3000)
            }else if(res.data.resPcode == 880000){
             this.paySucc = 1;
             setTimeout(function(){

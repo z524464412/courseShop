@@ -6,8 +6,11 @@
             </section>
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
-                    <div>
+                    <div v-if="payList.pay">
                       <span>合计:</span>{{'￥'+payList.pay}}
+                    </div>
+                    <div v-else>
+                        <span>合计:</span>0
                     </div>
                     <div v-if="noIcon!='detail'">
                         <span>总价:￥<span class="borderType">{{payList.pay+payList.discount}}</span></span>
@@ -30,7 +33,8 @@
                     </div>
                 </div>
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
-                    <div v-text="allPrice == 0 ? 0 : allPrice-nowDiscount"></div>
+
+                    <div v-text="allPrice == 0 ? 0 : allPrice-nowDiscount" v-if="allPrice"></div>
                     <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div>
                 </div>
             </section>
@@ -76,6 +80,7 @@
       }
     },
     mounted(){
+      console.log(this.payList)
       let _this = this;
       this.init_platform()
       this.INIT_DISCOUNT();
@@ -138,7 +143,14 @@
             this.ADD_CART(chooseCart);
               _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){
-          //
+          if(_this.payTitle == '已支付'){
+            Toast({
+              message:'已经支付!',
+              position: 'middle',
+              duration: 1000
+            })
+            return
+          }
           if(_this.btnChoose){
             Toast({
               message:'请先确认信息,在支付!',
