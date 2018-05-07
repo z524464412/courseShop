@@ -84,27 +84,12 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
       created(){
         let _this =this;
         _this.query = _this.$route.query;
-
-        console.log(_this.query)
         if(_this.query.classes){
           _this.ids = _this.query.classes;
           _this.login = _this.query.login;
-          console.log(123)
         }else{
           this.login = true;
         }
-        console.log(this.login)
-      },
-
-      deactivated() {
-        console.log(_this.info);
-
-      },
-      mounted () {
-        this.getGradeList();
-        window.localStorage.removeItem('buyCart');
-        this.INIT_DISCOUNT();
-        this.CLEAR_CART();
         dd.ready(function() {
           dd.runtime.permission.requestAuthCode({
             corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
@@ -113,7 +98,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
               param.code = result.code;
               AuthLogin(param).then(res=>{
                 if(res.data.respCode == 0){
-                  this.type = 'dingding'
+                  _this.type = 'dingding';
                 }
               })
             },
@@ -123,10 +108,25 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           })
         });
       },
+
+      deactivated() {
+        console.log(_this.info);
+
+      },
+      mounted () {
+        this.getGradeList();
+        console.log(this.$route.query.classes)
+        if(!this.$route.query.classes){
+          console.log(123)
+          window.localStorage.removeItem('buyCart');  
+          this.CLEAR_CART();
+        }
+        this.INIT_DISCOUNT();
+        
+      },
       methods:{
         ...mapMutations([
           'INIT_DISCOUNT','CLEAR_CART','RECORD_USERINFO'
-
         ]),
         getGradeList(){
           let _this =this;
@@ -345,6 +345,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
             addOrder(params).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+              }else{
+                 Toast(res.data.respMsg)
               }
             })
             }else{

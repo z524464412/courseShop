@@ -6,8 +6,8 @@
           <div>手机号码:<span class="red">{{payList.phoneNo}}</span></div>
         </div>
         <div class="userItem">
-          <mt-button type="danger" v-show="btnType" @click="checkBtn">已确定</mt-button>
-          <mt-button type="danger" v-show="!btnType" plain @click="checkBtn">确认</mt-button>
+          <mt-button type="danger" v-show="!btnType" @click="checkBtn">已确定</mt-button>
+          <mt-button type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
         </div>
       </div>
       <div class="item" v-for="(item,index) in 1" v-cloak>
@@ -42,7 +42,7 @@
         </div>
       </div>
     </div>
-    <shop-cart :payList=payList></shop-cart>   
+    <shop-cart :payList=payList :btnChoose=btnType :chooseType=chooseType></shop-cart>   
   </div>  
 </template>
 

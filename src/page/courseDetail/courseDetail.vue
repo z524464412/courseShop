@@ -5,9 +5,11 @@
           <img :src="imgBaseUrl + courseDetail.avatar" v-if="courseDetail.avatar">
           <img src="../../images/info.png" v-else>
         </header>
-        <div class="nav" ref="nav" :class="{isFixed:isFixed}">
-          <div class="box" :class="{active:item.show}" v-for="(item,index) in list" :key="index" @click="checkType(item,list)">
-            {{item.title}}
+        <div class="isIOS">
+          <div class="nav" ref="nav" :class="{isFixed:isFixed} " >
+            <div class="box" :class="{active:item.show}" v-for="(item,index) in list" :key="index" @click="checkType(item,list)">
+              {{item.title}}
+            </div>
           </div>
         </div>
         <div class="courseheight"></div>
@@ -30,8 +32,8 @@
           </div>
         </div>
         <div class="arrangeDiv" v-show="list[1].show">
-          <div class="arrangeList" v-for="item in courseTimeList">
-            <span>{{item.title}}:</span><span>{{item.date}}</span><span>{{item.begin}}-{{item.end}}</span>
+          <div class="arrangeList" v-for="(item,index) in courseTimeList">
+            <span>课程安排{{index}}:</span><span>{{item.date}}</span><span>{{item.begin}}-{{item.end}}</span>
           </div>
           
         </div>
@@ -62,7 +64,7 @@
         
         <div class="lineheight"></div> 
       </div>
-      <div class="packageBox" :class="{showCart:showCart}">
+      <div id="packageBox" :class="{showCart:showCart}" >
         <i class="packageIcon" v-if="allNum>0">{{allNum}}</i>
         <img src="../../images/package1.png">
       </div>
@@ -99,6 +101,9 @@ import { Spinner } from 'mint-ui';
           allNum:0,
           allPrice:0,
           imgBaseUrl,
+          apptype:'',
+          positionX:0,
+          positionY:0,
         };
       },
       components:{
@@ -113,22 +118,40 @@ import { Spinner } from 'mint-ui';
       mounted () {
         this.query = this.$route.query
         var _this = this;
-         this.$nextTick(() => {
-          window.addEventListener('scroll', this.throttleScroll, false);
-          window.addEventListener('touchmove',this.showCartT,false)
-          window.addEventListener('touchend',this.showCartF,false)
-        });
+        var stickyEl = document.querySelector('.nav')
+        var stickyHolder = document.createElement('div');
+        var rect = stickyEl.getBoundingClientRect();
+        stickyEl.parentNode.replaceChild(stickyHolder, stickyEl);
+        stickyHolder.appendChild(stickyEl);
+        stickyHolder.style.height = rect.height + 'px';
+         //判断平台
+        let u = navigator.userAgent;  
+        let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); 
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;  
+        if(isIOS){
+          this.apptype = 'ios'
+        }
+        if(isAndroid){
+          this.apptype ='android'
+          this.$nextTick(() => {
+            window.addEventListener('scroll', this.throttleScroll, false);
+            // window.addEventListener('touchmove',this.showCartT,false)
+            // window.addEventListener('touchend',this.showCartF,false)
+          });
+        }
+
          this.throttleScroll = throttle(this.handleScroll, 100);
          this.showCartT = function(){_this.showCart = true}
          this.showCartF = function(){_this.showCart = false}
-         this.dropCart('.packageBox');
+         this.dropCart('#packageBox');
          this.getDetail();
       },
       deactivated() {
         //离开页面需要remove这个监听器，不然还是卡到爆。
         window.removeEventListener('scroll', this.throttleScroll);
-        window.removeEventListener('touchmove', this.showCartT);
-        window.removeEventListener('touchend', this.showCartF);
+        // window.removeEventListener('touchmove', this.throttleScroll);
+        // window.removeEventListener('touchmove', this.showCartT);
+        // window.removeEventListener('touchend', this.showCartF);
       },
       computed:{
         ...mapState([
@@ -166,12 +189,12 @@ import { Spinner } from 'mint-ui';
           let h = $(this.$refs.header).outerHeight(); //header的高度
           let wh = $(window).scrollTop(); //滚动的距离的，为什么这里使用的jq，因为不用考虑的什么的兼容问题
           let navH = $(this.$refs.nav).outerHeight(); //nav的高度
-          if (wh > h) {
-            this.isFixed = true;
-             $('.courseheight').show();
-          } else {
-            this.isFixed = false;
-             $('.courseheight').hide();
+          if(this.apptype == 'android'){
+            if (wh > h) {
+              this.isFixed = true;
+            } else {
+              this.isFixed = false;
+            }
           }
         },
         //切换学科
@@ -199,23 +222,46 @@ import { Spinner } from 'mint-ui';
               }
             }
           }
-          // console.log(_this.teacher.courseList)
         },
-        //拖拽书包图标
+        move(e){
+            e.preventDefault();
+            let odiv = e.target;    //获取目标元素
+            this._x_move=e.touches[0].clientX,
+            this._y_move=e.touches[0].clientY;
+            //移动当前元素
+            odiv.style.left = parseFloat(this._x_move)-parseFloat(this._x_start)+parseFloat(this.left_start)+"px"
+            odiv.style.top = parseFloat(this._y_move)-parseFloat(this._y_start)+parseFloat(this.top_start)+"px"
+        },
+        end(e){
+          e.preventDefault();
+          this._x_end=e.changedTouches[0].clientX;
+          this._y_end=e.changedTouches[0].clientY;
+        },
+        start(e){
+          e.preventDefault();
+          let odiv = e.target;
+          this._x_start=e.touches[0].clientX;
+          this._y_start=e.touches[0].clientY;
+          this.left_start=odiv.offsetLeft;
+          this.top_start=odiv.offsetTop;
+        },
+        // 拖拽书包图标
         dropCart(el){
           var _x_start,_y_start,_x_move,_y_move,_x_end,_y_end,left_start,top_start;
           document.querySelector(el).addEventListener("touchstart",function(e)
           {
-              _x_start=e.touches[0].pageX;
-              _y_start=e.touches[0].pageY;
+              _x_start=e.touches[0].clientX;
+              _y_start=e.touches[0].clientY;
               left_start=document.querySelector(el).offsetLeft;
               top_start=document.querySelector(el).offsetTop;
+              e.preventDefault();
           })
           document.querySelector(el).addEventListener("touchmove",function(e)
           {
+             e.preventDefault();
             document.querySelector('body').style.overflow ='hidden'
-              _x_move=e.touches[0].pageX;
-              _y_move=e.touches[0].pageY;
+              _x_move=e.touches[0].clientX;
+              _y_move=e.touches[0].clientY;
               if(_x_move > e.view.innerWidth-28){
                 _x_move = e.view.innerWidth-28
               }
@@ -233,9 +279,10 @@ import { Spinner } from 'mint-ui';
           })
           document.querySelector(el).addEventListener("touchend",function(e)
           {
+            event.preventDefault();
             document.querySelector('body').style.overflow ='auto'
-              var _x_end=e.changedTouches[0].pageX;
-              var _y_end=e.changedTouches[0].pageY;
+              var _x_end=e.changedTouches[0].clientX;
+              var _y_end=e.changedTouches[0].clientY;
               
           })
           //阻止浏览器下拉事件 
@@ -265,11 +312,19 @@ import { Spinner } from 'mint-ui';
   height: 204px;
   width: 100%;
 }
+.isIOS{
+  position: -webkit-sticky;  
+  position: sticky; 
+  top: 0;  
+  left: 0; 
+  z-index: 13; 
+}
 .nav {
   display: flex;
   width: 100%;
   border-bottom: 1px solid #f4f3f3;
   font-weight: bold;
+  /*z比下方所有z高*/  
   &.isFixed {
     position: fixed;
     left: 0;
@@ -425,13 +480,12 @@ import { Spinner } from 'mint-ui';
     display: none;
     height: 46px;
   }
-.packageBox{
+#packageBox{
   position: fixed;
   right: 10px;
   bottom: 81px;
   width: 55px;
   z-index: 15;
-  transition: all 0.5s ease-in;
   i{
     position: absolute;
     right: 5px;

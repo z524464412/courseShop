@@ -9,10 +9,12 @@
       </div>
       <div class="courseLists" >
         <div class="courseheight"></div>
-        <div class="courseTitle" ref="nav" :class="{isFixed:isFixed}">
-          <div class="left courseType">{{courseTypeName}}</div>
-          <div class="right courseScreening" @click="selectType(99,'全部课程')">
-            筛选
+        <div class="isIOS">
+          <div class="courseTitle" ref="nav"  :class="{isFixed:isFixed}">
+            <div class="left courseType">{{courseTypeName}}</div>
+            <div class="right courseScreening" @click="selectType(99,'全部课程')">
+              筛选
+            </div>
           </div>
         </div>
           <ul class="page-infinite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
@@ -27,15 +29,13 @@
           <img src="../../images/empty.png">
         </div>
       </div> 
-      <div class="lineheight"></div>
+      <div ></div>
       <div class="lineheight"></div>
       <shop-cart :allNum=allNum :allPrice=allPrice :noIcon="'index'"></shop-cart>
       <div class="typeBox" v-show="typeShow">
         <div @click="selectType('','课程')" class="typeItem active">全部课程</div>
         <div @click="selectType(typename.name,typename.name)" v-text="typename.name" class="typeItem" v-for="typename in courseTypeList">
-
         </div>
-        <!-- <div @click="selectType(8,'')" class="typeItem">专项课程</div> -->
         <div class="closeBtn" @click="selectType(98)">
           <img src="../../images/close.png">
         </div>
@@ -75,7 +75,14 @@ import { Spinner } from 'mint-ui';
           allPrice:0,
           gradeId:'',
           courseTypeList:{},
-          tag:''
+          tag:'',
+          apptype:'',
+          winStyle: {
+            headerTitle: 230,
+            bannerHeight: 60,
+            ordernav: 50,
+            lovenav: 52
+          }
         }
       },
       created(){
@@ -85,6 +92,23 @@ import { Spinner } from 'mint-ui';
         this.getdiscount();
       },
       mounted () {
+        var stickyEl = document.querySelector('.courseTitle')
+        var stickyHolder = document.createElement('div');
+        var rect = stickyEl.getBoundingClientRect();
+        stickyEl.parentNode.replaceChild(stickyHolder, stickyEl);
+        stickyHolder.appendChild(stickyEl);
+        stickyHolder.style.height = rect.height+ 'px';
+        stickyHolder.style.className = 'isIOS'
+        console.log(stickyHolder.style.className)
+        let u = navigator.userAgent;  
+        let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+        var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;  
+        if(isIOS){
+          this.apptype = 'ios'
+        }
+        if(isAndroid){
+          this.apptype ='android'
+        }
         this.$nextTick(() => {
           window.addEventListener('scroll', this.throttleScroll, false);
           this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top;
@@ -92,6 +116,7 @@ import { Spinner } from 'mint-ui';
          this.throttleScroll = throttle(this.handleScroll, 100);
          this.getCourseType();
          this.getCourseList();
+         // this.scroll()
       },
       components:{
         shopCart,
@@ -232,18 +257,20 @@ import { Spinner } from 'mint-ui';
         swipeClick(){
           this.$router.push('activity')
         },
-        //滚动的函数
         handleScroll() {
           let h = $(this.$refs.header).outerHeight(); //header的高度
           let wh = $(window).scrollTop(); //滚动的距离的，为什么这里使用的jq，因为不用考虑的什么的兼容问题
           let navH = $(this.$refs.nav).outerHeight(); //nav的高度
-          if (wh > h) {
-            this.isFixed = true;
-            $('.courseheight').show();
-          } else {
-            $('.courseheight').hide();
-            this.isFixed = false;
+          if(this.apptype == 'android'){
+            if (wh > h) {
+              this.isFixed = true;
+              // $('.courseheight').show();
+            } else {
+              // $('.courseheight').hide();
+              this.isFixed = false;
+            }
           }
+          
         }
       },
       deactivated() {
@@ -269,6 +296,9 @@ import { Spinner } from 'mint-ui';
 <style lang="scss" scoped>
   @import 'src/style/common';
   @import 'src/style/mixin';
+  .myswipe img{
+    transform: translateY(-2px);
+  }
   .detailHtml img{
       display: block;
       width: 100% !important;
@@ -323,7 +353,13 @@ import { Spinner } from 'mint-ui';
     }
   .courseLists{
     // background :#fff;
-    
+    .isIOS{
+      position: -webkit-sticky;  
+      position: sticky;
+      top: -5px;;  
+      left: 0; 
+      z-index: 13; 
+    }
     .courseTitle{
       line-height: 46px;
       padding: 0px 12px;

@@ -33,7 +33,7 @@ export const checkCode = params => instance.get('/v1/auth/checkVerify',{params})
 export const addOrder = params => instance.post('/v1/bill/createBill',params);
 
 //微信签名
-export const getwxConfig = params =>instance.get('/v1/sys/wxConfig',{params});
+export const getwxConfig = params =>instance.get('/v1/sys/getWeChatSignature',{params});
 
 //钉钉测试免登
 
@@ -47,5 +47,14 @@ export const discount = params =>instance.post('/v1/classes/getDiscountConfig',{
 
 //订单详情
 export const orderDetail = params =>instance.get('/v1/bill/getBillDetail',{params});
+
+//支付接口
+
+export const doBillPay = params => instance.get('/v1/bill/doBillPay',{params});
+
+//查询订单状态
+
+export const checkPayResult = params =>instance.get('/v1/bill/checkPayResult',{params});
+
 
 

@@ -29,7 +29,9 @@ import {
 	ADD_ADDRESS,
 	BUY_CART,
 	ADD_DISCOUNT,
-	INIT_DISCOUNT
+	INIT_DISCOUNT,
+	CHOOSE_CART,
+
 } from './mutation-types.js'
 
 import {setStore, getStore} from '../config/mUtils'
@@ -48,6 +50,10 @@ export default {
 
 	[RECORD_SHOPDETAIL](state, detail) {
 		state.shopDetail = detail;
+	},
+	//添加一个cart
+	[CHOOSE_CART](state,oneCart){
+		
 	},
 	// 加入购物车
 	[ADD_CART](state, courseList) {

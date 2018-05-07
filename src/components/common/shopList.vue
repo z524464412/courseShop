@@ -43,6 +43,7 @@
 <script>
 import buyCart from 'src/components/common/buyCart'
 import {imgBaseUrl} from 'src/config/env'
+import {setStore} from 'src/config/mUtils'
   export default{
     data(){
       return{
@@ -62,9 +63,13 @@ import {imgBaseUrl} from 'src/config/env'
     methods:{
       //跳转页面
          gotoPage(){
+          if(this.$route.path == '/orderList'){
+            return
+          }
           if(this.payTitle == '创建订单'){
-            
+
           }else{
+            setStore('chooseCart',this.courseList);
             this.$router.push({path:'/courseDetail',query:{id:this.courseList.id,price:this.courseList.price}})
           }
         },

@@ -8,7 +8,7 @@ import store from './store/'
 import {routerMode} from './config/env'
 import './config/rem'
 import FastClick from 'fastclick'
-import { shareOpt , wxReady } from 'src/config/mUtils'
+// import { shareOpt , wxReady } from 'src/config/mUtils'
 import { getwxConfig,AuthLogin,getDingDing} from 'src/service/course'
 
 if ('addEventListener' in document) {
@@ -40,10 +40,14 @@ const router = new VueRouter({
 function wxInit(){
 	return new Promise(function(resolve,reject){
 		var ua = window.navigator.userAgent.toLowerCase();
-		var locationHref = encodeURIComponent(window.location.href)
+		var locationHref = encodeURIComponent(window.location.href.split('#')[0])
+    // var locationHref = encodeURIComponent(window.location.href)
+    // var locationHref =window.location.href.split('#')[0]
       	if(ua.match(/MicroMessenger/i) == 'micromessenger'){
       		var param ={};
-      		param.url = locationHref.split('#')[0];
+          // param.url = window.location.href.split('#')[0];
+      		// param.url = locationHref.split('#')[0];
+          param.url = locationHref;
       		getwxConfig(param).then(function(resp){
 				    resolve(resp.data);
       		})
@@ -56,10 +60,10 @@ function wxInit(){
 	});
 }
 function wxConfig(){
-	shareOpt.title ='梯方教育';
-    shareOpt.icon = window.location.origin+'/dist/icon_desc.jpg'; // 分享图标
-  	shareOpt.link='http://api.tifangedu.com:745/coursecart/';
-   	shareOpt.desc = '梯方教育';   
+   //  shareOpt.title ='梯方教育1111';
+   //  shareOpt.icon = 'http://img.tifangedu.com/course/53090/20180412/6cc4a0c8-da86-45ab-a3bb-b7f1993cb03d.png'; // 分享图标
+  	// shareOpt.link='http://www.baidu.com';
+   // 	shareOpt.desc = '梯方教育1111';   
   wxInit().then(function(res){
     var body=res;
      if(res.respCode=="0"){
@@ -71,31 +75,36 @@ function wxConfig(){
               signature: body.data.signature,// 必填，签名，见附录1
               jsApiList: body.data.jsApiList // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
           });
+     
         wx.ready(function(){
-            wx.onMenuShareTimeline({
-              title: shareOpt.title, // 分享标题
-              link: shareOpt.link, // 分享链接
-              imgUrl: shareOpt.icon, // 分享图标
-              success: function () { 
-                _czc.push(['_trackEvent', '邀请好友', '分享', '分享朋友圈']);
-              },
-              cancel: function () { 
-                _czc.push(['_trackEvent', '邀请好友', '分享', '取消分享朋友圈']);
-              }
-            });
-            wx.onMenuShareAppMessage({
-              title: shareOpt.title, // 分享标题
-              desc: shareOpt.desc, // 分享描述
-              link: shareOpt.link, // 分享链接
-              imgUrl: shareOpt.icon, // 分享图标
-              success: function () { 
-                _czc.push(['_trackEvent', '邀请好友', '分享', '分享微信好友']);
-              },
-              cancel: function () { 
-                _czc.push(['_trackEvent', '邀请好友', '分享', '取消分享微信好友']);
-                  }
-                });
-            })
+          wx.onMenuShareTimeline({
+            title: '梯方教育', // 分享标题
+            link: 'http://api.tifangedu.com/coursecart/#/login',  // 分享链接
+            imgUrl: 'http://api.tifangedu.com/coursecart/static/img/info.png', // 分享图标
+            success: function () { 
+              // _czc.push(['_trackEvent', '邀请好友', '分享', '分享朋友圈']);
+            },
+            cancel: function () { 
+              // _czc.push(['_trackEvent', '邀请好友', '分享', '取消分享朋友圈']);
+            }
+          });
+          wx.onMenuShareAppMessage({
+            title: '梯方教育', // 分享标题
+            desc: '梯方教育', // 分享描述
+            link: 'http://api.tifangedu.com/coursecart/#/login',  // 分享链接
+            imgUrl: 'http://api.tifangedu.com/coursecart/static/img/info.png', // 分享图标
+            success: function () { 
+              // _czc.push(['_trackEvent', '邀请好友', '分享', '分享微信好友']);
+            },
+            cancel: function () {
+              // _czc.push(['_trackEvent', '邀请好友', '分享', '取消分享微信好友']);
+                }
+              });
+          })
+         wx.error(function(res){
+          console.log(res)
+          alert(res)
+        })
      }
   })
 }
@@ -105,6 +114,7 @@ function ddConfig(){
     getDingDing(param).then(res =>{
       let data = res.data.data;
       dd.config({
+        debug:false,
         agentId: data.agentId, 
         corpId: data.corpId,
         timeStamp:data.timeStamp, 
@@ -113,31 +123,30 @@ function ddConfig(){
         jsApiList : [ 'runtime.info', 'biz.contact.choose',
             'device.notification.confirm', 'device.notification.alert',
             'device.notification.prompt', 'biz.ding.post',
-            'biz.util.openLink' ] // 必填，需要使用的jsapi列表，注意：不要带dd。
+            'biz.util.openLink','biz.util.share'] // 必填，需要使用的jsapi列表，注意：不要带dd。
       })
-      dd.ready(function() {
-        dd.runtime.permission.requestAuthCode({
-          corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
-          onSuccess: function(result) {
-            let param = {};
-            param.code = result.code;
-            AuthLogin(param).then(res=>{
-              console.log(res)
-            })
-          },
-          onFail : function(err) {
-            console.log(err)
-          }
-        })
-      });
       dd.error(function(error){
         alert('dd error:' + JSON.stringify(error))
+      })
+      dd.biz.util.share({
+        type: 0,//分享类型，0:全部组件 默认； 1:只能分享到钉钉；2:不能分享，只有刷新按钮
+        url: 'http://api.tifangedu.com/coursecart/#/course',
+        title: '123123',
+        content: '123132132',
+        image: 'http://api.tifangedu.com/coursecart/static/img/info.png',
+        onSuccess : function() {
+            //onSuccess将在调起分享组件成功之后回调
+        },
+        onFail : function(err) {
+          alert(err)
+        }
       })
     })
 }
 ddConfig();
 wxConfig();
 router.beforeEach((to, from, next) => {
+
 	next();
 })
 

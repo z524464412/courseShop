@@ -25,7 +25,7 @@
                     <span v-if="allNum" class="cart_list_length">
                         {{allNum}}
                     </span>
-                    <div class="cart_icon noIcon" >
+                    <div class="cart_icon noIcon" @click="gotoPage">
                       <img src="../../images/package.png">  
                     </div>
                 </div>
@@ -35,8 +35,8 @@
                 </div>
             </section>
           </section>
-          <div @click="gotoPage" class="gotopay">
-           <section class="gotopay_button_style" :class="{noPay:noPay}" v-text="payTitle || '立即支付'">
+          <div @click="gotoPage" class="gotopay" :class="{noPay:btnChoose}">
+           <section class="gotopay_button_style" :class="{noPay:btnChoose}"  v-text="payTitle || '立即支付'">
            </section>
           </div>
       </section>
@@ -44,7 +44,8 @@
 <script>
   import {setStore, getStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { addOrder ,testInit} from 'src/service/course'
+  import { addOrder ,testInit,doBillPay} from 'src/service/course'
+  import { Toast } from 'mint-ui'
 	export default{
     data(){
       return{
@@ -55,10 +56,13 @@
         ids:[],
         nowDiscount:0,
         needMoney:2700,
-        newDiscount:200
+        newDiscount:200,
+        chooseLength:0,
+        platform:'',
+        billId:''
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -72,7 +76,10 @@
       }
     },
     mounted(){
+      let _this = this;
+      this.init_platform()
       this.INIT_DISCOUNT();
+      this.billId = this.$route.query.id;
     },
     methods:{
       //vuex数据
@@ -83,15 +90,24 @@
         let _this = this;
         let user = {};
         user = JSON.parse(getStore('user'));
-
-        
         _this.ids = [];
         for(let cart of Object.values(_this.cartList)){
            if(cart.num ==1){
             _this.ids.push(cart.id);
            }
           }
-        if(_this.payTitle == '创建订单'){
+        if(_this.ids.length<=0 && _this.$route.path !='/orderList' && _this.$route.path !='/courseDetail'){
+          Toast({
+            message: '至少选择一门课程!',
+            position: 'middle',
+            duration: 1000
+          });
+          return;
+        }else{
+          _this.chooseLength = _this.ids.length
+        }  
+        if(_this.$route.path == '/payList'){
+          //书包列表页面
           let param = {};
           param.userName=user.name;
           param.phoneNo=user.phone;
@@ -103,24 +119,118 @@
             param.price = 0
           }
           param.discount = _this.nowDiscount;
-          
-          if(user.login){
+          if(user.login && user.type == 'wx'){
             user.login = false;
             setStore('user',user);
             param.login = false;
-            console.log(param)
             _this.$router.push({path:'/login',query:param});
           }
-          // testInit().then(res=>{
-          //   addOrder(param).then(res=>{
-          //     console.log(res.data.data)
-          //     if(res.data.respCode == 0){
-          //       _this.$router.push({path:'/orderList',query:{id:res.data.data}});
-          //     }
-          //   })
-          // })
+          if(user.type == 'dingding'){
+            addOrder(param).then(res=>{
+              if(res.data.respCode == 0){
+                _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+              }
+            })
+          }
+        }else if(_this.$route.path == '/courseDetail'){
+          //课程详情页面
+            let chooseCart = JSON.parse(getStore('chooseCart'));
+            this.ADD_CART(chooseCart);
+              _this.$router.push({path:'/payList'});
+        }else if(_this.$route.path == '/orderList'){
+          //
+          if(_this.btnChoose){
+            Toast({
+              message:'请先确认信息,在支付!',
+              position: 'middle',
+              duration: 1000
+            })
+            return
+          }
+          if(_this.chooseType == 'wx'){
+             this.wechatPay();
+          }else if (_this.chooseType == 'ali'){
+
+          }
         }else{
           _this.$router.push({path:'/payList'});
+        }
+      },
+
+      wechatPay(){
+        if(this.platform == 'wx'){
+           this.initWx();
+        }else{
+          this.wxh5pay();
+        }
+      },
+      //h5支付
+      wxh5pay(){
+        let param = {};
+        param.billId = this.billId;
+        param.payType = '';
+        window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPay"+"?billId="+param.billId+"&payType=wxh5"
+      },
+      //初始化微信支付配置
+      initWx(){
+        let param ={};
+        param.id = '12312';
+        doBillPay(param).then(function(res){
+          if(res.data.respCode=="0"){
+            this.data_config=res.data.data.json;
+            this.data_json=res.data.data.config;
+            this.address=res.data.data.address;
+            this.$nextTick(function(){
+              wx.config({
+                  debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                  appId: this.data_config.appId, // 必填，公众号的唯一标识
+                  timestamp: this.data_config.timestamp, // 必填，生成签名的时间戳
+                  nonceStr: this.data_config.nonceStr, // 必填，生成签名的随机串
+                  signature: this.data_config.signature,// 必填，签名，见附录1
+                  jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+              });
+              //成功之后调取微信支付
+              wx.chooseWXPay({
+                  timestamp: this.data_json.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+                  nonceStr: this.data_json.nonceStr, // 支付签名随机串，不长于 32 位
+                  package: this.data_json.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+                  signType: this.data_json.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+                  paySign: this.data_json.paySign, // 支付签名
+                  success: function (res) {
+                  //window.location.href = this.address;
+                  window.history.replaceState("pay_suc","",this.address);
+                  window.location.reload()
+                  },
+                  cancel:function(res){
+                  Toast({
+                    message: '支付取消',
+                    position: 'middle',
+                    duration: 1000
+                  });
+                  },
+                  fail:function(res){
+                  Toast({
+                    message: '支付失败，请刷新',
+                    position: 'middle',
+                    duration: 1000
+                  });
+                  }
+              })
+            })
+          }else{
+            Toast(res.data.respMsg)
+          }
+        },function(res){
+          Toast("系统错误，请刷新")
+        })
+      },
+      //判断浏览器环境
+      init_platform() {
+        const platform = navigator.userAgent.toLowerCase();
+        if((platform.match(/MicroMessenger/i) == "micromessenger")) {
+          this.platform='wx';//是微信浏览器
+        }else{
+          this.platform = 'order'
         }
       },
       initData(){
@@ -129,7 +239,6 @@
       initDiscount(){
         var _this =this ;
         var Things = Object.values(this.discountList)
-        console.log(_this.allPrice)
         for (var i = Things.length - 1; i >= 0; i--) {
           if(Things[i].price > _this.allPrice){
             if(Things[i+1]){
@@ -262,10 +371,14 @@
                 @include sc(.7rem, #f6cece);
                 font-weight: bold;
                 letter-spacing: 2px;
+                &.noPay{
+                  color: #fff;
+                }
             }
-            .noPay{
+            &.noPay{
               @include sc(.7rem, #bbb);
               color: #fff;
+              background: #bbb;
             }
         }
     }

@@ -33,9 +33,9 @@
     <div class="red">
       乃们还不赶快下手吗
     </div>
-    <router-link class="chooseBtn" to="course">
+    <div class="chooseBtn" to="" @click="gotoPath">
       <img src="../../images/btn1.png">
-    </router-link>
+    </div>
   </div>
 </template>
 <script type="text/babel">
@@ -54,6 +54,9 @@ import shopList from 'src/components/common/shopList'
         shopList
     },
     methods: {
+      gotoPath(){
+        this.$router.go(-1);
+      },
       loadMore() {
         console.log(123)
         this.loading = true;
@@ -68,10 +71,7 @@ import shopList from 'src/components/common/shopList'
     },
 
     mounted() {
-      this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top;
-      for (let i = 1; i <= 20; i++) {
-        this.list.push(i);
-      }
+      
     }
   };
 </script>

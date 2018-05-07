@@ -5,8 +5,12 @@ const course =r =>require.ensure([],()=>r(require('../page/course/course')),'cou
 const courseDetail =r =>require.ensure([],()=>r(require('../page/courseDetail/courseDetail')),'courseDetail')
 const payList =r =>require.ensure([],()=>r(require('../page/payList/payList')),'payList')
 const wxpay =r =>require.ensure([],()=>r(require('../page/wxpay/wxpay')),'wxpay')
+const paysucc =r =>require.ensure([],()=>r(require('../page/wxpay/paysucc')),'paysucc')
 const activity =r =>require.ensure([],()=>r(require('../page/activity/activity')),'activity')
 const orderList =r =>require.ensure([],()=>r(require('../page/orderList/orderList')),'orderList')
+const error =r =>require.ensure([],()=>r(require('../page/error/error')),'error')
+
+const testMove =r =>require.ensure([],()=>r(require('../page/wxpay/testMove')),'testMove')
 
 export default [{
     path: '/',
@@ -49,9 +53,23 @@ export default [{
         },
         //活动页面
         {
+          path: '/paysucc',
+          component: paysucc
+        },
+        //活动页面
+        {
           path: '/activity',
           component: activity
         },
-
+        {
+          path: '/error',
+          component: error
+        },
+        //活动页面
+        {
+          path: '/testMove',
+          component: testMove
+        },
+        
     ]
 }]

@@ -38,7 +38,6 @@
             },
             //加入购物车，计算按钮位置。
             addToCart(event){
-                console.log()
                 this.ADD_CART(this.courseList);
                 this.btnType =!this.btnType;
                 let elLeft = event.target.getBoundingClientRect().left;
