@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <shop-cart :payList=payList :btnChoose=btnType :chooseType=chooseType :payTitle =payTitle></shop-cart>   
+    <shop-cart :payList=payList :btnChoose=btnType :chooseType=chooseType :payTitle =payTitle :payStatus=payStatus></shop-cart>   
   </div>  
 </template>
 

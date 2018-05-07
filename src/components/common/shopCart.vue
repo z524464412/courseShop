@@ -66,7 +66,7 @@
         billId:''
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -80,7 +80,6 @@
       }
     },
     mounted(){
-      console.log(this.payList)
       let _this = this;
       this.init_platform()
       this.INIT_DISCOUNT();
@@ -124,16 +123,28 @@
             param.price = 0
           }
           param.discount = _this.nowDiscount;
-          if(user.login && user.type == 'wx'){
+          if(user.login && user.type == 'wx' && user.name ==''){
             user.login = false;
             setStore('user',user);
             param.login = false;
             _this.$router.push({path:'/login',query:param});
           }
+          if(user.login){
+
+            addOrder(param).then(res=>{
+              if(res.data.respCode == 0){
+                _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+              }else{
+                 Toast(res.data.respMsg)
+              }
+            })
+          }
           if(user.type == 'dingding'){
             addOrder(param).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+              }else{
+                 Toast(res.data.respMsg)
               }
             })
           }
@@ -143,6 +154,9 @@
             this.ADD_CART(chooseCart);
               _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){
+          if(this.payStatus == 1){
+            return
+          }
           if(_this.payTitle == '已支付'){
             Toast({
               message:'已经支付!',

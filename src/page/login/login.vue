@@ -52,6 +52,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           mobile:'',
           man:'',
           login:true,
+          checkLogin:true,
           type:'wx',
           popUpSlots: [
             { //live picker select
@@ -115,14 +116,16 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
       },
       mounted () {
         this.getGradeList();
-        console.log(this.$route.query.classes)
         if(!this.$route.query.classes){
-          console.log(123)
           window.localStorage.removeItem('buyCart');  
           this.CLEAR_CART();
         }
         this.INIT_DISCOUNT();
-        
+      },
+      beforeDestroy (){
+        let info = JSON.parse(getStore('user'));
+        info.login = true;
+        setStore('user',info);
       },
       methods:{
         ...mapMutations([
@@ -255,7 +258,13 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           info.phone = this.mobile;
           info.login = this.login;
           info.type = this.type;
-          setStore('user',info);
+          let user = JSON.parse(getStore('user'));
+          if(user){
+            setStore('user',user);
+          }else{
+            setStore('user',info);
+          }
+          
           if(info.type == 'dingding'){
             if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
 
@@ -309,6 +318,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           info.phone = this.mobile;
           info.login = this.login;
           info.type = this.type;
+          this.checkLogin = false;
           setStore('user',info);
           var param ={};
           param.vCode = this.code;
@@ -356,6 +366,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           })
         }
       }
+
   }
 </script>
 
