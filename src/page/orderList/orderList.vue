@@ -6,8 +6,8 @@
           <div>手机号码:<span class="red">{{payList.phoneNo}}</span></div>
         </div>
         <div class="userItem">
-          <mt-button disabled type="danger" v-if="payStatus == 1" v-show="!btnType" @click="checkBtn">已确定</mt-button>
-          <mt-button v-else  type="danger" v-show="!btnType" @click="checkBtn">已确定</mt-button>
+          <mt-button disabled type="danger" v-if="payStatus == 1" v-show="!btnType" @click="checkBtn">已确认</mt-button>
+          <mt-button v-else  type="danger" v-show="!btnType" @click="checkBtn">已确认</mt-button>
           <mt-button  type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
         </div>
       </div>
@@ -93,6 +93,24 @@
               Toast(res.data.respMsg)
             }
           })
+          let url = window.location.href
+          dd.ready(function(){
+            // 设置导航
+            dd.biz.util.share({
+              type: 0,//分享类型，0:全部组件 默认； 1:只能分享到钉钉；2:不能分享，只有刷新按钮
+              url: url,
+              title: '梯方教育',
+              content: '梯方在线课程购买',
+              image: 'http://api.tifangedu.com/coursecart/static/img/info.png',
+              onSuccess : function() {
+                  //onSuccess将在调起分享组件成功之后回调
+              },
+              onFail : function(err) {
+                alert(err)
+              }
+            })
+          });
+          
       },
       methods:{
         choosePay(type){

@@ -48,7 +48,7 @@
 <script>
   import {setStore, getStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { addOrder ,testInit,doBillPay} from 'src/service/course'
+  import { addOrder ,testInit,doBillPay,prePay,getToken} from 'src/service/course'
   import { Toast } from 'mint-ui'
 	export default{
     data(){
@@ -79,11 +79,23 @@
         return {...this.discount};
       }
     },
+    created(){
+      
+    },
     mounted(){
       let _this = this;
       this.init_platform()
       this.INIT_DISCOUNT();
       this.billId = this.$route.query.id;
+      let token = this.getQueryStringByName('code');
+      if(!token){
+        let appId = 'wxc04e9bfb36836d54';
+        let url = 'http://api.tifangedu.com/coursecart/#/orderList?id='+this.billId;
+        let svc = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' 
+        + appId + '&redirect_uri=' + encodeURIComponent(url) 
+        + '&response_type=code&scope=snsapi_base&state=10106767#wechat_redirect';
+        window.location.href = svc;
+      }
     },
     methods:{
       //vuex数据
@@ -197,58 +209,128 @@
         param.payType = '';
         window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPay"+"?billId="+param.billId+"&payType=wxh5"
       },
-      //初始化微信支付配置
-      initWx(){
-        let param ={};
-        param.id = '12312';
-        doBillPay(param).then(function(res){
-          if(res.data.respCode=="0"){
-            this.data_config=res.data.data.json;
-            this.data_json=res.data.data.config;
-            this.address=res.data.data.address;
-            this.$nextTick(function(){
-              wx.config({
-                  debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-                  appId: this.data_config.appId, // 必填，公众号的唯一标识
-                  timestamp: this.data_config.timestamp, // 必填，生成签名的时间戳
-                  nonceStr: this.data_config.nonceStr, // 必填，生成签名的随机串
-                  signature: this.data_config.signature,// 必填，签名，见附录1
-                  jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
-              });
-              //成功之后调取微信支付
-              wx.chooseWXPay({
-                  timestamp: this.data_json.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-                  nonceStr: this.data_json.nonceStr, // 支付签名随机串，不长于 32 位
-                  package: this.data_json.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
-                  signType: this.data_json.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-                  paySign: this.data_json.paySign, // 支付签名
-                  success: function (res) {
-                  //window.location.href = this.address;
-                  window.history.replaceState("pay_suc","",this.address);
-                  window.location.reload()
-                  },
-                  cancel:function(res){
-                  Toast({
-                    message: '支付取消',
-                    position: 'middle',
-                    duration: 1000
-                  });
-                  },
-                  fail:function(res){
-                  Toast({
-                    message: '支付失败，请刷新',
-                    position: 'middle',
-                    duration: 1000
-                  });
-                  }
-              })
-            })
-          }else{
-            Toast(res.data.respMsg)
+      getQueryStringByName(name){
+          let result = location.search.match(new RegExp("[\?\&]" + name + "=([^\&]+)", "i"));
+          if (result == null || result.length < 1) {
+              return "";
           }
-        },function(res){
-          Toast("系统错误，请刷新")
+          return result[1];
+      },
+      //初始化微信支付配置
+      doWXPay(pack){
+        alert(JSON.stringify(pack));
+        WeixinJSBridge.invoke(
+            'getBrandWCPayRequest', pack ,
+           function(res){     
+               if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+
+               }     // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 
+           }
+       ); 
+      },
+      initWx(){
+        var _this =this;
+        let param ={};
+        let token = this.getQueryStringByName('code');
+        param.code = token;
+        getToken(param).then((res)=>{
+          alert(JSON.stringify(res.data.data));
+          let openid = res.data.data.openid;
+          if(openid){
+            let params ={};
+            params.openId = openid;
+            params.billId = _this.billId
+            prePay(params).then((res)=>{
+                let data =res.data.data;
+                _this.doWXPay(res.data.data);
+
+
+            //     wx.config({
+            //       debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            //       appId: data.appId, // 必填，公众号的唯一标识
+            //       timestamp: data.timeStamp, // 必填，生成签名的时间戳
+            //       nonceStr: data.nonceStr, // 必填，生成签名的随机串
+            //       signature: data.signature,// 必填，签名，见附录1
+            //       jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            //   });
+            //     wx.chooseWXPay({
+            //       timeStamp: data.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+            //       nonceStr: data.nonceStr, // 支付签名随机串，不长于 32 位
+            //       package: data.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+            //       signType: data.signType || 'SHA1', // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+            //       paySign: data.paySign, // 支付签名
+            //       success: function (res) {
+            //         Toast(res)
+            //       //window.location.href = this.address;
+            //       // window.history.replaceState("pay_suc","",this.address);
+            //       // window.location.reload()
+            //       },
+            //       cancel:function(res){
+            //       Toast({
+            //         message: '支付取消',
+            //         position: 'middle',
+            //         duration: 1000
+            //       });
+            //       },
+            //       fail:function(res){
+            //       Toast({
+            //         message: '支付失败，请刷新',
+            //         position: 'middle',
+            //         duration: 1000
+            //       });
+            //       }
+            //   })
+            })
+          }
         })
+        // doBillPay(param).then(function(res){
+        //   if(res.data.respCode=="0"){
+        //     this.data_config=res.data.data.json;
+        //     this.data_json=res.data.data.config;
+        //     this.address=res.data.data.address;
+        //     this.$nextTick(function(){
+        //       wx.config({
+        //           debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        //           appId: this.data_config.appId, // 必填，公众号的唯一标识
+        //           timestamp: this.data_config.timestamp, // 必填，生成签名的时间戳
+        //           nonceStr: this.data_config.nonceStr, // 必填，生成签名的随机串
+        //           signature: this.data_config.signature,// 必填，签名，见附录1
+        //           jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        //       });
+        //       //成功之后调取微信支付
+            //   wx.chooseWXPay({
+            //       timestamp: this.data_json.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+            //       nonceStr: this.data_json.nonceStr, // 支付签名随机串，不长于 32 位
+            //       package: this.data_json.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+            //       signType: this.data_json.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+            //       paySign: this.data_json.paySign, // 支付签名
+            //       success: function (res) {
+            //       //window.location.href = this.address;
+            //       window.history.replaceState("pay_suc","",this.address);
+            //       window.location.reload()
+            //       },
+            //       cancel:function(res){
+            //       Toast({
+            //         message: '支付取消',
+            //         position: 'middle',
+            //         duration: 1000
+            //       });
+            //       },
+            //       fail:function(res){
+            //       Toast({
+            //         message: '支付失败，请刷新',
+            //         position: 'middle',
+            //         duration: 1000
+            //       });
+            //       }
+            //   })
+            // })
+        //   }else{
+        //     Toast(res.data.respMsg)
+        //   }
+        // },function(res){
+        //   Toast("系统错误，请刷新")
+        // })
       },
       //判断浏览器环境
       init_platform() {

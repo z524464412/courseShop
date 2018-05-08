@@ -290,25 +290,25 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           if(info.type == 'wx' && info.login){
             this.$router.push({path:'/course',query:{gradeId:gradeId}})
           }
-          if(info.type =='wx' && !info.login){
-            if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
-            }else{
-              var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
-              container1.appendTo($("body"));
-              setTimeout(function(){
-                container1.remove();
-              },1500)
-              return 
-            }
-            if(!info.name){
-              var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请输入姓名</div></div></div></div>');
-              container1.appendTo($("body"));
-              setTimeout(function(){
-                container1.remove();
-              },1500)
-              return
-            }
-          }
+          // if(info.type =='wx' && !info.login){
+          //   if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
+          //   }else{
+          //     var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
+          //     container1.appendTo($("body"));
+          //     setTimeout(function(){
+          //       container1.remove();
+          //     },1500)
+          //     return 
+          //   }
+          //   if(!info.name){
+          //     var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请输入姓名</div></div></div></div>');
+          //     container1.appendTo($("body"));
+          //     setTimeout(function(){
+          //       container1.remove();
+          //     },1500)
+          //     return
+          //   }
+          // }
         },
         payMoney(){
           let info = {};

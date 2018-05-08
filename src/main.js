@@ -146,7 +146,6 @@ function ddConfig(){
 ddConfig();
 wxConfig();
 router.beforeEach((to, from, next) => {
-
 	next();
 })
 

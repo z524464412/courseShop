@@ -33,7 +33,9 @@
         </div>
         <div class="arrangeDiv" v-show="list[1].show">
           <div class="arrangeList" v-for="(item,index) in courseTimeList">
-            <span>课程安排{{index}}:</span><span>{{item.date}}</span><span>{{item.begin}}-{{item.end}}</span>
+            <span>第{{index+1}}课:</span>
+            <span>{{item.date}}</span>
+            <span>{{item.begin}}-{{item.end}}</span>
           </div>
           
         </div>

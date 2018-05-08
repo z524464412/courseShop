@@ -56,5 +56,11 @@ export const doBillPay = params => instance.get('/v1/bill/doBillPay',{params});
 
 export const checkPayResult = params =>instance.get('/v1/bill/checkPayResult',{params});
 
+//支付订单
+export const prePay = params =>instance.get('/v1/bill/doBillPayWXOpen',{params});
+
+//获取openId
+export const getToken = params =>instance.get('/v1/sys/getWeChatUserToken',{params});
+
 
 
