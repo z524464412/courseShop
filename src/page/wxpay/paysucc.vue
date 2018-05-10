@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import {checkPayResult} from 'src/service/course'
+import {checkPayResult,checkAliResult} from 'src/service/course'
 import { Toast } from 'mint-ui'
   export default {
       data() {
@@ -44,23 +44,44 @@ import { Toast } from 'mint-ui'
       	this.billId = this.$route.query.id;
       	if(this.billId){
           this.checkType();
-      	}else{
-      		Toast('地址错误!')
       	}
-      	
+        console.log(this.$route.query.app_id)
+      	if(this.$route.query.app_id){
+          this.param = this.$route.query
+          this.checkAliType();
+        }
       },
       methods:{
         checkType(){
           var _this =this;
           this.param.billId = this.billId
           checkPayResult(this.param).then((res)=>{
-            res.data.resPcode =0;
-          if(res.data.resPcode == 0){
+            console.log(res.data.respCode)
+          if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
               _this.$router.push({path:'/orderList',query:{id:_this.param.billId}})
             },3000)
-           }else if(res.data.resPcode == 880000){
+           }else if(res.data.respCode == 880000){
+            this.paySucc = 1;
+            setTimeout(function(){
+              _this.checkType();
+            },5000)
+           }else{
+            this.paySucc = 2;
+           }
+          })
+        },
+        checkAliType(){
+          var _this =this;
+          checkAliResult(_this.param).then((res)=>{
+            console.log(res.data.respCode)
+          if(res.data.respCode == 0){
+            this.paySucc = 0;
+            setTimeout(function(){
+              _this.$router.push({path:'/orderList',query:{id:_this.param.billId}})
+            },3000)
+           }else if(res.data.respCode == 880000){
             this.paySucc = 1;
             setTimeout(function(){
               _this.checkType();
@@ -70,6 +91,7 @@ import { Toast } from 'mint-ui'
            }
           })
         }
+
       }
   }
 

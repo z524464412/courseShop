@@ -50,11 +50,13 @@ export const orderDetail = params =>instance.get('/v1/bill/getBillDetail',{param
 
 //支付接口
 
-export const doBillPay = params => instance.get('/v1/bill/doBillPay',{params});
+export const aliPay = params => instance.get('/v1/bill/doBillPayAlipay',{params});
 
 //查询订单状态
 
 export const checkPayResult = params =>instance.get('/v1/bill/checkPayResult',{params});
+//查询ali订单
+export const checkAliResult = params =>instance.post('/v1/bill/checkPayResult',params);
 
 //支付订单
 export const prePay = params =>instance.get('/v1/bill/doBillPayWXOpen',{params});

@@ -13,7 +13,6 @@ const instance = axios.create({
 instance.defaults.headers.post['Content-Type'] = 'application/json';
 //错误处理
 instance.interceptors.response.use(function(response) {
-	console.log(response);
   return response;
 }, util.catchError);
 

@@ -79,7 +79,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           gradeId:'',
           gradeOid:'',
           query:'',
-          ids:''
+          ids:'',
+          scope:''
         }
       },
       created(){
@@ -138,9 +139,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           gradeList(param).then(res =>{
             if(res.data.respCode == 0){
               _this.allData = res.data.data;
+              console.log(_this.allData)
               var allName =  _this.getNameDta(res.data.data);
               _this.popUpSlots[0].values = allName;
-              _this.getGrade(allName[0])
+              _this.getGrade(allName[0].name)
             }else{
               
             }
@@ -199,17 +201,23 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           var result;
           for (var i in opt) {
             if (opt[i].name == name) {
-              result = opt[i].ide;
+              result = opt[i].id;
             }
           }
           return result;
+        },
+        getObj(){
+          var result ={};
         },
         //获取所有的name
         getNameDta(arr) {
           var result = new Array();
           for (var i in arr) {
             if (arr[i].name != '') {
-              result.push(arr[i].name);
+              let aa = {};
+              aa.name =arr[i].name
+              aa.id = arr[i].id;
+              result.push(aa);
             }
           }
           return result;
@@ -231,10 +239,21 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
         },
         //popup改变
         popUpChange(picker,values){
-          this.getGrade(picker.getSlotValue(0))
+          if(picker.getSlotValue(0)){
+            this.getGrade(picker.getSlotValue(0).name)  
+          }
           if(picker.getSlotValue(1)){
               this.popUpTitle = picker.getSlotValue(1).name;
-              this.gradeId = picker.getSlotValue(1).id;
+              if(!this.gradeOid){
+                this.gradeOid =  picker.getSlotValue(1).id;
+              }else{
+                this.gradeId = picker.getSlotValue(1).id;
+              }
+              if(picker.getSlotValue(1).name.indexOf('专项')  >0){
+
+                this.scope = picker.getSlotValue(0).id;
+              }
+              console.log(this.gradeId)
           }
         },
         //popup取消
@@ -245,11 +264,15 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
         popUpSelect(){
           this.pickerVisible = false;
           this.popUpOldTitle = this.popUpTitle;
-          this.gradeOid =this.gradeId;
+          console.log(this.gradeOid)
+          this.gradeOid = this.gradeId;
+          console.log(this.gradeOid)
+
         },
         //去选课
         gotoCourse(){
-          let gradeId = this.gradeOid || this.gradeId;
+          let gradeId = this.gradeOid;
+          let scope = this.scope;
           let param ={};
           param.vCode = this.code
           let info = {};
@@ -267,7 +290,6 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           
           if(info.type == 'dingding'){
             if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
-
             }else{
               var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
               container1.appendTo($("body"));
@@ -285,10 +307,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
               return
             }else{
             }
-            this.$router.push({path:'/course',query:{gradeId:gradeId}})
+            this.$router.push({path:'/course',query:{gradeId:gradeId,scope:scope}})
           }
           if(info.type == 'wx' && info.login){
-            this.$router.push({path:'/course',query:{gradeId:gradeId}})
+            this.$router.push({path:'/course',query:{gradeId:gradeId,scope:scope}})
           }
           // if(info.type =='wx' && !info.login){
           //   if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){

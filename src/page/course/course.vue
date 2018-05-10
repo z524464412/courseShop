@@ -73,6 +73,7 @@ import { Spinner } from 'mint-ui';
           courseTypeName:'全部课程',
           allNum:0,
           allPrice:0,
+          scopeId:'',
           gradeId:'',
           courseTypeList:{},
           tag:'',
@@ -88,6 +89,8 @@ import { Spinner } from 'mint-ui';
       created(){
         Indicator.open('加载中...');
         this.gradeId = this.$route.query.gradeId;
+        this.scopeId = this.$route.query.scope;
+        console.log(this.scopeId)
         this.INIT_BUYCART();
         this.getdiscount();
       },
@@ -163,7 +166,11 @@ import { Spinner } from 'mint-ui';
           var _this =this;
           var param = {};
           param.type = 'subject'
-          param.grade = this.gradeId;
+          if(this.scopeId){
+            param.scope = this.scopeId;
+          }else{
+            param.grade = this.gradeId;
+          }
           CourseType(param).then(res =>{
             _this.courseTypeList = res.data.data;
           })
@@ -172,7 +179,11 @@ import { Spinner } from 'mint-ui';
         getCourseList(){
           var _this = this;
           var param = {};
-          param.grade = this.gradeId;
+          if(this.scopeId){
+            param.scope = this.scopeId;
+          }else{
+            param.grade = this.gradeId;
+          }
           param.pageSize = this.pageSize;
           if(this.tag){
             param.tag = encodeURI(this.tag);
