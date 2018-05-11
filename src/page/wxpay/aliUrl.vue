@@ -16,39 +16,22 @@ export default {
 	name: '',
     data () {
     	return {
-			layout: false,
-			// formData: location.href.split('aliUrl?')[1].split('&'),
-			orderNo: '',
-			paydata:{
-				amount: "0.00",
-				cash: 0,
-				desc:"数据交易",
-				dimension: 4000,//爱情
-				isMerchant: 0,
-				mobile:'',
-				name:"数据交易",
-				orderNo: "",
-				remark: "爱情银行数据交易",
-				target: "",
-				tradePwd: 0,
-				type: "exchange"
-			},
-			api:{
-				order_state:'/love/order/status/'
-			},
+			billId: '',
     	}
     },
+    created(){
+		this.billId = this.$route.query.id;
+    },
     mounted() {
-    	let billId = this.$route.query.id;
-    		var ua = navigator.userAgent.toLowerCase();
-    		if((ua.match(/MicroMessenger/i) != "micromessenger")){
-    			window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+billId;
-  			}
-		
+    	var _this= this;
+		var ua = navigator.userAgent.toLowerCase();
+		if((ua.match(/MicroMessenger/i) != "micromessenger")){
+			window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+		}
     },
     methods:{
     	confirm_order(){
-    		
+
     	},
 		// init_platform:function(){
 		// 	var ua = navigator.userAgent.toLowerCase();

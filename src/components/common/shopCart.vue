@@ -266,7 +266,6 @@
         WeixinJSBridge.invoke(
             'getBrandWCPayRequest', pack ,
            function(res){
-            alert(JSON.stringify(res))
             let queryId = this.getQueryByName('id');
                if(res.data.err_msg == "get_brand_wcpay_request:ok" ) {
                 setTimeout(function(){
@@ -313,7 +312,6 @@
                        window.location.href = 'http://api.tifangedu.com/coursecart/#/paysucc?id='+queryId;
                     } else {
                         window.history.go(-1)
-                        window.alert(' 支付失败')
                         window.location.reload()
                     }
                   },

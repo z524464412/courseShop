@@ -75,11 +75,10 @@ import { Toast } from 'mint-ui'
         checkAliType(){
           var _this =this;
           checkAliResult(_this.param).then((res)=>{
-            console.log(res.data.respCode)
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
-              _this.$router.push({path:'/orderList',query:{id:_this.param.billId}})
+              _this.$router.push({path:'/orderList',query:{id:res.data.data}})
             },3000)
            }else if(res.data.respCode == 880000){
             this.paySucc = 1;
