@@ -30,65 +30,7 @@ export default {
 		}
     },
     methods:{
-    	confirm_order(){
-
-    	},
-		// init_platform:function(){
-		// 	var ua = navigator.userAgent.toLowerCase();
-  //   		if((ua.match(/MicroMessenger/i) != "micromessenger")){
-		// 		this.paydata.agent="wap";
-		// 		this.$http.post('/h5/alipay',this.paydata).then(function(res){
-		// 			if(res.data.respCode=="0"){
-		// 				window.location.replace(res.data.data);
-		// 			}
-		// 		},function(res){
-		// 			this.alertMsg(res.data.respMsg);
-		// 		})
-		// 	} else {
-		// 		this.layout = true;
-		// 		if(this.paydata.orderNo){
-		// 			this.orderNo = this.paydata.orderNo;
-		// 		}
-		// 	}
-		// },
- 	// 	confirm_order:function(){
- 	// 		var that=this;
-		// 	this.$http.get(this.api.order_state+this.orderNo,{
-		// 		before:function(){
-		// 			Indicator.open("加载中...")
-		// 		}
-		// 	}).then(function(res){
-		// 		Indicator.close();
-		// 		if(res.data.respCode=="0"){
-		// 			switch(res.data.data.pay_status){
-		// 				case 0:that.unpaid();break;//未支付
-		// 				case 1:that.paid();break;//已支付
-		// 				case 2:that.refund();break;//已拒绝
-		// 			}
-		// 		}else{
-		// 			Toast(res.data.respMsg)
-		// 		}
-		// 	},function(res){
-		// 		Indicator.close();
-		// 		Toast('系统错误，请刷新')
-		// 	})
- 	// 	},
- 	// 	paid:function(){
-		// 	window.history.go(-2)
- 	// 	},
- 	// 	unpaid:function(){
- 	// 		layer.closeAll();
-		// 	this.alertMsg("您未付款，请前往浏览器支付");
- 	// 	},
- 	// 	refund:function(){
-		// 	window.history.go(-2)
- 	// 	},
-		// alertMsg: function(msg) {
-	 //      layer.open({
-	 //        content: msg,
-	 //        btn: ['确认']
-	 //      });
-	 //    },
+    	
     },
 }
 </script>

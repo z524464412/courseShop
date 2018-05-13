@@ -60,7 +60,7 @@ import { Toast } from 'mint-ui'
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
-              _this.$router.push({path:'/orderList',query:{id:_this.param.billId}})
+              window.location.href="http://online.tifangedu.com/wap/myselfCenter"
             },3000)
            }else if(res.data.respCode == 880000){
             this.paySucc = 1;
@@ -78,7 +78,7 @@ import { Toast } from 'mint-ui'
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
-              _this.$router.push({path:'/orderList',query:{id:res.data.data}})
+              window.location.href="http://online.tifangedu.com/wap/myselfCenter"
             },3000)
            }else if(res.data.respCode == 880000){
             this.paySucc = 1;
