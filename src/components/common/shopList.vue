@@ -80,8 +80,8 @@ import {setStore} from 'src/config/mUtils'
           this.elBottom = elBottom;
       },
       beforeEnter(el){
-          el.style.transform = `translate3d(0,${37 + this.elBottom - this.windowHeight}px,0)`;
-          el.children[0].style.transform = `translate3d(${this.elLeft - 30}px,0,0)`;
+          el.style.transform = `translate3d(0,${37-10 + this.elBottom - this.windowHeight}px,0)`;
+          el.children[0].style.transform = `translate3d(${this.elLeft -10-30}px,0,0)`;
           el.children[0].style.opacity = 0;
       },
       afterEnter(el){

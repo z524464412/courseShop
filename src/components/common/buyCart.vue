@@ -3,8 +3,12 @@
         <section class="cart_button">
             <transition name="fade">
             </transition>
-            <img class="add_icon" v-show="!btnType" @click.stop="addToCart($event)" src="../../images/plus.png" >
-            <img class="add_icon" v-show="btnType" @click.stop="removeOutCart($event)" src="../../images/tick.png">
+            <div class="iconSty" v-show="!btnType" @click.stop="addToCart($event)">
+                <img class="add_icon"   src="../../images/plus.png" > 
+            </div>
+            <div class="iconSty" v-show="btnType" @click.stop="removeOutCart($event)"> 
+                <img class="add_icon" src="../../images/tick.png">
+            </div>
         </section>
     </section>
 </template>
@@ -63,10 +67,16 @@
 <style lang="scss" scoped>
     @import '../../style/mixin';
 	.cart_module{
+        .iconSty{
+            width: 40px;
+            height: 40px;
+            display: flex;
+        }
         .add_icon{
             width: 20px;
             position: relative;
             z-index: 12;
+            margin:auto;
         }
         .cart_button{
             display: flex;

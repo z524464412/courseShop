@@ -36,6 +36,9 @@
     <div class="chooseBtn" to="" @click="gotoPath">
       <img src="../../images/btn1.png">
     </div>
+    <div class="lineheight">
+      
+    </div>
   </div>
 </template>
 <script type="text/babel">

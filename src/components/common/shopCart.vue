@@ -50,6 +50,7 @@
   import {mapState, mapMutations} from 'vuex'
   import { addOrder ,testInit,aliPay,prePay,getToken} from 'src/service/course'
   import { Toast } from 'mint-ui'
+  import { httpUrl } from 'src/config/env';
 	export default{
     data(){
       return{
@@ -64,20 +65,7 @@
         chooseLength:0,
         platform:'',
         billId:'',
-        paydata:{
-          amount: "0.00",
-          cash: 1,
-          desc:"数据交易",
-          dimension: 4000,//爱情
-          isMerchant: 1,
-          mobile:'13761875271',
-          name:"数据交易",
-          orderNo: "123",
-          remark: "爱情银行数据交易",
-          target: "123",
-          tradePwd: 0,
-          type: "exchange"
-        }
+        token:''
       }
     },
     props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus'],
@@ -104,7 +92,9 @@
       let token = this.getQueryStringByName('code');
       if( _this.$route.path=='/orderList' && !token && _this.platform=='wx'){
         let appId = 'wxc04e9bfb36836d54';
-        let url = window.location.origin+'/coursecart/#/orderList?id='+this.billId;
+        let url = window.location.origin+'/#/orderList?id='+this.billId;
+        // let url = window.location.origin+'/#/orderList?id='+this.billId;
+        // let url = window.location.origin+'/order/';
         let svc = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' 
         + appId + '&redirect_uri=' + encodeURIComponent(url) 
         + '&response_type=code&scope=snsapi_base&state=10106767#wechat_redirect';
@@ -119,6 +109,10 @@
       gotoPage(){
         let _this = this;
         let user = {};
+        let token = '';
+        let userToken = getStore('userToken');
+        let dingToken = getStore('dingToken');
+        _this.token = token
         user = JSON.parse(getStore('user'));
         _this.ids = [];
         for(let cart of Object.values(_this.cartList)){
@@ -143,6 +137,8 @@
           param.phoneNo=user.phone;
           param.classes = _this.ids;
           param.price = _this.allPrice;
+          param.scope = user.scope;
+          param.grade =user.gradeId
           if(_this.allPrice){
              param.price = _this.allPrice - _this.nowDiscount;
           }else{
@@ -155,8 +151,18 @@
             param.login = false;
             _this.$router.push({path:'/login',query:param});
           }
-          if(user.login){
-            addOrder(param).then(res=>{
+          let token = '';
+          let userToken = getStore('userToken');
+          let dingToken = getStore('dingToken');
+          if(userToken){
+            token = 'userToken='+userToken
+          }else if(dingToken){
+            token = 'dingToken='+dingToken
+          }else{
+            token = ''
+          }
+          if(user.login && user.type == 'wx'){
+            addOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30015){
@@ -170,9 +176,25 @@
             })
           }
           if(user.type == 'dingding'){
-            addOrder(param).then(res=>{
+            param.channel =user.channeId;
+            addOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+              }else if(res.data.respCode == 30010){
+                AuthLogin(param).then(res=>{
+                if(res.data.respCode == 0){
+                  if(res.data.data.dingToken){
+                      setStore('dingToken',res.data.data.dingToken)
+                      addOrder(param,token).then(res=>{
+                        if(res.data.respCode == 0){
+                          _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+                        }else{
+                          Toast(res.data.respMsg)
+                        }
+                      })
+                    }
+                  }
+                })
               }else{
                  Toast(res.data.respMsg)
               }
@@ -224,14 +246,20 @@
       //微信内使用支付宝
       wxAliPay(){
         var _this = this;
-        let a = this.paydata;
         this.$router.push({path:'/aliUrl',query:{id:_this.billId}});
         // location.reload();//微信浏览器需要刷新保存当前的地址
       },
       h5AliPay(){
         let param = {};
         param.billId = this.billId;
-        window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+param.billId
+        //api接口地址
+        if(httpUrl && httpUrl.indexOf('tfapi') > 0){
+          window.location.href = window.location.origin+"/v1/bill/alipay"+"?billId="+param.billId
+        }else{
+          window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+param.billId
+        }
+        
+        
       },
       //微信支付方式判断
       wechatPay(){
@@ -245,7 +273,12 @@
       wxh5pay(){
         let param = {};
         param.billId = this.billId;
-        window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayWXH5"+"?billId="+param.billId
+        //api接口地址
+        if(httpUrl && httpUrl.indexOf('tfapi') > 0){
+          window.location.href = window.location.origin+"/v1/bill/wxh5"+"?billId="+param.billId
+        }else{
+          window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayWXH5"+"?billId="+param.billId
+        }
       },
       getQueryByName(name){
           let result = location.hash.match(new RegExp("[\?\&]" + name + "=([^\&]+)", "i"));
@@ -262,21 +295,21 @@
           return result[1];
       },
       //初始化微信支付配置
-      doWXPay(pack){
-        WeixinJSBridge.invoke(
-            'getBrandWCPayRequest', pack ,
-           function(res){
-            let queryId = this.getQueryByName('id');
-               if(res.data.err_msg == "get_brand_wcpay_request:ok" ) {
-                setTimeout(function(){
-                  window.location.href = 'http://api.tifangedu.com/coursecart/paysucc?id='+queryId;
-                  window.history.replaceState("pay_suc","","http://api.tifangedu.com/coursecart/paysucc?id="+queryId);
-                   window.location.reload()
-                },1000)
-               }     // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 
-           }
-       ); 
-      },
+      // doWXPay(pack){
+      //   WeixinJSBridge.invoke(
+      //       'getBrandWCPayRequest', pack ,
+      //      function(res){
+      //       let queryId = this.getQueryByName('id');
+      //          if(res.data.err_msg == "get_brand_wcpay_request:ok" ) {
+      //           setTimeout(function(){
+      //             window.location.href = 'http://api.tifangedu.com/coursecart/paysucc?id='+queryId;
+      //             window.history.replaceState("pay_suc","",location.origin+"/coursecart/paysucc?id="+queryId);
+      //              window.location.reload()
+      //           },1000)
+      //          }     // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 
+      //      }
+      //  ); 
+      // },
       initWx(){
         var _this =this;
         let param ={};
@@ -290,6 +323,7 @@
             params.openId = openid;
             params.billId = _this.billId
             prePay(params).then((res)=>{
+              alert(JSON.stringify(res))
                 let data =res.data.data;
                 // _this.doWXPay(res.data.data);
                 wx.config({
@@ -300,7 +334,6 @@
                   signature: data.signature,// 必填，签名，见附录1
                   jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
               });
-
                 wx.chooseWXPay({
                   timestamp: data.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
                   nonceStr: data.nonceStr, // 支付签名随机串，不长于 32 位
@@ -309,7 +342,7 @@
                   paySign: data.paySign, // 支付签名
                   success: function (res) {
                     if (res.errMsg === 'chooseWXPay:ok') {
-                       window.location.href = 'http://api.tifangedu.com/coursecart/#/paysucc?id='+queryId;
+                       window.location.href = window.location.origin+'/#/paysucc?id='+queryId;
                     } else {
                         window.history.go(-1)
                         window.location.reload()

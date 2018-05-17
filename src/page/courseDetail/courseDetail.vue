@@ -70,7 +70,7 @@
         <i class="packageIcon" v-if="allNum>0">{{allNum}}</i>
         <img src="../../images/package1.png">
       </div>
-      <shop-cart :noIcon="'detail'" :allPrice=query.price></shop-cart>
+      <shop-cart :noIcon="'detail'" :allPrice=query.price :payTitle="'加入书包'"></shop-cart>
     </div>
 </template>
 <script>
@@ -311,7 +311,7 @@ import { Spinner } from 'mint-ui';
 }
 
 .header {
-  height: 204px;
+  // height: 204px;
   width: 100%;
 }
 .isIOS{

@@ -1,6 +1,6 @@
 <template>
   	<div class="login">
-      <img src="../../images/background.png">
+      <img class="loginImg" src="../../images/background.png">
       <div class="formDiv">
         <div class="phoneDiv DivItem" v-if="!login || type=='dingding'">
             <img src="../../images/phone.png"/>
@@ -22,6 +22,12 @@
               {{popUpOldTitle}}
           </div>
         </div>
+        <div class="gradeDiv" v-if="type == 'dingding'">
+          <div class="left">购买渠道:</div>
+          <div class="gradeSelect" @click="showChannel">
+              {{popChannel}}
+          </div>
+        </div>
         <div class="gradeBtn" @click="gotoCourse" v-if="type!= 'wx' || login">
           开始选课
         </div>
@@ -29,6 +35,10 @@
           确认信息
         </div>
       </div>
+      <mt-popup v-model="pickerVisible1" position="bottom" class="mint-popup1">
+        <mt-picker value-key="text" :slots="popUpSlots1" ref="popUp1" :visible-item-count="5" @change="popUpChange1" :show-toolbar="false"></mt-picker>
+        <p><button type="button" @click="popUpClose1">取消</button><button type="button" @click="popUpSelect1">完成</button></p>
+      </mt-popup>
       <mt-popup v-model="pickerVisible" position="bottom" class="mint-popup">
       <mt-picker value-key="name" :slots="popUpSlots" ref="popUp" :visible-item-count="5" @change="popUpChange" :show-toolbar="false"></mt-picker>
       <p><button type="button" @click="popUpClose">取消</button><button type="button" @click="popUpSelect">完成</button></p>
@@ -37,14 +47,15 @@
 </template>
 <script>
 import{ mapState,mapMutations} from 'vuex';
-import { Toast } from 'mint-ui';
-import {setStore,getStore} from 'src/config/mUtils';
-import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/service/course'
+import { Toast ,Indicator,MessageBox} from 'mint-ui';
+import {setStore,getStore,removeStore} from 'src/config/mUtils';
+import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} from 'src/service/course'
 
   export default {
       data() {
         return {
           pickerVisible:false,
+          pickerVisible1:false,
           allData:{},
           sendText:'发送验证码',
           sending:'',
@@ -54,6 +65,15 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           login:true,
           checkLogin:true,
           type:'wx',
+          popUpSlots1:[
+            {
+              flex: 1,
+                values: [],
+                className: 'slot1',
+                textAlign: 'center',
+                defaultIndex: 0
+            }
+          ],
           popUpSlots: [
             { //live picker select
               flex: 1,
@@ -76,11 +96,17 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           ],
           popUpTitle:'小学三年级',
           popUpOldTitle:'小学三年级',
+          popChannel:'社群炒作',
           gradeId:'',
           gradeOid:'',
           query:'',
           ids:'',
-          scope:''
+          scope:'',
+          channelList:[],
+          channeOId:'',
+          channeOTitle:'',
+          channeId:''
+
         }
       },
       created(){
@@ -92,23 +118,11 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
         }else{
           this.login = true;
         }
-        dd.ready(function() {
-          dd.runtime.permission.requestAuthCode({
-            corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
-            onSuccess: function(result) {
-              let param = {};
-              param.code = result.code;
-              AuthLogin(param).then(res=>{
-                if(res.data.respCode == 0){
-                  _this.type = 'dingding';
-                }
-              })
-            },
-            onFail : function(err) {
-              console.log(err)
-            }
-          })
-        });
+        if(getStore('type') == 'dingding'){
+          _this.type = 'dingding'
+        }else{
+          _this.type == 'wx'
+        }
       },
 
       deactivated() {
@@ -117,11 +131,15 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
       },
       mounted () {
         this.getGradeList();
+        this.getChannel();
         if(!this.$route.query.classes){
           window.localStorage.removeItem('buyCart');  
           this.CLEAR_CART();
         }
         this.INIT_DISCOUNT();
+        $('input').bind("focus",function(){
+          // $(".login").css("position","fixed");
+        })
       },
       beforeDestroy (){
         let info = JSON.parse(getStore('user'));
@@ -132,6 +150,16 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
         ...mapMutations([
           'INIT_DISCOUNT','CLEAR_CART','RECORD_USERINFO'
         ]),
+        getChannel(){
+          getChannel().then(res=>{
+            var _this = this;
+            if(res.data.respCode == 0){
+              _this.channeId = res.data.data[0].id
+              _this.channelList = res.data.data;
+               _this.popUpSlots1[0].values = res.data.data;
+            }
+          })
+        },
         getGradeList(){
           let _this =this;
           let param = {};
@@ -139,12 +167,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           gradeList(param).then(res =>{
             if(res.data.respCode == 0){
               _this.allData = res.data.data;
-              console.log(_this.allData)
               var allName =  _this.getNameDta(res.data.data);
               _this.popUpSlots[0].values = allName;
               _this.getGrade(allName[0].name)
-            }else{
-              
+              _this.gradeOid =_this.allData[0].sub[0].id
             }
           },function(res){
             Indicator.close();
@@ -158,7 +184,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
             param.phoneNo = this.mobile;
             manName(param).then(res=>{
               if(res.data.respCode == 0){
-                this.man = res.data.data.username
+                this.man = res.data.data.nickName
               }
             })
           }
@@ -173,7 +199,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
               let param = {};
               param.phoneNo = this.mobile;
               getCodeMsg(param).then(res=>{
-                console.log(res)
+                
               }); 
               s1 = setInterval(() => {
                 if(t>1){
@@ -226,18 +252,31 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
          getGrade: function(placeName) {
               var _this = this;
               var place = Object.values(_this.allData);
+              console.log(place)
               for (let item of place) {
                 if (item.name == placeName) {
                   _this.popUpSlots[2].values = item.sub;
+                 
                 }
               }
             },
+        showChannel(){
+          $('.mint-popup1').css('opacity', 1)
+          this.pickerVisible1 = !this.pickerVisible1;
+        },
         //显示popup
         showPicker(){
           $('.mint-popup').css('opacity', 1)
           this.pickerVisible = !this.pickerVisible;
         },
         //popup改变
+        popUpChange1(picker,values){
+          if(picker.getSlotValue(0)){
+            this.channeOId = picker.getSlotValue(0).id;
+            this.channeOTitle = picker.getSlotValue(0).text
+          }
+        },
+         //popup改变
         popUpChange(picker,values){
           if(picker.getSlotValue(0)){
             this.getGrade(picker.getSlotValue(0).name)  
@@ -253,8 +292,17 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
 
                 this.scope = picker.getSlotValue(0).id;
               }
-              console.log(this.gradeId)
           }
+        },
+        //popup取消
+        popUpClose1(){
+          this.pickerVisible1 = false;
+        },
+        //popup选择
+        popUpSelect1(){
+          this.pickerVisible1 = false;
+          this.popChannel = this.channeOTitle;
+          this.channeId = this.channeOId;
         },
         //popup取消
         popUpClose(){
@@ -267,10 +315,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           console.log(this.gradeOid)
           this.gradeOid = this.gradeId;
           console.log(this.gradeOid)
-
         },
         //去选课
         gotoCourse(){
+          var _this =this;
           let gradeId = this.gradeOid;
           let scope = this.scope;
           let param ={};
@@ -281,13 +329,16 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           info.phone = this.mobile;
           info.login = this.login;
           info.type = this.type;
+          info.gradeId = this.gradeId;
+          info.scope = this.scope;
           let user = JSON.parse(getStore('user'));
-          if(user){
-            setStore('user',user);
-          }else{
-            setStore('user',info);
+          if(info.type == 'wx'){
+            if(user){
+              setStore('user',user);
+            }else{
+              setStore('user',info);
+            }
           }
-          
           if(info.type == 'dingding'){
             if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
             }else{
@@ -305,32 +356,15 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
                 container1.remove();
               },1500)
               return
-            }else{
             }
+            removeStore('user');
+            info.channeId  = _this.channeId;
+            setStore('user',info);
             this.$router.push({path:'/course',query:{gradeId:gradeId,scope:scope}})
           }
           if(info.type == 'wx' && info.login){
             this.$router.push({path:'/course',query:{gradeId:gradeId,scope:scope}})
           }
-          // if(info.type =='wx' && !info.login){
-          //   if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
-          //   }else{
-          //     var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请先输入正确的手机号</div></div></div></div>');
-          //     container1.appendTo($("body"));
-          //     setTimeout(function(){
-          //       container1.remove();
-          //     },1500)
-          //     return 
-          //   }
-          //   if(!info.name){
-          //     var container1=$('<div class="field-tooltipWrap"><div class="field-tooltipInner"><div class="field-tooltip fieldTipBounceIn"><div class="zvalid-resultformat">请输入姓名</div></div></div></div>');
-          //     container1.appendTo($("body"));
-          //     setTimeout(function(){
-          //       container1.remove();
-          //     },1500)
-          //     return
-          //   }
-          // }
         },
         payMoney(){
           let info = {};
@@ -373,8 +407,22 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
               params.phoneNo = _this.mobile;
               params.price = _this.query.price;
               params.userName = _this.man;
-              console.log(JSON.stringify(params))
-            addOrder(params).then(res=>{
+              param.grade = _this.gradeId
+              params.scope = _this.scope;
+              if(res.data.data.userToken){
+                setStore('userToken',res.data.data.userToken)
+              }
+              let token = '';
+              let userToken = getStore('userToken');
+              let dingToken = getStore('dingToken');
+              if(userToken){
+                token = 'userToken='+userToken
+              }else if(dingToken){
+                token = 'dingToken='+dingToken
+              }else{
+                token = ''
+              }
+            addOrder(params,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else{
@@ -388,15 +436,20 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder} from 'src/se
           })
         }
       }
-
   }
 </script>
 
 <style lang="scss" scoped>
  @import 'src/style/common';
+ .login{
+  // position:fixed;
+ }
   .login img{
     width: 100%;
     overflow: hidden;
+    position:relative;
+    // position: fixed;
+    // background-attachment: fixed;
   }
   .formDiv{
     width: 65.6%;

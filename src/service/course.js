@@ -6,34 +6,49 @@ import {
  * 获取全部课程
  */
 
-export const courseList = params => instance.get('/v1/classes/getAllClasses',{params});
+// export const courseList = params => instance.get('/v1/classes/getAllClasses',{params});
+export const courseList = params => instance.get('/v1/course/list',{params});
+
 //获取课程详情
-export const courseDetail = params =>instance.get('/v1/classes/getClassDetail',{params});
+// export const courseDetail = params =>instance.get('/v1/classes/getClassDetail',{params});
+export const courseDetail = params =>instance.get('/v1/course/detail',{params});
 //获取所有的年级列表
-export const gradeList = params => instance.get('/v1/sys/getGradeCombo',{params});
+
+// export const gradeList = params => instance.get('/v1/sys/getGradeCombo',{params});
+export const gradeList = params => instance.get('/v1/grade',{params});
 /**
  * 获取课程类型
  */
-export const CourseType = params => instance.get('/v1/sys/getSysLookup',{params});
+// export const CourseType = params => instance.get('/v1/sys/getSysLookup',{params});
+export const CourseType = params => instance.get('/v1/grade/filter',{params});
 
 //钉钉自动登录
-export const AuthLogin = params => instance.get('/v1/auth/dingLogin',{params});
+// export const AuthLogin = params => instance.get('/v1/auth/dingLogin',{params});
+export const AuthLogin = params => instance.get('/v1/dingtalk/auth',{params});
 
 //根据手机号获取名字
-export const manName =	params => instance.get('/v1/user/getUserByPhoneNo',{params});
+// export const manName =	params => instance.get('/v1/user/getUserByPhoneNo',{params});
+export const manName =	params => instance.get('/v1/user/info',{params});
+
 
 //获取验证码
-export const getCodeMsg = params => instance.get('/v1/auth/sendSMSVerify',{params});
+// export const getCodeMsg = params => instance.get('/v1/auth/sendSMSVerify',{params});
+export const getCodeMsg = params => instance.get('/v1/message/sms',{params});
+
 
 //验证验证码
-export const checkCode = params => instance.get('/v1/auth/checkVerify',{params});
+
+// export const checkCode = params => instance.get('/v1/auth/checkVerify',{params});
+export const checkCode = params => instance.get('/v1/message/sms/check',{params});
 
 //创建订单
 
-export const addOrder = params => instance.post('/v1/bill/createBill',params);
+// export const addOrder = params => instance.post('/v1/bill/createBill',params);
+export const addOrder = (params,token) => instance.post('/v1/bill/create?'+token,params);
 
 //微信签名
-export const getwxConfig = params =>instance.get('/v1/sys/getWeChatSignature',{params});
+// export const getwxConfig = params =>instance.get('/v1/sys/getWeChatSignature',{params});
+export const getwxConfig = params =>instance.get('/v1/wechat/auth',{params});
 
 //钉钉测试免登
 
@@ -41,16 +56,21 @@ export const testInit = params =>instance.get('/v1/bill/setLogonSale?saleId=17')
 
 //钉钉签名
 
-export const getDingDing = params =>instance.get('/v1/sys/getDingSignature?'+params);
+// export const getDingDing = params =>instance.get('/v1/sys/getDingSignature?'+params);
+export const getDingDing = params =>instance.get('/v1/dingtalk/signature?'+params);
 //获取优惠规则
-export const discount = params =>instance.post('/v1/classes/getDiscountConfig',{params});
+
+// export const discount = params =>instance.post('/v1/classes/getDiscountConfig',{params});
+export const discount = params =>instance.get('/v1/sale/discount',{params});
 
 //订单详情
-export const orderDetail = params =>instance.get('/v1/bill/getBillDetail',{params});
+// export const orderDetail = params =>instance.get('/v1/bill/getBillDetail',{params});
+export const orderDetail = params =>instance.get('/v1/bill/detail',{params});
 
 //支付接口
 
-export const aliPay = params => instance.get('/v1/bill/doBillPayAlipay',{params});
+// export const aliPay = params => instance.get('/v1/bill/doBillPayAlipay',{params});
+export const aliPay = params => instance.get('/v1/bill/alipay',{params});
 
 //查询订单状态
 
@@ -59,10 +79,16 @@ export const checkPayResult = params =>instance.get('/v1/bill/checkPayResult',{p
 export const checkAliResult = params =>instance.post('/v1/bill/checkPayResult',params);
 
 //支付订单
-export const prePay = params =>instance.get('/v1/bill/doBillPayWXOpen',{params});
+// export const prePay = params =>instance.get('/v1/bill/doBillPayWXOpen',{params});
+export const prePay = params =>instance.get('/v1/bill/wxopen',{params});
 
 //获取openId
-export const getToken = params =>instance.get('/v1/sys/getWeChatUserToken',{params});
+// export const getToken = params =>instance.get('/v1/sys/getWeChatUserToken',{params});
+export const getToken = params =>instance.get('/v1/wechat/openid',{params});
+
+//获取所有渠道
+export const getChannel = params => instance.get('/v1/channel',{params});
+
 
 
 

@@ -29,7 +29,6 @@
           <img src="../../images/empty.png">
         </div>
       </div> 
-      <div ></div>
       <div class="lineheight"></div>
       <shop-cart :allNum=allNum :allPrice=allPrice :noIcon="'index'"></shop-cart>
       <div class="typeBox" v-show="typeShow">

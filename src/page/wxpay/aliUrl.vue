@@ -1,7 +1,7 @@
 <template>
 <div id="aliUrl" >
   <div class="bd">
-    <p class="tip">由于支付宝支付遇到问题，请在菜单中选择在浏览器中打开，以完成支付。</p><i class="open">
+    <p class="tip">由于微信限制支付宝支付，请在菜单中选择在浏览器中打开，以完成支付。</p><i class="open">
     	<img src="../../images/open_browser.png">
     </i>
   </div>
@@ -11,6 +11,7 @@
 <script>
 import { Toast } from 'mint-ui'//提示
 import { Indicator } from 'mint-ui'//加载
+import { httpUrl } from 'src/config/env'
 
 export default {
 	name: '',
@@ -23,10 +24,16 @@ export default {
 		this.billId = this.$route.query.id;
     },
     mounted() {
-    	var _this= this;
+    	var _this =this;
 		var ua = navigator.userAgent.toLowerCase();
 		if((ua.match(/MicroMessenger/i) != "micromessenger")){
-			window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+			if(httpUrl && httpUrl.indexOf('tfapi') > 0){
+				window.location.href = window.location.origin+"/v1/bill/alipay"+"?billId="+_this.billId
+			}else{
+				window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+			}
+		}else{
+			// window.alert(window.location.origin+"/v1/bill/alipay"+"?billId="+_this.billId);
 		}
     },
     methods:{

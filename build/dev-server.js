@@ -34,14 +34,19 @@ compiler.plugin('compilation', function(compilation) {
     })
 })
 
-var context = config.dev.context
-
 switch(process.env.NODE_ENV){
-    case 'local': var proxypath = 'http://localhost:8002'; break;
-    case 'dev': var proxypath = 'http://api.tifangedu.com:745'; break;
-    default:  var proxypath = config.dev.proxypath; 
+    case 'local': 
+        var proxypath = 'https://tfapi.tifangedu.com';
+        var context = [ '/v1'];
+        break;
+    case 'dev':
+        var proxypath = 'http://api.tifangedu.com'; 
+        var context = [ '/coursecart'];
+        break;
+    default:  
+        var proxypath = config.dev.proxypath; 
+        var context = config.dev.context;
 }
-
 var options = {
     target: proxypath,
     changeOrigin: true,
