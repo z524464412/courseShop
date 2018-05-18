@@ -138,7 +138,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
         }
         this.INIT_DISCOUNT();
         $('input').bind("focus",function(){
-          // $(".login").css("position","fixed");
+          $(".login").css("position","fixed");
         })
       },
       beforeDestroy (){

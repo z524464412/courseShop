@@ -5,6 +5,7 @@ const course =r =>require.ensure([],()=>r(require('../page/course/course')),'cou
 const courseDetail =r =>require.ensure([],()=>r(require('../page/courseDetail/courseDetail')),'courseDetail')
 const payList =r =>require.ensure([],()=>r(require('../page/payList/payList')),'payList')
 const wxpay =r =>require.ensure([],()=>r(require('../page/wxpay/wxpay')),'wxpay')
+const alipay =r =>require.ensure([],()=>r(require('../page/wxpay/alipay')),'alipay')
 const aliUrl = r =>require.ensure([],()=>r(require('../page/wxpay/aliUrl')),'aliUrl')
 const paysucc =r =>require.ensure([],()=>r(require('../page/wxpay/paysucc')),'paysucc')
 const activity =r =>require.ensure([],()=>r(require('../page/activity/activity')),'activity')
@@ -51,6 +52,11 @@ export default [{
         {
           path: '/wxpay',
           component: wxpay
+        },
+        //支付
+        {
+          path: '/alipay',
+          component: alipay
         },
         //阿里支付
         {

@@ -1,43 +1,71 @@
 <template>
 <div id="aliUrl" >
-  <div class="bd">
-    <p class="tip">由于微信限制支付宝支付，请在菜单中选择在浏览器中打开，以完成支付。</p><i class="open">
-    	<img src="../../images/open_browser.png">
-    </i>
+	<div v-if="showHtml">
+		<div class="bd">
+	    <p class="tip">由于微信限制支付宝支付，请在菜单中选择在浏览器中打开，以完成支付。</p><i class="open">
+	    	<img src="../../images/open_browser.png">
+	    </i>
+	  </div>
+	  <a id="back" href="javascript:history.back(-1);" class="fd_a">返回</a>
+	</div>
+  
+  <div v-html="aliHtml">
+  	
   </div>
-  <a id="back" href="javascript:history.back(-1);" class="fd_a">返回</a>
+
 </div>
 </template>
 <script>
 import { Toast } from 'mint-ui'//提示
 import { Indicator } from 'mint-ui'//加载
 import { httpUrl } from 'src/config/env'
-
+import { h5alipay } from 'src/service/course'
 export default {
+
 	name: '',
     data () {
     	return {
 			billId: '',
+			aliHtml:'',
+			showHtml:false
     	}
     },
     created(){
 		this.billId = this.$route.query.id;
-    },
+
+    },	
     mounted() {
     	var _this =this;
-		var ua = navigator.userAgent.toLowerCase();
-		if((ua.match(/MicroMessenger/i) != "micromessenger")){
-			if(httpUrl && httpUrl.indexOf('tfapi') > 0){
-				window.location.href = window.location.origin+"/v1/bill/alipay"+"?billId="+_this.billId
+    	let params = {};
+			params.billId = this.billId;
+			var ua = navigator.userAgent.toLowerCase();
+			if((ua.match(/MicroMessenger/i) != "micromessenger")){
+				if(httpUrl && httpUrl.indexOf('tfapi') > 0){
+					_this.getAliForm(params).then(res=>{
+						// setTimeout(function(){
+							// console.log(document.forms[0])
+							document.forms[0].submit();
+						// },500)
+						
+					})
+				}else{
+					window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+				}
 			}else{
-				window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+				this.showHtml =true;
 			}
-		}else{
-			// window.alert(window.location.origin+"/v1/bill/alipay"+"?billId="+_this.billId);
-		}
     },
     methods:{
-    	
+    	getAliForm(params){
+    		return new Promise((resolve,reject)=>{
+    			h5alipay(params).then(res=>{
+						if(res.data.indexOf('form') > 0){
+							this.aliHtml = res.data;	
+						};
+						resolve(res.data);
+					})
+    		})
+    	}
     },
 }
 </script>

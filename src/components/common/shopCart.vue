@@ -251,10 +251,12 @@
       },
       h5AliPay(){
         let param = {};
+        let _this =this;
         param.billId = this.billId;
         //api接口地址
         if(httpUrl && httpUrl.indexOf('tfapi') > 0){
-          window.location.href = window.location.origin+"/v1/bill/alipay"+"?billId="+param.billId
+          // window.location.href = window.location.origin+"/v1/pay/alipay"+"?billId="+param.billId
+          this.$router.push({path:'/aliUrl',query:{id:_this.billId}})
         }else{
           window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+param.billId
         }
@@ -275,7 +277,7 @@
         param.billId = this.billId;
         //api接口地址
         if(httpUrl && httpUrl.indexOf('tfapi') > 0){
-          window.location.href = window.location.origin+"/v1/bill/wxh5"+"?billId="+param.billId
+          window.location.href = window.location.origin+"/v1/pay/wxh5"+"?billId="+param.billId
         }else{
           window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayWXH5"+"?billId="+param.billId
         }

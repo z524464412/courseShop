@@ -74,13 +74,16 @@ export const aliPay = params => instance.get('/v1/bill/alipay',{params});
 
 //查询订单状态
 
-export const checkPayResult = params =>instance.get('/v1/bill/checkPayResult',{params});
+// export const checkPayResult = params =>instance.get('/v1/bill/checkPayResult',{params});
+export const checkPayResult = params =>instance.get('/v1/bill/pay/result',{params});
 //查询ali订单
-export const checkAliResult = params =>instance.post('/v1/bill/checkPayResult',params);
+// export const checkAliResult = params =>instance.post('/v1/bill/checkPayResult',params);
+export const checkAliResult = params =>instance.post('/v1/bill/pay/result',params);
 
 //支付订单
 // export const prePay = params =>instance.get('/v1/bill/doBillPayWXOpen',{params});
-export const prePay = params =>instance.get('/v1/bill/wxopen',{params});
+export const prePay = params =>instance.get('/v1/pay/wxopen',{params});
+export const h5alipay = params => instance.get('/v1/pay/alipay',{params})
 
 //获取openId
 // export const getToken = params =>instance.get('/v1/sys/getWeChatUserToken',{params});
