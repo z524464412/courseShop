@@ -23,14 +23,15 @@ const router = new VueRouter({
 	routes,
 	mode: routerMode,
 	// strict: process.env.NODE_ENV !== 'production',
-	scrollBehavior (to, from, savedPosition) {
-		console.log(savedPosition)
-	    if (savedPosition) {
-		    return savedPosition
-		} else {
-		    return {x:0,y: 0}
-		}
-	}
+	// scrollBehavior (to, from, savedPosition) {
+ //    console.log(123)
+	// 	console.log(savedPosition)
+	//     if (savedPosition) {
+	// 	    return savedPosition
+	// 	} else {
+	// 	    return {x:0,y: 0}
+	// 	}
+	// }
 })
 function wxInit(){
 	return new Promise(function(resolve,reject){
@@ -40,7 +41,6 @@ function wxInit(){
       		var param ={};
           param.url = locationHref;
       		getwxConfig(param).then(function(resp){
-            // setStore('type','wx');
 				    resolve(resp.data);
       		})
 	    }else{
@@ -52,6 +52,8 @@ function wxConfig(){
   wxInit().then(function(res){
     var body=res;
     let url = window.location.href
+    let origin = window.location.origin
+    console.log(123)
      if(res.respCode=="0"){
       wx.config({
               debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
@@ -65,9 +67,10 @@ function wxConfig(){
         wx.ready(function(){
           wx.onMenuShareTimeline({
             title: '梯方教育', // 分享标题
-            link: url+'/#/login',  // 分享链接
-            imgUrl: url+'/static/img/icon_desc1.png', // 分享图标
+            link: url,  // 分享链接
+            imgUrl: origin+'/static/img/icon_desc1.png', // 分享图标
             success: function () { 
+              console.log(1111)
               // _czc.push(['_trackEvent', '邀请好友', '分享', '分享朋友圈']);
             },
             cancel: function () { 
@@ -77,9 +80,10 @@ function wxConfig(){
           wx.onMenuShareAppMessage({
             title: '梯方教育', // 分享标题
             desc: '梯方教育', // 分享描述
-            link: url+'/#/login',  // 分享链接
-            imgUrl: url+'/static/img/icon_desc1.png', // 分享图标
+            link: url,  // 分享链接
+            imgUrl: origin+'/static/img/icon_desc1.png', // 分享图标
             success: function () { 
+              console.log(222)
               // _czc.push(['_trackEvent', '邀请好友', '分享', '分享微信好友']);
             },
             cancel: function () {
@@ -147,6 +151,10 @@ function platformType(){
   }
 }
 router.beforeEach((to, from, next) => {
+  console.log(document.documentElement.scrollTop)
+    document.documentElement.scrollTop  = 0;
+    document.body.scrollTop  = 0;
+    console.log(document.documentElement.scrollTop)
     platformType();
     next();
 })

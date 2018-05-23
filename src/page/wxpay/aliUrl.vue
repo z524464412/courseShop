@@ -27,17 +27,26 @@ export default {
     	return {
 			billId: '',
 			aliHtml:'',
-			showHtml:false
+			showHtml:false,
+			bookNum:0,
+			addrValue:''
     	}
     },
     created(){
 		this.billId = this.$route.query.id;
+		this.addrValue = this.$route.query.addrValue
+		this.bookNum = this.$route.query.bookNum
 
     },	
     mounted() {
     	var _this =this;
     	let params = {};
 			params.billId = this.billId;
+			if(this.bookNum){
+				this.bookNum = 1
+			}
+			params.needBook = this.bookNum;
+			params.deliverAddr = encodeURIComponent(this.addrValue);
 			var ua = navigator.userAgent.toLowerCase();
 			if((ua.match(/MicroMessenger/i) != "micromessenger")){
 				if(httpUrl && httpUrl.indexOf('tfapi') > 0){

@@ -5,7 +5,7 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
     font-style: normal;
     text-decoration: none;
     border: none;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: normal;
     font-family: "Microsoft Yahei";
     box-sizing: border-box;
@@ -329,4 +329,30 @@ img{
     transform: scale3d(1, 1, 1);
   }
 }
+.initradio{display:none}
+.initradioInput{background-color:#fff;border:1px solid rgba(0,0,0,0.15);border-radius:100%;display:inline-block;height:16px;margin-right:10px;margin-top:-1px;vertical-align:middle;width:16px;line-height:1}
+.initradio:checked + .initradioInput:after{background-color:#45aae8;border-radius:100%;content:"";display:inline-block;height:12px;margin:1px;width:12px}
+.initcheckbox.initradioInput,.initradio:checked + .initcheckbox.initradioInput:after{border-radius:0}
+.mint-search-list{
+  padding-top: 0px;
+  margin-top: 230px;
+}
   
+.mint-searchbar{
+    padding: 2px 4px;
+    margin: 0 10px;
+    border-radius: 5px;
+    z-index: 1;
+    border: 1px solid #d9d9d9;
+    background: none;
+}
+.mint-searchbar-inner .mintui-search{
+    font-size: 12px;
+    color: #d9d9d9;
+    padding-right: 5px;
+}
+.mint-searchbar-cancel{
+    color: #d8d8d8;
+    margin-left: 10px;
+    text-decoration: none;
+}

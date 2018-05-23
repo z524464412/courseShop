@@ -7,7 +7,7 @@
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
-                      <span>合计:</span>{{'￥'+payList.pay}}
+                      <span>合计:</span>{{'￥'+(payList.pay+bookNum)}}
                     </div>
                     <div v-else>
                         <span>合计:</span>0
@@ -46,9 +46,9 @@
       </section>
 </template>
 <script>
-  import {setStore, getStore} from 'src/config/mUtils'
+  import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { addOrder ,testInit,aliPay,prePay,getToken} from 'src/service/course'
+  import { addOrder ,testInit,aliPay,prePay,getToken,AuthLogin} from 'src/service/course'
   import { Toast } from 'mint-ui'
   import { httpUrl } from 'src/config/env';
 	export default{
@@ -68,7 +68,7 @@
         token:''
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -86,6 +86,7 @@
     },
     mounted(){
       let _this = this;
+
       this.init_platform()
       this.INIT_DISCOUNT();
       this.billId = this.$route.query.id;
@@ -107,6 +108,15 @@
           'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL','ADD_DISCOUNT','INIT_DISCOUNT'
       ]),
       gotoPage(){
+        
+        if(this.bookNum > 0 && !this.addrValue){
+          Toast({
+            message: '请填写地址!',
+            position: 'middle',
+            duration: 1000
+          });
+          return
+        }
         let _this = this;
         let user = {};
         let token = '';
@@ -154,10 +164,23 @@
           let token = '';
           let userToken = getStore('userToken');
           let dingToken = getStore('dingToken');
+          let needBook;
+          let deliverAddr = this.addrValue || '';
+          if(this.bookNum){
+            this.bookNum =1;
+            needBook = '&needBook='+this.bookNum
+          }else{
+            needBook
+          }
+          if(this.addrValue){
+            deliverAddr = '&deliverAddr='+encodeURIComponent(this.addrValue)
+          }else{
+            deliverAddr
+          }
           if(userToken){
-            token = 'userToken='+userToken
+            token = 'userToken='+userToken+needBook+deliverAddr
           }else if(dingToken){
-            token = 'dingToken='+dingToken
+            token = 'dingToken='+dingToken+needBook+deliverAddr
           }else{
             token = ''
           }
@@ -165,9 +188,11 @@
             addOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
-              }else if(res.data.respCode == 30015){
+              }else if(res.data.respCode == 30010){
                 user.login = false;
-                setStore('user',user);
+                removeStore('userToken');
+                removeStore('user');
+                // setStore('user',user);
                 param.login = false;
                 _this.$router.push({path:'/login',query:param});
               }else{
@@ -181,20 +206,35 @@
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010){
-                AuthLogin(param).then(res=>{
-                if(res.data.respCode == 0){
-                  if(res.data.data.dingToken){
-                      setStore('dingToken',res.data.data.dingToken)
-                      addOrder(param,token).then(res=>{
-                        if(res.data.respCode == 0){
-                          _this.$router.push({path:'/orderList',query:{id:res.data.data}});
-                        }else{
-                          Toast(res.data.respMsg)
+                removeStore('dingToken');
+                dd.ready(function() {
+                  dd.runtime.permission.requestAuthCode({
+                    corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
+                    onSuccess: function(result) {
+                      let params = {};
+                      params.code = result.code;
+                      AuthLogin(params).then(res=>{
+                        console.log(res)
+                      if(res.data.respCode == 0){
+                        if(res.data.data.dingToken){
+                            setStore('dingToken',res.data.data.dingToken)
+                            let ken = 'dingToken='+res.data.data.dingToken;
+                            addOrder(param,ken).then(res=>{
+                              if(res.data.respCode == 0){
+                                _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+                              }else{
+                                Toast(res.data.respMsg)
+                              }
+                            })
+                          }
                         }
                       })
+                    },
+                    onFail : function(err) {
+                      console.log(err)
                     }
-                  }
-                })
+                  })
+                });
               }else{
                  Toast(res.data.respMsg)
               }
@@ -246,7 +286,7 @@
       //微信内使用支付宝
       wxAliPay(){
         var _this = this;
-        this.$router.push({path:'/aliUrl',query:{id:_this.billId}});
+        this.$router.push({path:'/aliUrl',query:{id:_this.billId,bookNum:_this.bookNum,addrValue:_this.addrValue}});
         // location.reload();//微信浏览器需要刷新保存当前的地址
       },
       h5AliPay(){
@@ -256,12 +296,13 @@
         //api接口地址
         if(httpUrl && httpUrl.indexOf('tfapi') > 0){
           // window.location.href = window.location.origin+"/v1/pay/alipay"+"?billId="+param.billId
-          this.$router.push({path:'/aliUrl',query:{id:_this.billId}})
+          if(_this.bookNum){
+            _this.bookNum = 1
+          }
+          this.$router.push({path:'/aliUrl',query:{id:_this.billId,bookNum:_this.bookNum,addrValue:_this.addrValue}})
         }else{
           window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+param.billId
         }
-        
-        
       },
       //微信支付方式判断
       wechatPay(){
@@ -276,8 +317,25 @@
         let param = {};
         param.billId = this.billId;
         //api接口地址
+        let deliverAddr = this.addrValue || '';
+        let needBook;
+        if(this.bookNum){
+          needBook = '&needBook='+this.bookNum
+        }else{
+          needBook
+        }
+        if(this.addrValue){
+          deliverAddr = '&deliverAddr='+encodeURIComponent(this.addrValue)
+        }else{
+          deliverAddr
+        }
         if(httpUrl && httpUrl.indexOf('tfapi') > 0){
-          window.location.href = window.location.origin+"/v1/pay/wxh5"+"?billId="+param.billId
+          if(needBook){
+            window.location.href = window.location.origin+"/v1/pay/wxh5"+"?billId="+param.billId+deliverAddr+needBook
+          }else{
+            window.location.href = window.location.origin+"/v1/pay/wxh5"+"?billId="+param.billId
+          }
+          
         }else{
           window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayWXH5"+"?billId="+param.billId
         }
@@ -324,8 +382,11 @@
             let params ={};
             params.openId = openid;
             params.billId = _this.billId
+            params.deliverAddr =encodeURIComponent(this.addrValue)
+            if(this.bookNum){
+               params.needBook = 1
+            }
             prePay(params).then((res)=>{
-              alert(JSON.stringify(res))
                 let data =res.data.data;
                 // _this.doWXPay(res.data.data);
                 wx.config({
@@ -369,8 +430,6 @@
                     });
                   }
               })
-
-
             })
           }
         })
