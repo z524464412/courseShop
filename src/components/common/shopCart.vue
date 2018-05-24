@@ -34,7 +34,7 @@
                 </div>
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
 
-                    <div v-text="allPrice == 0 ? 0 : allPrice-nowDiscount" v-if="allPrice"></div>
+                    <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice"></div>
                     <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div>
                 </div>
             </section>
@@ -68,7 +68,7 @@
         token:''
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -85,8 +85,8 @@
       
     },
     mounted(){
-      let _this = this;
 
+      let _this = this;
       this.init_platform()
       this.INIT_DISCOUNT();
       this.billId = this.$route.query.id;
@@ -107,9 +107,19 @@
       ...mapMutations([
           'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL','ADD_DISCOUNT','INIT_DISCOUNT'
       ]),
+      filter_array(array) {    
+        return array.filter(item=>item);   
+      },   
       gotoPage(){
-        
         if(this.bookNum > 0 && !this.addrValue){
+          Toast({
+            message: '请填写地址!',
+            position: 'middle',
+            duration: 1000
+          });
+          return
+        }
+        if(this.bookMoney && !this.addrValue1){
           Toast({
             message: '请填写地址!',
             position: 'middle',
@@ -145,7 +155,18 @@
           let param = {};
           param.userName=user.name;
           param.phoneNo=user.phone;
-          param.classes = _this.ids;
+          // param.classes = _this.ids;
+          let ids  =[];
+          for (var i = _this.ids.length - 1; i >= 0; i--) {
+            let obj = {};
+            obj.id =_this.ids[i];
+            obj.needBook = 0;
+            ids.push(obj)
+          }
+          let needBookIds = Object.values(_this.needBookIds) || ids;
+          param.deliverAddr = _this.addrValue;
+          param.school = user.code;
+          param.classes = needBookIds;
           param.price = _this.allPrice;
           param.scope = user.scope;
           param.grade =user.gradeId
@@ -153,6 +174,9 @@
              param.price = _this.allPrice - _this.nowDiscount;
           }else{
             param.price = 0
+          }
+          if(_this.bookMoney){
+             param.price +=_this.bookMoney;
           }
           param.discount = _this.nowDiscount;
           if(user.login && user.type == 'wx' && user.name ==''){
@@ -170,12 +194,12 @@
             this.bookNum =1;
             needBook = '&needBook='+this.bookNum
           }else{
-            needBook
+            needBook=''
           }
           if(this.addrValue){
             deliverAddr = '&deliverAddr='+encodeURIComponent(this.addrValue)
           }else{
-            deliverAddr
+            deliverAddr=''
           }
           if(userToken){
             token = 'userToken='+userToken+needBook+deliverAddr
@@ -322,7 +346,7 @@
         if(this.bookNum){
           needBook = '&needBook='+this.bookNum
         }else{
-          needBook
+          needBook =''
         }
         if(this.addrValue){
           deliverAddr = '&deliverAddr='+encodeURIComponent(this.addrValue)
@@ -465,6 +489,9 @@
             _this.newDiscount = Things[i].discount;
           }
         }
+      },
+      addBook(){
+        console.log(123)
       }
     },
     watch:{
@@ -473,6 +500,9 @@
       },
       discountList:function(){
         this.initDiscount();
+      },
+      bookMoney:function(){
+        console.log(this.bookMoney)
       }
     }
 	}

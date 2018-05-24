@@ -31,6 +31,7 @@ import {
 	ADD_DISCOUNT,
 	INIT_DISCOUNT,
 	CHOOSE_CART,
+	NEED_BOOK,
 
 } from './mutation-types.js'
 
@@ -54,6 +55,14 @@ export default {
 	//添加一个cart
 	[CHOOSE_CART](state,oneCart){
 		
+	},
+	//添加资料费
+	[NEED_BOOK](state,id){
+		let bookIds = state.bookIds;
+		if(id){
+			state.bookIds = {...id};
+		}
+		setStore('bookIds',state.bookIds)
 	},
 	// 加入购物车
 	[ADD_CART](state, courseList) {

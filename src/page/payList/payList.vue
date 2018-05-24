@@ -1,5 +1,11 @@
 <template>
   <div class="package">
+      <div class="initlabel" v-if="showbook">
+        <div>
+          邮寄地址:
+        </div>
+        <input type="text" name="addrText" placeholder="请输入地址" v-model="addrValue1"> 
+      </div>
       <div class="item" v-for="(courseList,index) in chooseList" v-cloak>
         <mt-cell-swipe class="cell_swipe" :data-id="index"  :right="[  
                 {  
@@ -8,12 +14,12 @@
                     handler: () => delBtn(courseList)  
                 }  
             ]">
-          <shop-list :noBuy='true' :courseList=courseList :payTitle="'创建订单'">
+          <shop-list :noBuy='true' :courseList=courseList :payTitle="'创建订单'" @needBook="needBook">
           </shop-list>
         </mt-cell-swipe>
       </div>
      <div class="lineheight"></div>
-    <shop-cart :allNum=allNum :allPrice=allPrice :payTitle="'创建订单'" ></shop-cart>   
+    <shop-cart :allNum=allNum :allPrice=allPrice :payTitle="'创建订单'" :needBookIds=needBookIds :bookMoney=bookMoney :addrValue1=addrValue1></shop-cart>   
   </div>  
 </template>
 <script>
@@ -37,11 +43,22 @@
           chooseType:'wx',
           allNum:0,
           allPrice:0,
-          chooseList:[]
+          chooseList:[],
+          addrValue1:'',
+          needBookIds:{},
+          bookMoney:0,
+          showbook:false
+
         }
       },
       created(){
         this.INIT_BUYCART();
+        console.log(this.$route.path)
+        if(this.$route.path == '/payList'){
+          this.showbook =true
+        }else{
+          this.showbook =false
+        }
       },
       mounted () {
         // this.initCartList();
@@ -59,6 +76,23 @@
         ...mapMutations([
           'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
         ]), 
+         filter_array(array) {    
+          return array.filter(item=>item);   
+        }, 
+        needBook(needBook){ 
+          this.needBookIds[needBook.id] = needBook 
+          let bookvalues =Object.values(this.needBookIds)
+          let booklength = 0;
+          for (var i = bookvalues.length - 1; i >= 0; i--) {
+            if(bookvalues[i].needBook == 1){  
+              console.log(bookvalues[i])
+              booklength++;
+            }
+          }
+          this.bookMoney =  booklength * 50;
+          console.log(this.bookMoney)
+          setStore('needBook',this.needBookIds);
+        },
         initCartList(){
           let _this =this;
           let newCart ={}
@@ -166,6 +200,26 @@
             border-radius: 50%;
           }
       }
+    }
+  }
+  .initlabel{
+    padding-top:10px;
+    line-height: 28px;
+    background: #fff;
+    font-size: 15px;
+    color: #393939;
+    padding: 0 10px;
+    padding-left: 33px;
+    position: relative;
+    span{
+      font-size:15px;
+      word-wrap: break-word;
+    }
+    input{
+      width: 100%;
+      line-height: 20px;
+      font-size: 15px;
+      color: #898989;
     }
   }
 </style>

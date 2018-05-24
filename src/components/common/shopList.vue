@@ -20,8 +20,16 @@
             {{'共'+courseList.totalHour+'课时' || 'xx课时'}}
           </div>
         </div>
-        <div class="courseMoney userItem">
+        <div class="courseMoney userItem" v-if="showbook">
           {{'￥'+courseList.price}}
+          <span class="dataDiv" @click="chooseData">
+            资料费<span class="red">￥50</span>
+            <span class="dataImg" v-if="needBook">
+              <img src="../../images/tick.png">
+            </span>
+            <span class="dataNoImg" v-if="!needBook">
+            </span>
+          </span>
         </div>
         <buy-cart v-if="!noBuy" class="coursePlus" :courseList=courseList  @showMoveDot="showMoveDotFun">
         </buy-cart>
@@ -54,13 +62,38 @@ import {setStore} from 'src/config/mUtils'
           windowHeight:null,
           receiveInCart:false,
           imgBaseUrl,
+          needBook:false,
+          needBookId:[],
+          showbook:false
+
       }
     },
     props:['noBuy','courseList','payTitle'],
+    created(){
+      console.log(this.$route.path)
+      if(this.$route.path == '/payList'){
+        this.showbook =true
+      }else{
+        this.showbook =false
+      }
+    },
     mounted(){
       this.windowHeight = window.innerHeight;
     },
     methods:{
+      chooseData(){
+        let  _this = this;
+        let needBook ={};
+        _this.needBook = !_this.needBook;
+        if(_this.needBook){
+          needBook.id = _this.courseList.id;
+          needBook.needBook = 1
+        }else{
+          needBook.id = _this.courseList.id;
+          needBook.needBook = 0
+        }
+        this.$emit('needBook', needBook);  
+      },
       //跳转页面
          gotoPage(){
           if(this.$route.path == '/orderList'){
@@ -115,6 +148,30 @@ import {setStore} from 'src/config/mUtils'
     z-index: 300;
     img{
         @include wh(.9rem, .9rem);
+    }
+  }
+  .dataDiv{
+    color: #666;
+    float: right;
+    padding-right: 20px;
+    position: relative;
+    line-height: 15px;
+    .dataImg{
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+    .dataNoImg{
+      width: 17px;
+      height: 17px;
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: #fff;
+      border: 2px solid #8b8b8b;
+      border-radius: 50%;
     }
   }
 </style>

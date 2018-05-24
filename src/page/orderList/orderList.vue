@@ -11,7 +11,7 @@
           <mt-button type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
         </div>
       </div>
-      <div v-if="!payStatus">
+      <!-- <div v-if="!payStatus">
         <div class="initlabel" @click="chooseAddr" >
           <div class="addrText">
             资料费(每课<span class="red">￥50</span>):<span class="red">{{'￥'+courseLists.length *50}}</span>
@@ -27,8 +27,8 @@
             <input type="text" name="addrText" placeholder="请输入地址" v-model="addrValue">
           </div>
         </div>
-      </div>
-      <div v-else>
+      </div> -->
+      <!-- <div v-else>
         <div v-if="needBook">
           <div class="initlabel1">
               <span>资料费(每课<span class="red">￥50</span>):<span class="red">{{'￥'+courseLists.length *50}}</span></span>
@@ -37,7 +37,7 @@
             <span>邮寄地址: </span><span>{{addrValue}}</span>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="items">
         <div class="item" v-for="(item,index) in 1" v-cloak>
             <shop-list class="courseItem" :noBuy="true" v-for="courseList in courseLists" :courseList=courseList>

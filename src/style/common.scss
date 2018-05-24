@@ -356,3 +356,16 @@ img{
     margin-left: 10px;
     text-decoration: none;
 }
+.mint-searchbar-inner{
+  background:#f5f5f5;
+  input::-webkit-input-placeholder {
+       color: #8E8E93;
+       font-size: 16px;
+    }
+}
+.mint-searchbar-inner .mintui-search{
+  font-size: 20px;
+}
+.mint-searchbar-core{
+background: #f5f5f5;
+}

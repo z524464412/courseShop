@@ -31,7 +31,7 @@
         <div class="gradeDiv" v-if="type == 'dingding'">
           <div class="left">选择学校:</div>
           <div class="gradeSelect" @click="showRight">
-              {{popChannel}}
+              {{schoolName}}
           </div>
         </div>
         <div class="gradeBtn" @click="gotoCourse" v-if="type!= 'wx' || login">
@@ -42,26 +42,34 @@
         </div>
       </div>
       <mt-popup v-model="pickerRight" position="bottom" class="schoolPopUp">
-        <div class="close" @click="showRight">
-            关闭
+        <div class="closeBtn" @click="showRight">
+            <img src="../../images/close1.png">
         </div>
-        <div class="addrList" >
-          <div class="addrBtn" :class="{chooseBtn:addrList.choose}" v-for="addrList in addrLists" @click="chooseBtn(addrList)">
-             {{addrList.title}}
+        <div class="titleInfo">
+          区域
+        </div>
+        <div class="addrBox">
+          <div class="addrList" v-for="addrList in addrLists">
+            <div class="addrBtn" :class="{chooseBtn:addrList.choose}"  @click="chooseBtn(addrList)">
+               {{addrList.name}}
+            </div>
           </div>
+        </div>
+        <div class="borderHeight">
         </div>
         <mt-search
           v-model="value"
           cancel-text="取消"
           placeholder="搜索"
+          show
           >
           <div class="titleDiv">
             <div
-              v-for="item in defaultResult"
+              v-for="item in filterList"
               class="searchTitle"
               @click="chooseSearch(item)"
               >
-              {{item.title}}
+              {{item}}
             </div>
           </div>
         </mt-search>
@@ -80,7 +88,7 @@
 import{ mapState,mapMutations} from 'vuex';
 import { Toast ,Indicator,MessageBox} from 'mint-ui';
 import {setStore,getStore,removeStore} from 'src/config/mUtils';
-import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} from 'src/service/course'
+import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,getArea,getSchool} from 'src/service/course'
 
   export default {
       data() {
@@ -100,39 +108,24 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
           searchValue:'',
           value:'',
           addrLists:[
-            {title:'浦东新区',id:'1',choose:true},
-            {title:'浦东新区',id:'2',choose:false},
-            {title:'浦东新区',id:'3',choose:false},
-            {title:'浦东新区',id:'4',choose:false},
-            {title:'浦东新区',id:'5',choose:false},
-            {title:'浦东新区',id:'6',choose:false},
-            {title:'浦东新区',id:'7',choose:false},
-            {title:'浦东新区',id:'8',choose:false},
-            {title:'浦东新区',id:'9',choose:false},
-            {title:'浦东新区',id:'4',choose:false},
-            {title:'浦东新区',id:'5',choose:false},
-            {title:'浦东新区',id:'6',choose:false},
-            {title:'浦东新区',id:'7',choose:false},
-            {title:'浦东新区',id:'8',choose:false},
-            {title:'浦东新区',id:'9',choose:false},
+            // {title:'浦东新区',id:'1',choose:true},
+            // {title:'浦东新区',id:'2',choose:false},
+            // {title:'浦东新区',id:'3',choose:false},
+            // {title:'浦东新区',id:'4',choose:false},
+            // {title:'浦东新区',id:'5',choose:false},
+            // {title:'浦东新区',id:'6',choose:false},
+            // {title:'浦东新区',id:'7',choose:false},
+            // {title:'浦东新区',id:'8',choose:false},
+            // {title:'浦东新区',id:'9',choose:false},
+            // {title:'浦东新区',id:'4',choose:false},
+            // {title:'浦东新区',id:'5',choose:false},
+            // {title:'浦东新区',id:'6',choose:false},
+            // {title:'浦东新区',id:'7',choose:false},
+            // {title:'浦东新区',id:'8',choose:false},
+            // {title:'浦东新区',id:'9',choose:false},
+            // {title:'浦东新区',id:'9',choose:false},
           ],
-          defaultResult:[
-            {title:'Apple',id:'1'},
-            {title:'Apple',id:'2'},
-            {title:'Apple',id:'3'},
-            {title:'Apple',id:'4'},
-            {title:'Apple',id:'5'},
-            {title:'Apple',id:'6'},
-            {title:'Apple',id:'7'},
-            {title:'Apple',id:'8'},
-            {title:'Apple',id:'9'},
-            {title:'qwe',id:'123'},
-            {title:'qwe',id:'123'},
-            {title:'w',id:'23'},
-            {title:'www',id:'233'},
-            {title:'qweqwe',id:'444'},
-            {title:'eee',id:'55'},
-          ] ,
+          defaultResult:[] ,
           popUpSlots1:[
             {
               flex: 1,
@@ -173,8 +166,11 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
           channelList:[],
           channeOId:'',
           channeOTitle:'',
-          channeId:''
-
+          channeId:'',
+          zip:'',
+          schoolName:'未选择',
+          schoolList:'',
+          code:''
         }
       },
       created(){
@@ -194,12 +190,13 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
       },
 
       deactivated() {
-        console.log(_this.info);
+        // console.log(_this.info);
 
       },
       mounted () {
         this.getGradeList();
         this.getChannel();
+        this.getAddr();
         if(!this.$route.query.classes){
           window.localStorage.removeItem('buyCart');  
           this.CLEAR_CART();
@@ -210,9 +207,9 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
         })
       },
       computed: {  
-        // filterResult() { 
-        //   return this.defaultResult.filter(value => new RegExp(this.value, 'i').test(value));  
-        // }  
+        filterList:function(){
+            return this.defaultResult.filter(value => new RegExp(this.value, 'i').test(value));  
+        }
       }, 
       beforeDestroy (){
         let info = JSON.parse(getStore('user'));
@@ -224,7 +221,55 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
           'INIT_DISCOUNT','CLEAR_CART','RECORD_USERINFO'
         ]),
         chooseSearch(item){
-          console.log(item)
+          var _this = this;
+          _this.schoolName = item
+          let schoolList = this.schoolList;
+          for (var i = schoolList.length - 1; i >= 0; i--) {
+            if(item == schoolList[i].name){
+              _this.code = schoolList[i].code;
+            }
+          }
+          _this.showRight();
+        },
+        getAddr(){
+          var _this =this;
+          getArea().then(res=>{
+            if(res.data.respCode == 0){
+              let data =  res.data.data;
+              _this.addrLists = [];
+              for (var i = data.length - 1; i >= 0; i--) {
+                if(data[i].name){
+                  data[i].choose = false
+                  _this.addrLists.push(data[i]);
+                }
+              }
+              _this.addrLists[0].choose = true;
+              _this.zip = _this.addrLists[0].code;
+              _this.getSchool();
+            }else{
+              Toast(res.data.respMsg)
+            }
+          })
+        },
+
+        //获取学校
+        getSchool(){
+          var _this = this;
+          let param = {};
+          // param.query ='';
+          param.zip = _this.zip;
+          getSchool(param).then(res=>{
+            if(res.data.respCode == 0){
+              let data =res.data.data;
+              _this.schoolList = data;
+              _this.defaultResult =[];
+              for (var i = data.length - 1; i >= 0; i--) {
+                _this.defaultResult.push(data[i].name);
+              }
+            }else{
+              Toast(res.data.respMsg)
+            }
+          })
         },
         //选中区
         chooseBtn(addrList){
@@ -233,6 +278,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
            _this.addrLists[i].choose = false
           }
           addrList.choose = true;
+          _this.zip = addrList.code;
+          _this.getSchool();
         },
         showRight(){
           this.pickerRight = !this.pickerRight;
@@ -339,7 +386,6 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
          getGrade: function(placeName) {
               var _this = this;
               var place = Object.values(_this.allData);
-              console.log(place)
               for (let item of place) {
                 if (item.name == placeName) {
                   _this.popUpSlots[2].values = item.sub;
@@ -399,9 +445,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
         popUpSelect(){
           this.pickerVisible = false;
           this.popUpOldTitle = this.popUpTitle;
-          console.log(this.gradeOid)
           this.gradeOid = this.gradeId;
-          console.log(this.gradeOid)
         },
         //去选课
         gotoCourse(){
@@ -418,7 +462,12 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
           info.type = this.type;
           info.gradeId = this.gradeId;
           info.scope = this.scope;
+          info.school = this.code;
           let user = JSON.parse(getStore('user'));
+          if(_this.schoolName =='未选择'){
+            Toast('请选择学校!')
+            return;
+          }
           if(info.type == 'wx'){
             if(user){
               setStore('user',user);
@@ -536,9 +585,29 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
  .login{
   // position:fixed;
  }
- .addrBtn{
-
- }
+  .titleInfo{
+    font-size:14px;
+    color: #5197FC;
+    margin: 10px 0 0 12px;
+  }
+  .addrBox{
+    margin: 0 0 10px 10px;
+    overflow: auto;
+    margin-bottom: 10px;
+  }
+  .borderHeight{
+    height: 1px;
+    margin:0 12px;
+    background:#e5e5e5;
+  }
+  .closeBtn{
+    position:fixed;
+    right: 10px;
+    bottom:10px;
+    height: 60px;
+    width: 60px;
+    z-index: 999;
+  }
   .login img{
     width: 100%;
     overflow: hidden;
@@ -560,19 +629,19 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
   .schoolPopUp{
     width: 100%;
     height: 100%;
-    background: #fff;
+    background: #f5f5f5;
     color: #000;
   }
   .titleDiv{
-    padding-top: 20px;
+    // padding-top: 20px;
   }
   .searchTitle{
-    line-height: 48px;
-    border-bottom: 1px solid #d9d9d9;
+    line-height: 20px;
     margin: 0 20px;
-    font-size: 16px;
+    font-size: 14px;
     width: auto;
     color: #999;
+    padding: 4px 0;
   }
   // .nameDiv{
   //   position: relative;
@@ -592,19 +661,21 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
   // }
   .addrList{
     overflow: hidden;
+    width: 25%;
+    float: left;
+    height: auto;
   }
   .addrBtn{
-    width: 20%;
-    float: left;
     text-align: center;
     padding: 5px;
     border-radius: 15px;
-    margin: 10px 2.5%;
+    font-size:12px;
+    margin:9px 9px 0 0;
     background: #fff;
-    border: 1px solid #dcdfe6;
-    border-color: #dcdfe6;
-    color: #606266;
+    color: #4A4A4A;
     cursor: pointer;
+    font-family: 'PingFang SC';
+    
   }
   .chooseBtn{
     color: #fff;
@@ -689,5 +760,15 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel} f
       text-align: center;
       line-height: 40px;
       background: #ffa351;
+    }
+    .searchDiv{
+        position: relative;
+        padding: 2px 4px;
+        margin: 0 10px;
+        border-radius: 5px;
+        z-index: 1;
+        border: 1px solid #d9d9d9;
+        background: none;
+        align-items:center;
     }
 </style>

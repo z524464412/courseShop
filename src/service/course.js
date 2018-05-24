@@ -92,6 +92,14 @@ export const getToken = params =>instance.get('/v1/wechat/openid',{params});
 //获取所有渠道
 export const getChannel = params => instance.get('/v1/channel',{params});
 
+//获取所有区
+
+export const getArea = params => instance.get('/v1/area',{params});
+
+//获取学校接口
+
+export const getSchool= params => instance.get('/v1/school',{params});
+
 
 
 

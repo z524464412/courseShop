@@ -30,4 +30,5 @@ export const BUY_CART = 'BUY_CART'
 export const ADD_DISCOUNT ="ADD_DISCOUNT"
 export const INIT_DISCOUNT ="INIT_DISCOUNT"
 export const CHOOSE_CART = "CHOOSE_CART"
+export const NEED_BOOK = "NEED_BOOK"
 
