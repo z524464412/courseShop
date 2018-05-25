@@ -61,7 +61,6 @@ import shopList from 'src/components/common/shopList'
         this.$router.go(-1);
       },
       loadMore() {
-        console.log(123)
         this.loading = true;
         setTimeout(() => {
           let last = this.list[this.list.length - 1];

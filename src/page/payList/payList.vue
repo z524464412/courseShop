@@ -1,10 +1,26 @@
 <template>
   <div class="package">
-      <div class="initlabel" v-if="showbook">
-        <div>
-          邮寄地址:
+      <div v-if="showbook" class="checkBox">
+         <div class="checkName" v-if="user.name">
+          <span>{{user.name}}</span><span>{{user.phone}}</span>
+          <!-- <div class="checkBtn">确认</div> -->
         </div>
-        <input type="text" name="addrText" placeholder="请输入地址" v-model="addrValue1"> 
+        <div class="checkName" v-else>
+          <span>未添加个人信息</span>
+          <!-- <div class="checkBtn" @click="gotoLogin">确认</div> -->
+        </div>
+        <div class="checkAddr" v-show="!showBtn">
+          <input type="text" name="addrText" placeholder="请输入地址" v-model="addrValue1" >
+          <div class="checkAddrBtn" @click="checkAddr(true)">
+            保存
+          </div>  
+        </div>
+        <div class="checkAddr" v-show="showBtn">
+          <span>{{addrValue1}}</span>
+          <div class="checkAddrBtn" @click="checkAddr(false)">
+            修改
+          </div>  
+        </div>
       </div>
       <div class="item" v-for="(courseList,index) in chooseList" v-cloak>
         <mt-cell-swipe class="cell_swipe" :data-id="index"  :right="[  
@@ -25,7 +41,7 @@
 <script>
 
   import { mapState,mapMutations} from 'vuex';
-  import {setStore} from 'src/config/mUtils'
+  import {setStore,getStore} from 'src/config/mUtils'
   import { Toast } from 'mint-ui';
   import { Indicator } from 'mint-ui';
   import shopList from 'src/components/common/shopList'
@@ -47,13 +63,13 @@
           addrValue1:'',
           needBookIds:{},
           bookMoney:0,
-          showbook:false
-
+          showbook:false,
+          showBtn:false,
+          user :''
         }
       },
       created(){
         this.INIT_BUYCART();
-        console.log(this.$route.path)
         if(this.$route.path == '/payList'){
           this.showbook =true
         }else{
@@ -62,6 +78,7 @@
       },
       mounted () {
         // this.initCartList();
+        this.user =JSON.parse(getStore('user')) ;
       },
       computed:{
         ...mapState([
@@ -76,6 +93,18 @@
         ...mapMutations([
           'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
         ]), 
+        checkAddr(type){
+          if(type){
+            if(!this.addrValue1){
+              Toast('请输入地址在保存!')
+            }else{
+              this.showBtn = type;
+            }
+          }
+        },
+        gotoLogin(){
+          this.$router.push({path:'/login',query:{login:false}})
+        },
          filter_array(array) {    
           return array.filter(item=>item);   
         }, 
@@ -85,12 +114,10 @@
           let booklength = 0;
           for (var i = bookvalues.length - 1; i >= 0; i--) {
             if(bookvalues[i].needBook == 1){  
-              console.log(bookvalues[i])
               booklength++;
             }
           }
           this.bookMoney =  booklength * 50;
-          console.log(this.bookMoney)
           setStore('needBook',this.needBookIds);
         },
         initCartList(){
@@ -133,6 +160,63 @@
 <style lang="scss" scoped>
   @import 'src/style/common';
   @import 'src/style/mixin';
+  .checkBox{
+    margin: 8px 13px 15px 12px;
+    box-shadow: 0 4px 6px 0 rgba(0,0,0,0.1);
+    background: #fff;
+    border-radius: 5px;
+    .checkName{
+      color: #F95353;
+      font-size: 15px;
+      line-height:50px;
+      border-bottom: 1px solid #F1F3F8;
+      overflow: auto;
+      margin: 0 10px;
+      span{
+        margin-right: 20px;
+      }
+      .checkBtn{
+          float: right;
+          background: #fff;
+          border: 1px solid #5197FC;
+          color: #5197FC;
+          font-size: 15px;
+          width: 60px;
+          height: 30px;
+          line-height: 27.5px;
+          text-align: center;
+          margin-top: 10px;
+          border-radius: 6px;
+      }
+    }
+    .checkAddr{
+      margin: 10px;
+      min-height: 32px;
+      overflow: hidden;
+      input::-webkit-input-placeholder {
+         color: #999999;
+         font-size: 11px;
+         opacity: 0.7;
+      }
+      span{
+        width: 70%;
+        word-break: break-all;
+        display: inline-block;
+        font-size: 14px;
+      }
+      input{
+        width: 70%;
+        color: #333333;
+        font-size: 11px;
+      }
+    }
+    .checkAddrBtn{
+      float: right;
+      margin-right: 10px;
+      font-size: 12px;
+      color: #F95353;
+    }
+  }
   .userItems{
     display: flex;
     height: 65px;

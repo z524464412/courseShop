@@ -2,19 +2,19 @@
       <section class="buy_cart_container">
           <section v-if="payList">
             <section class="cart_icon_num buy_cart_info">
-                共{{payList.courseList.length}}门课程, 已减<span class="red">￥{{payList.discount}}</span>!
+                共{{payList.courseList.length}}门课程, 已减<span class="red">￥{{payList.discount}}</span>!<span v-if="payList.bookFee >0">(资料费:{{payList.bookFee}})</span>
             </section>
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
-                      <span>合计:</span>{{'￥'+(payList.pay+bookNum)}}
+                      <span>合计:</span>{{'￥'+(Number(payList.pay+bookNum))}}
                     </div>
                     <div v-else>
                         <span>合计:</span>0
                     </div>
                     <div v-if="noIcon!='detail'">
-                        <span>总价:￥<span class="borderType">{{payList.pay+payList.discount}}</span></span>
-                        <span>立减:￥{{payList.discount}}</span>
+                        <span>总价:￥<span class="borderType">{{Number(payList.pay)+Number(payList.discount)}}</span></span>
+                        <span>立减:￥{{Number(payList.discount)}}</span>
                     </div>
                 </div>
             </section>
@@ -33,7 +33,6 @@
                     </div>
                 </div>
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
-
                     <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice"></div>
                     <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div>
                 </div>
@@ -85,7 +84,6 @@
       
     },
     mounted(){
-
       let _this = this;
       this.init_platform()
       this.INIT_DISCOUNT();
@@ -157,19 +155,27 @@
           param.phoneNo=user.phone;
           // param.classes = _this.ids;
           let ids  =[];
+          let needBookIds =[];
+          let bookArray = Object.values(_this.needBookIds);
           for (var i = _this.ids.length - 1; i >= 0; i--) {
             let obj = {};
             obj.id =_this.ids[i];
-            obj.needBook = 0;
+            let aa =_this.ids[i]
+            if(_this.needBookIds[aa] && (_this.needBookIds[aa].needBook == 1)){
+              obj.needBook = 1;
+            }else{
+              obj.needBook = 0;
+            }
             ids.push(obj)
           }
-          let needBookIds = Object.values(_this.needBookIds) || ids;
-          param.deliverAddr = _this.addrValue;
-          param.school = user.code;
+          needBookIds = ids;
+          param.deliverAddr = _this.addrValue1;
+          param.school = user.school;
           param.classes = needBookIds;
           param.price = _this.allPrice;
           param.scope = user.scope;
           param.grade =user.gradeId
+
           if(_this.allPrice){
              param.price = _this.allPrice - _this.nowDiscount;
           }else{
@@ -212,7 +218,7 @@
             addOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
-              }else if(res.data.respCode == 30010){
+              }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
                 user.login = false;
                 removeStore('userToken');
                 removeStore('user');
@@ -229,7 +235,7 @@
             addOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
-              }else if(res.data.respCode == 30010){
+              }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
                 removeStore('dingToken');
                 dd.ready(function() {
                   dd.runtime.permission.requestAuthCode({
@@ -238,7 +244,6 @@
                       let params = {};
                       params.code = result.code;
                       AuthLogin(params).then(res=>{
-                        console.log(res)
                       if(res.data.respCode == 0){
                         if(res.data.data.dingToken){
                             setStore('dingToken',res.data.data.dingToken)
@@ -378,22 +383,6 @@
           }
           return result[1];
       },
-      //初始化微信支付配置
-      // doWXPay(pack){
-      //   WeixinJSBridge.invoke(
-      //       'getBrandWCPayRequest', pack ,
-      //      function(res){
-      //       let queryId = this.getQueryByName('id');
-      //          if(res.data.err_msg == "get_brand_wcpay_request:ok" ) {
-      //           setTimeout(function(){
-      //             window.location.href = 'http://api.tifangedu.com/coursecart/paysucc?id='+queryId;
-      //             window.history.replaceState("pay_suc","",location.origin+"/coursecart/paysucc?id="+queryId);
-      //              window.location.reload()
-      //           },1000)
-      //          }     // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 
-      //      }
-      //  ); 
-      // },
       initWx(){
         var _this =this;
         let param ={};
@@ -491,7 +480,7 @@
         }
       },
       addBook(){
-        console.log(123)
+
       }
     },
     watch:{
@@ -502,7 +491,6 @@
         this.initDiscount();
       },
       bookMoney:function(){
-        console.log(this.bookMoney)
       }
     }
 	}

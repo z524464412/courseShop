@@ -1,6 +1,6 @@
 <template>
   <div class="orderList">
-      <div class="userItems">
+      <!-- <div class="userItems">
         <div class="userItem">
           <div>姓名:<span class="red">{{payList.userName}}</span></div>
           <div>手机号码:<span class="red">{{payList.phoneNo}}</span></div>
@@ -9,6 +9,18 @@
           <mt-button disabled type="danger" v-if="payStatus == 1" v-show="!btnType" @click="checkBtn">已确认</mt-button>
           <mt-button v-else  type="danger" v-show="!btnType" @click="checkBtn">已确认</mt-button>
           <mt-button type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
+        </div>
+      </div> -->
+      <div class="checkBox">
+         <div class="checkName">
+          <span>{{payList.userName}}</span><span class="">{{payList.phoneNo}}</span>
+          <!-- <div class="checkBtn">确认</div> -->
+           <mt-button disabled type="danger" class="checkedBtn" v-if="payStatus == 1" v-show="!btnType" @click="checkBtn">已确认</mt-button>
+          <mt-button v-else class="checkedBtn"  type="danger" v-show="!btnType" @click="checkBtn">已确认</mt-button>
+          <mt-button type="danger" class="checkBtn" v-show="btnType" plain @click="checkBtn">确认</mt-button>
+        </div>
+        <div class="checkAddr" v-if="payList.deliverAddr">
+          <span>{{payList.deliverAddr}}</span> 
         </div>
       </div>
       <!-- <div v-if="!payStatus">
@@ -77,6 +89,9 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="payInfo">
+      <span class="red">*</span>资料费不参与折扣活动
     </div>
     <div class="lineheight"></div>
     <shop-cart :payList=payList :bookNum=bookNum :btnChoose=btnType :chooseType=chooseType :payTitle =payTitle :payStatus=payStatus :addrValue=addrValue></shop-cart>   
@@ -349,9 +364,14 @@
       }
     }
   }
+  .payInfo{
+    padding: 10px;
+    // background: #fff;
+    margin-top: 10px;
+  }
   .payBox{
     background-color: #fff;
-    margin:30px 0 90px 0; 
+    margin:30px 0 0 0; 
     .payItem{
       padding: 14px 12px;
       @include fj;
@@ -391,5 +411,76 @@
     }
   }
 
-  
+   .checkBox{
+    margin: 8px 13px 15px 12px;
+    box-shadow: 0 4px 6px 0 rgba(0,0,0,0.1);
+    background: #fff;
+    border-radius: 5px;
+    .checkName{
+      color: #F95353;
+      font-size: 15px;
+      line-height:50px;
+      border-bottom: 1px solid #F1F3F8;
+      overflow: auto;
+      margin: 0 10px;
+      span{
+        margin-right: 20px;
+        color: #F95353;
+        font-size: 15px;
+      }
+      .checkBtn{
+          float: right;
+          background: #fff;
+          border: 1px solid #5197FC;
+          color: #5197FC;
+          font-size: 15px;
+          width: 60px;
+          height: 30px;
+          line-height: 27.5px;
+          text-align: center;
+          margin-top: 10px;
+          border-radius: 6px;
+      }
+      .checkedBtn{
+        float: right;
+        background: #5197FC;
+        border: 1px solid #5197FC;
+        color: #fff;
+        font-size: 15px;
+        width: 60px;
+        height: 30px;
+        line-height: 27.5px;
+        text-align: center;
+        margin-top: 10px;
+        border-radius: 6px;
+      }
+    }
+    .checkAddr{
+      margin: 10px;
+      min-height: 32px;
+      overflow: hidden;
+      input::-webkit-input-placeholder {
+         color: #999999;
+         font-size: 11px;
+         opacity: 0.7;
+      }
+      span{
+        width: 70%;
+        word-break: break-all;
+        display: inline-block;
+        font-size: 14px;
+      }
+      input{
+        width: 70%;
+        color: #333333;
+        font-size: 11px;
+      }
+    }
+    .checkAddrBtn{
+      float: right;
+      margin-right: 10px;
+      font-size: 12px;
+      color: #F95353;
+    }
+  }
 </style>

@@ -1,6 +1,9 @@
 <template>
   <div v-if="courseList" class="courseList" @click="gotoPage()">
     <div class="courseImg">
+        <span class="hasBook" v-if="courseList.needBook == 1">
+          资料
+        </span>
         <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
         <img src="../../images/info.png" v-else>
     </div>
@@ -70,7 +73,6 @@ import {setStore} from 'src/config/mUtils'
     },
     props:['noBuy','courseList','payTitle'],
     created(){
-      console.log(this.$route.path)
       if(this.$route.path == '/payList'){
         this.showbook =true
       }else{
@@ -141,6 +143,17 @@ import {setStore} from 'src/config/mUtils'
 <style lang="scss" scoped>
   @import 'src/style/common';
   @import 'src/style/mixin';
+  .courseImg{
+    .hasBook{
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 12px;
+      color: #fff;
+      padding: 5px;
+      background: #F95353;
+    }
+  }
   .move_dot{
     position: fixed;
     bottom: 30px;

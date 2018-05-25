@@ -20,7 +20,6 @@
 			let params = {};
 			params.billId = query.id;
 			h5alipay(params).then(res=>{
-				console.log(res.data);
 				this.aliHtml = res.data;
 				setTimeout(function(){
 					document.forms[0].submit();

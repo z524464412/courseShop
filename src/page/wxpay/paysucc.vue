@@ -45,7 +45,6 @@ import { Toast } from 'mint-ui'
       	if(this.billId){
           this.checkType();
       	}
-        console.log(this.$route.query.app_id)
       	if(this.$route.query.app_id){
           this.param = this.$route.query
           this.checkAliType();
@@ -56,7 +55,6 @@ import { Toast } from 'mint-ui'
           var _this =this;
           this.param.billId = this.billId
           checkPayResult(this.param).then((res)=>{
-            console.log(res.data.respCode)
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){

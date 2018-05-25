@@ -1,4 +1,4 @@
-import { MessageBox } from 'mint-ui';
+import { MessageBox} from 'mint-ui';
 /**
  * 请求错误处理
  */

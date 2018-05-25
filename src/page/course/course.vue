@@ -89,7 +89,6 @@ import { Spinner } from 'mint-ui';
         Indicator.open('加载中...');
         this.gradeId = this.$route.query.gradeId;
         this.scopeId = this.$route.query.scope;
-        console.log(this.scopeId)
         this.INIT_BUYCART();
         this.getdiscount();
       },
@@ -101,7 +100,6 @@ import { Spinner } from 'mint-ui';
         stickyHolder.appendChild(stickyEl);
         stickyHolder.style.height = rect.height+ 'px';
         stickyHolder.style.className = 'isIOS'
-        console.log(stickyHolder.style.className)
         let u = navigator.userAgent;  
         let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;  

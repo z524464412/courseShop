@@ -28,7 +28,7 @@
               {{popChannel}}
           </div>
         </div>
-        <div class="gradeDiv" v-if="type == 'dingding'">
+        <div class="gradeDiv" v-if="login">
           <div class="left">选择学校:</div>
           <div class="gradeSelect" @click="showRight">
               {{schoolName}}
@@ -62,6 +62,7 @@
           cancel-text="取消"
           placeholder="搜索"
           show
+          id="mtsearch"
           >
           <div class="titleDiv">
             <div
@@ -103,7 +104,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           man:'',
           login:true,
           checkLogin:true,
-          type:'dingding',
+          type:'wx',
           pickerRight:false,
           searchValue:'',
           value:'',
@@ -170,17 +171,19 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           zip:'',
           schoolName:'未选择',
           schoolList:'',
-          code:''
+          schoolcode:''
         }
       },
       created(){
         let _this =this;
         _this.query = _this.$route.query;
+        if( _this.query.login == 'false' || _this.query.login == false){
+          _this.login =false
+        }else{
+          _this.login =true;
+        }
         if(_this.query.classes){
           _this.ids = _this.query.classes;
-          _this.login = _this.query.login;
-        }else{
-          this.login = true;
         }
         if(getStore('type') == 'dingding'){
           _this.type = 'dingding'
@@ -191,7 +194,6 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
 
       deactivated() {
         // console.log(_this.info);
-
       },
       mounted () {
         this.getGradeList();
@@ -222,11 +224,11 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
         ]),
         chooseSearch(item){
           var _this = this;
-          _this.schoolName = item
+          _this.schoolName = item;
           let schoolList = this.schoolList;
           for (var i = schoolList.length - 1; i >= 0; i--) {
             if(item == schoolList[i].name){
-              _this.code = schoolList[i].code;
+              _this.schoolcode = schoolList[i].code;
             }
           }
           _this.showRight();
@@ -243,6 +245,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
                   _this.addrLists.push(data[i]);
                 }
               }
+              _this.addrLists =_this.addrLists.reverse();
               _this.addrLists[0].choose = true;
               _this.zip = _this.addrLists[0].code;
               _this.getSchool();
@@ -256,7 +259,6 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
         getSchool(){
           var _this = this;
           let param = {};
-          // param.query ='';
           param.zip = _this.zip;
           getSchool(param).then(res=>{
             if(res.data.respCode == 0){
@@ -266,8 +268,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
               for (var i = data.length - 1; i >= 0; i--) {
                 _this.defaultResult.push(data[i].name);
               }
-            }else{
-              Toast(res.data.respMsg)
+              // _this.defaultResult = _this.defaultResult.reverse();
             }
           })
         },
@@ -450,6 +451,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
         //去选课
         gotoCourse(){
           var _this =this;
+          let user = JSON.parse(getStore('user'));
           let gradeId = this.gradeOid;
           let scope = this.scope;
           let param ={};
@@ -462,8 +464,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           info.type = this.type;
           info.gradeId = this.gradeId;
           info.scope = this.scope;
-          info.school = this.code;
-          let user = JSON.parse(getStore('user'));
+          info.school = this.schoolcode;
+          info.schoolName = this.schoolName;  
           if(_this.schoolName =='未选择'){
             Toast('请选择学校!')
             return;
@@ -503,6 +505,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           }
         },
         payMoney(){
+          let user = JSON.parse(getStore('user'));
           let info = {};
           let _this = this;
           info.code = this.code;
@@ -510,8 +513,17 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           info.phone = this.mobile;
           info.login = this.login;
           info.type = this.type;
-          info.gradeId = this.gradeId;
           info.scope = this.scope;
+          if(this.type == 'wx'){
+            info.gradeId = user.gradeId;
+            info.school = user.schoolcode;
+            info.schoolName = user.schoolName; 
+          }else{
+            info.gradeId = this.gradeId;
+            info.school = this.schoolcode;
+            info.schoolName = this.schoolName; 
+          }
+           
           this.checkLogin = false;
           setStore('user',info);
           var param ={};
@@ -534,12 +546,12 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
             },1500)
             return
           }
-
           checkCode(param).then(res=>{
             if(res.data.respCode == 0){
               _this.query.phoneNo = _this.mobile;
               _this.query.userName = _this.man;
               let params = {};
+              params.deliverAddr = _this.query.deliverAddr;
               params.classes = _this.query.classes;
               params.discount = _this.query.discount;
               params.phoneNo = _this.mobile;
@@ -547,6 +559,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
               params.userName = _this.man;
               param.grade = _this.gradeId
               params.scope = _this.scope;
+              params.school = user.schoolName;
               if(res.data.data.userToken){
                 setStore('userToken',res.data.data.userToken)
               }
@@ -578,10 +591,11 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
 </script>
 
 <style lang="scss" scoped>
-.mint-search-list{
+
+ @import 'src/style/common';
+ .mint-search-list{
     padding-top: 70px;
   }
- @import 'src/style/common';
  .login{
   // position:fixed;
  }
@@ -771,4 +785,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
         background: none;
         align-items:center;
     }
+    #mtsearch{
+
+    }
+    
 </style>
