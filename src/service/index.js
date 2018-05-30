@@ -13,17 +13,17 @@ const instance = axios.create({
 instance.defaults.headers.post['Content-Type'] = 'application/json';
 //错误处理
 instance.interceptors.response.use(function(response) {
-	if(response.data.respCode == 0){
-		return response;
-	}else{
-		Toast({
-		  message: response.data.respMsg,
-		  position: 'middle',
-		  duration: 2000
-		});
-		return response;
-	}
-  
+	// if(response.data.respCode == 0){
+	// 	return response;
+	// }else{
+	// 	Toast({
+	// 	  message: response.data.respMsg,
+	// 	  position: 'middle',
+	// 	  duration: 2000
+	// 	});
+	// 	return response;
+	// }
+  return response;
 }, util.catchError);
 
 export default instance;

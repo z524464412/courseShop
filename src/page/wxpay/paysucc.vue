@@ -58,7 +58,7 @@ import { Toast } from 'mint-ui'
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
-              window.location.href="https://online.tifangedu.com/wap/myselfCenter"
+              window.location.href="http://online.tifangedu.com/wap/myselfCenter"
             },3000)
            }else if(res.data.respCode == 880000){
             this.paySucc = 1;
@@ -76,7 +76,7 @@ import { Toast } from 'mint-ui'
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
-              window.location.href="https://online.tifangedu.com/wap/myselfCenter"
+              window.location.href="http://online.tifangedu.com/wap/myselfCenter"
             },3000)
            }else if(res.data.respCode == 880000){
             this.paySucc = 1;
