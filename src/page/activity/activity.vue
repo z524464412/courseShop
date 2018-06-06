@@ -1,12 +1,12 @@
 <template>
   <div class="activity">
-    <div class="p10">
+    <!-- <div class="p10">
       即日起 - 2018年04月30日
-    </div>
+    </div> -->
     <div class="activityImg">
       <img src="../../images/background1.png">
     </div>
-    <div class="p15">
+    <!-- <div class="p15">
       <div>
         对,你没有听错
       </div>
@@ -19,9 +19,9 @@
       <div>
         隔壁王阿姨都带着小姐妹们组团来了
       </div>
-    </div>
+    </div> -->
     
-    <div class="pickImg">
+   <!--  <div class="pickImg">
       <img src="../../images/goods.png">
     </div>
     <div>
@@ -32,7 +32,7 @@
     </div>
     <div class="red">
       乃们还不赶快下手吗
-    </div>
+    </div> -->
     <div class="chooseBtn" to="" @click="gotoPath">
       <img src="../../images/btn1.png">
     </div>
@@ -86,7 +86,7 @@ import shopList from 'src/components/common/shopList'
       padding: 2px 0;
     }
     .activityImg{
-      width: 90%;
+      width: 100%;
       margin: 0 auto;
     }
     .p10{

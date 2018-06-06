@@ -23,9 +23,9 @@
             {{'共'+courseList.totalHour+'课时' || 'xx课时'}}
           </div>
         </div>
-        <div class="courseMoney userItem" v-if="showbook">
+        <div class="courseMoney userItem" >
           {{'￥'+courseList.price}}
-          <span class="dataDiv" @click="chooseData">
+          <span class="dataDiv" @click="chooseData" v-if="showbook">
             资料费<span class="red">￥50</span>
             <span class="dataImg" v-if="needBook">
               <img src="../../images/tick.png">

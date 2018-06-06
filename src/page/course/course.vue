@@ -226,7 +226,7 @@ import { Spinner } from 'mint-ui';
           for(let cart of Object.values(_this.shopCart)){
             if(cart.num == 1){
               _this.allNum++
-              _this.allPrice += parseInt(cart.price);
+              _this.allPrice += new Number(cart.price);
             }
             for(let list of _this.courseLists){
               if((cart.id == list.id) && (cart.num == 1)){

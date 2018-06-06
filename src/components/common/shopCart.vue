@@ -170,7 +170,7 @@
           }
           needBookIds = ids;
           param.deliverAddr = _this.addrValue1;
-          param.school = user.school;
+          param.school = user.schoolName;
           param.classes = needBookIds;
           param.price = _this.allPrice;
           param.scope = user.scope;
@@ -294,7 +294,9 @@
             })
             return
           }
-          if(_this.chooseType == 'wx'){
+          if(_this.payList.pay < 0.01){
+            this.h5AliPay();
+          }else if(_this.chooseType == 'wx'){
              this.wechatPay();
           }else if (_this.chooseType == 'zfb'){
             this.aliPay();
@@ -312,6 +314,7 @@
           this.h5AliPay();
         }
       },
+     
       //微信内使用支付宝
       wxAliPay(){
         var _this = this;

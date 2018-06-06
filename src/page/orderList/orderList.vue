@@ -63,7 +63,7 @@
           </div>
       </div>
     <div class="payBox" v-if="!payStatus">
-      <div class="wxpay payItem" @click="choosePay('wx')">
+      <div class="wxpay payItem" @click="choosePay('wx')" v-if="type != 'dingding'">
         <div class="payContaienr">
           <div class="icon">
             <img src="../../images/weixin.png" >
@@ -102,6 +102,7 @@
   import { Toast } from 'mint-ui';
   import { Indicator } from 'mint-ui';
   import { Checklist } from 'mint-ui';
+  import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import shopList from 'src/components/common/shopList'
   import shopCart from 'src/components/common/shopCart'
   import { orderDetail} from 'src/service/course'
@@ -132,6 +133,7 @@
       },
       mounted () {
           let _this = this;
+          _this.type = getStore('type');
           this.query = this.$route.query
           var param ={};
           param.billId = this.query.id;
