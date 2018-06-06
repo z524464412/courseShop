@@ -64,7 +64,8 @@
         chooseLength:0,
         platform:'',
         billId:'',
-        token:''
+        token:'',
+        check:false
       }
     },
     props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1'],
@@ -295,8 +296,11 @@
             return
           }
           if(_this.payList.pay < 0.01){
+            this.check =true;
             this.h5AliPay();
-          }else if(_this.chooseType == 'wx'){
+            return;
+          } 
+          if(_this.chooseType == 'wx'){
              this.wechatPay();
           }else if (_this.chooseType == 'zfb'){
             this.aliPay();
@@ -331,7 +335,7 @@
           if(_this.bookNum){
             _this.bookNum = 1
           }
-          this.$router.push({path:'/aliUrl',query:{id:_this.billId,bookNum:_this.bookNum,addrValue:_this.addrValue}})
+          this.$router.push({path:'/aliUrl',query:{id:_this.billId,bookNum:_this.bookNum,addrValue:_this.addrValue,check:_this.check}})
         }else{
           window.location.href = window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+param.billId
         }

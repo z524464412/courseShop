@@ -29,13 +29,15 @@ export default {
 			aliHtml:'',
 			showHtml:false,
 			bookNum:0,
-			addrValue:''
+			addrValue:'',
+			check:false
     	}
     },
     created(){
 		this.billId = this.$route.query.id;
 		this.addrValue = this.$route.query.addrValue
 		this.bookNum = this.$route.query.bookNum
+		this.check =this.$route.query.check;
 
     },	
     mounted() {
@@ -48,7 +50,7 @@ export default {
 			params.needBook = this.bookNum;
 			params.deliverAddr = encodeURIComponent(this.addrValue);
 			var ua = navigator.userAgent.toLowerCase();
-			if((ua.match(/MicroMessenger/i) != "micromessenger")){
+			if((ua.match(/MicroMessenger/i) != "micromessenger") || _this.check){
 				if(httpUrl && httpUrl.indexOf('tfapi') > 0){
 					_this.getAliForm(params).then(res=>{
 						// setTimeout(function(){
