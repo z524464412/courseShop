@@ -39,7 +39,7 @@
           </div>
           
         </div>
-        <div class="teacherDiv" v-show="list[2].show">
+        <!-- <div class="teacherDiv" v-show="list[2].show">
           <div class="userBox">
             <div>
               <img :src="imgBaseUrl + teacher.avatar" v-if="teacher.avatar">
@@ -62,7 +62,7 @@
           <div class="listend">
               没有更多的内容..
           </div>
-        </div>
+        </div> -->
         
         <div class="lineheight"></div> 
       </div>
@@ -90,8 +90,8 @@ import { Spinner } from 'mint-ui';
         return {
           list: [
             { title: '课程详情', id: 1 ,show:true},
-            { title: '课程安排', id: 2 ,show:false},
-            { title: '老师介绍', id: 3 ,show:false},
+            { title: '课程安排', id: 2 ,show:false}
+            // { title: '老师介绍', id: 3 ,show:false},
           ],
           isFixed: false, //是否固定的
           throttleScroll: null, //定义一个截流函数的变量

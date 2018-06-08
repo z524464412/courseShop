@@ -23,12 +23,12 @@
           </div>
         </div>
         <div class="gradeDiv" v-if="type == 'dingding'">
-          <div class="left">购买渠道:</div>
+          <div class="left">学生来源:</div>
           <div class="gradeSelect" @click="showChannel">
               {{popChannel}}
           </div>
         </div>
-        <div class="gradeDiv" v-if="login">
+        <div class="gradeDiv" v-if="type == 'dingding'">
           <div class="left">选择学校:</div>
           <div class="gradeSelect" @click="showRight">
               {{schoolName}}
@@ -156,8 +156,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
               textAlign: 'left'
             }
           ],
-          popUpTitle:'小学三年级',
-          popUpOldTitle:'小学三年级',
+          popUpTitle:'高中一年级',
+          popUpOldTitle:'高中一年级',
           popChannel:'社群炒作',
           gradeId:'',
           gradeOid:'',
@@ -302,15 +302,21 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           gradeList(param).then(res =>{
             if(res.data.respCode == 0){
               _this.allData = res.data.data;
+              _this.allData = _this.allData.sort(_this.sortNumber);
+              console.log(_this.allData);
               var allName =  _this.getNameDta(res.data.data);
               _this.popUpSlots[0].values = allName;
               _this.getGrade(allName[0].name)
               _this.gradeOid =_this.allData[0].sub[0].id
+              console.log()
             }
           },function(res){
             Indicator.close();
             MessageBox('系统错误,请刷新!')
           })
+        },
+        sortNumber(v1,v2){
+          return v2.name == '高中课程' || v2.name == '初中课程' 
         },
         //获取姓名
         getName(){
@@ -466,10 +472,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           info.scope = this.scope;
           info.school = this.schoolcode;
           info.schoolName = this.schoolName;  
-          if(_this.schoolName =='未选择'){
-            Toast('请选择学校!')
-            return;
-          }
+          // if(_this.schoolName =='未选择'){
+          //   Toast('请选择学校!')
+          //   return;
+          // }
           if(info.type == 'wx'){
             if(user){
               setStore('user',user);

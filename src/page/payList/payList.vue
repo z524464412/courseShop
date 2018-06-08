@@ -10,7 +10,7 @@
           <!-- <div class="checkBtn" @click="gotoLogin">确认</div> -->
         </div>
         <div class="checkAddr" v-show="!showBtn">
-          <input type="text" name="addrText" placeholder="请输入地址" v-model="addrValue1" >
+          <input type="text" name="addrText" placeholder="请输入资料邮寄地址" v-model="addrValue1" >
           <div class="checkAddrBtn" @click="checkAddr(true)">
             保存
           </div>  
