@@ -11,7 +11,7 @@
       <div class="courseName">{{courseList.title || '课程题目'}}
       </div>
       <div class="userBox">
-        <div class="manAvatar" v-if="!noBuy">
+        <!-- <div class="manAvatar" v-if="!noBuy">
           <img :src="imgBaseUrl + courseList.t_avatar" v-if="courseList.t_avatar">
           <img src="../../images/avatar.png" v-else>
         </div>
@@ -22,7 +22,7 @@
           <div class="gray">
             {{'共'+courseList.totalHour+'课时' || 'xx课时'}}
           </div>
-        </div>
+        </div> -->
         <div class="courseMoney userItem" >
           {{'￥'+courseList.price}}
           <span class="dataDiv" @click="chooseData" v-if="showbook">
