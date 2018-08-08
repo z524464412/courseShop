@@ -1,6 +1,6 @@
 <template>
   	<div class="login">
-      <img class="loginImg" src="../../images/background.png">
+      <img class="loginImg" src="../../images/background3.png">
       <div class="formDiv">
         <div class="phoneDiv DivItem" v-if="!login || type=='dingding'">
             <img src="../../images/phone.png"/>
@@ -164,6 +164,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           query:'',
           ids:'',
           scope:'',
+          oldscope:'',
           channelList:[],
           channeOId:'',
           channeOTitle:'',
@@ -302,13 +303,15 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           gradeList(param).then(res =>{
             if(res.data.respCode == 0){
               _this.allData = res.data.data;
-              _this.allData = _this.allData.sort(_this.sortNumber);
-              console.log(_this.allData);
+              let aa = _this.allData[2];
+              let bb = _this.allData[0];
+              _this.allData[0] = aa;
+              _this.allData[2] = bb;
               var allName =  _this.getNameDta(res.data.data);
               _this.popUpSlots[0].values = allName;
               _this.getGrade(allName[0].name)
               _this.gradeOid =_this.allData[0].sub[0].id
-              console.log()
+              _this.scope = _this.allData[0].id
             }
           },function(res){
             Indicator.close();
@@ -316,7 +319,8 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           })
         },
         sortNumber(v1,v2){
-          return v2.name == '高中课程' || v2.name == '初中课程' 
+          let aa = v2.id - v1.id && v2.id<125552
+          return aa
         },
         //获取姓名
         getName(){
@@ -418,8 +422,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
         },
          //popup改变
         popUpChange(picker,values){
+
           if(picker.getSlotValue(0)){
             this.getGrade(picker.getSlotValue(0).name)  
+            this.oldscope = picker.getSlotValue(0).id;
           }
           if(picker.getSlotValue(1)){
               this.popUpTitle = picker.getSlotValue(1).name;
@@ -453,6 +459,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           this.pickerVisible = false;
           this.popUpOldTitle = this.popUpTitle;
           this.gradeOid = this.gradeId;
+          this.scope =this.oldscope
         },
         //去选课
         gotoCourse(){

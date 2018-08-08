@@ -145,6 +145,8 @@ function platformType(){
     setStore('type','wx');
   }else if(ua.indexOf('dingtalk') > 0 ){
     setStore('type','dingding');
+  }else{
+     setStore('type','wx');
   }
 }
 router.beforeEach((to, from, next) => {

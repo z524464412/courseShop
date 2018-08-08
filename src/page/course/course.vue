@@ -30,7 +30,7 @@
         </div>
       </div> 
       <div class="lineheight"></div>
-      <shop-cart :allNum=allNum :allPrice=allPrice :noIcon="'index'"></shop-cart>
+      <shop-cart :allNum=allNum :allPrice=allPrice :discountAll=discountAll :noIcon="'index'"></shop-cart>
       <div class="typeBox" v-show="typeShow">
         <div @click="selectType('','课程')" class="typeItem active">全部课程</div>
         <div @click="selectType(typename.name,typename.name)" v-text="typename.name" class="typeItem" v-for="typename in courseTypeList">
@@ -82,7 +82,8 @@ import { Spinner } from 'mint-ui';
             bannerHeight: 60,
             ordernav: 50,
             lovenav: 52
-          }
+          },
+          discountAll:0
         }
       },
       created(){
@@ -176,11 +177,8 @@ import { Spinner } from 'mint-ui';
         getCourseList(){
           var _this = this;
           var param = {};
-          if(this.scopeId){
-            param.scope = this.scopeId;
-          }else{
-            param.grade = this.gradeId;
-          }
+          param.scope = this.scopeId;
+          param.grade = this.gradeId;
           param.pageSize = this.pageSize;
           if(this.tag){
             param.tag = encodeURI(this.tag);
@@ -223,10 +221,14 @@ import { Spinner } from 'mint-ui';
           let _this =this;
           _this.allNum = 0;
           _this.allPrice = 0;
+          _this.discountAll = 0;
           for(let cart of Object.values(_this.shopCart)){
             if(cart.num == 1){
               _this.allNum++
               _this.allPrice += new Number(cart.price);
+              if(!cart.exclude){
+                _this.discountAll += new Number(cart.price);
+              }
             }
             for(let list of _this.courseLists){
               if((cart.id == list.id) && (cart.num == 1)){

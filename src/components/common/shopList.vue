@@ -6,22 +6,17 @@
         </span>
         <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
         <img src="../../images/info.png" v-else>
+        <div class="imgExclude" v-if="courseList.exclude">
+          <img src="../../images/noDiscount.png" >  
+        </div>
     </div>
     <div class="courseInfo">
       <div class="courseName">{{courseList.title || '课程题目'}}
       </div>
       <div class="userBox">
-        <!-- <div class="manAvatar" v-if="!noBuy">
+       <!--  <div class="manAvatar" v-if="!noBuy">
           <img :src="imgBaseUrl + courseList.t_avatar" v-if="courseList.t_avatar">
           <img src="../../images/avatar.png" v-else>
-        </div>
-        <div class="manName userItem" v-if="!noBuy">
-          <div>
-            {{courseList.name || '小帅老师1' }}
-          </div>
-          <div class="gray">
-            {{'共'+courseList.totalHour+'课时' || 'xx课时'}}
-          </div>
         </div> -->
         <div class="courseMoney userItem" >
           {{'￥'+courseList.price}}
@@ -33,6 +28,17 @@
             <span class="dataNoImg" v-if="!needBook">
             </span>
           </span>
+        </div>
+        <div class="manName userItem" v-if="!noBuy">
+         <!--  <div>
+            {{courseList.name || '小帅老师1' }}
+          </div> -->
+          <div class="gray" v-if="courseList.totalHour">
+            {{'共'+courseList.totalHour+'课时'}}
+          </div>
+           <div class="gray" v-else>
+            <!-- {{'共0课时'}} -->
+          </div>
         </div>
         <buy-cart v-if="!noBuy" class="coursePlus" :courseList=courseList  @showMoveDot="showMoveDotFun">
         </buy-cart>
@@ -144,6 +150,12 @@ import {setStore} from 'src/config/mUtils'
   @import 'src/style/common';
   @import 'src/style/mixin';
   .courseImg{
+    .imgExclude{
+      position: absolute;
+      top: 0;
+      width: 42px;
+      height: 13px;
+    }
     .hasBook{
       position: absolute;
       right: 0;

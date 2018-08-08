@@ -35,7 +35,7 @@
         </mt-cell-swipe>
       </div>
      <div class="lineheight"></div>
-    <shop-cart :allNum=allNum :allPrice=allPrice :payTitle="'创建订单'" :needBookIds=needBookIds :bookMoney=bookMoney :addrValue1=addrValue1></shop-cart>   
+    <shop-cart :allNum=allNum :discountAll=discountAll :allPrice=allPrice :payTitle="'创建订单'" :needBookIds=needBookIds :bookMoney=bookMoney :addrValue1=addrValue1></shop-cart>   
   </div>  
 </template>
 <script>
@@ -65,7 +65,8 @@
           bookMoney:0,
           showbook:false,
           showBtn:false,
-          user :''
+          user :'',
+          discountAll:0
         }
       },
       created(){
@@ -126,11 +127,15 @@
           _this.chooseList=[];
           _this.allNum = 0;
           _this.allPrice = 0;
+          _this.discountAll = 0;
           for(let cart of Object.values(_this.shopCart)){
             if(cart.num == 1){
               _this.allNum++
               _this.allPrice += new Number(cart.price);
               _this.chooseList.push(cart);
+              if(!cart.exclude){
+                _this.discountAll += new Number(cart.price);
+              }
             }
           }
         },

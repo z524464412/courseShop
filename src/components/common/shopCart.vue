@@ -1,6 +1,7 @@
 <template>
       <section class="buy_cart_container">
           <section v-if="payList">
+
             <section class="cart_icon_num buy_cart_info">
                 共{{payList.courseList.length}}门课程, 已减<span class="red">￥{{payList.discount}}</span>!<span v-if="payList.bookFee >0">(资料费:{{payList.bookFee}})</span>
             </section>
@@ -33,7 +34,8 @@
                     </div>
                 </div>
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
-                    <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice"></div>
+                    <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'"></div>
+                    <div v-text="allPrice" v-if="path == '/courseDetail'"></div>
                     <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div>
                 </div>
             </section>
@@ -65,10 +67,11 @@
         platform:'',
         billId:'',
         token:'',
-        check:false
+        check:false,
+        path:''
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1','discountAll'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -85,7 +88,9 @@
       
     },
     mounted(){
+      // console.log(this.payList)
       let _this = this;
+      _this.path = _this.$route.path
       this.init_platform()
       this.INIT_DISCOUNT();
       this.billId = this.$route.query.id;
@@ -178,6 +183,7 @@
           param.grade =user.gradeId
 
           if(_this.allPrice){
+            console.log()
              param.price = _this.allPrice - _this.nowDiscount;
           }else{
             param.price = 0
@@ -220,6 +226,7 @@
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
+
                 user.login = false;
                 removeStore('userToken');
                 removeStore('user');
@@ -470,19 +477,26 @@
         var _this =this ;
         var Things = Object.values(this.discountList)
         for (var i = Things.length - 1; i >= 0; i--) {
-          if(Things[i].price > _this.allPrice){
+          console.log(_this.discountAll)
+          console.log(Things[i].price)
+          if(Things[i].price > _this.discountAll){
+
             if(Things[i+1]){
               _this.nowDiscount = Things[i+1].discount;  
             }else{
               _this.nowDiscount =0;
             }
-            _this.needMoney = Things[i].price - _this.allPrice;
+            _this.needMoney = Things[i].price - _this.discountAll;
             _this.newDiscount = Things[i].discount;
             return;
           }else{
-            _this.nowDiscount = Things[i].discount;
+            // _this.nowDiscount = Things[i].discount;
+            // _this.needMoney = 0;
+            // _this.newDiscount = Things[i].discount;
+            _this.nowDiscount = 0;
             _this.needMoney = 0;
-            _this.newDiscount = Things[i].discount;
+            _this.newDiscount = Things[Things.length-1].discount;
+
           }
         }
       },
