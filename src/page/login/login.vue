@@ -290,9 +290,10 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
           getChannel().then(res=>{
             var _this = this;
             if(res.data.respCode == 0){
-              _this.channeId = res.data.data[0].id
+              _this.channeId = res.data.data[0].value
+              _this.popChannel =res.data.data[0].text;
               _this.channelList = res.data.data;
-               _this.popUpSlots1[0].values = res.data.data;
+              _this.popUpSlots1[0].values = res.data.data;
             }
           })
         },
@@ -416,7 +417,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
         //popup改变
         popUpChange1(picker,values){
           if(picker.getSlotValue(0)){
-            this.channeOId = picker.getSlotValue(0).id;
+            this.channeOId = picker.getSlotValue(0).value;
             this.channeOTitle = picker.getSlotValue(0).text
           }
         },
