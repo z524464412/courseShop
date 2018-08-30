@@ -57,7 +57,6 @@ export default {
 							// console.log(document.forms[0])
 							document.forms[0].submit();
 						// },500)
-						
 					})
 				}else{
 					window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
@@ -68,13 +67,17 @@ export default {
     },
     methods:{
     	getAliForm(params){
+    		let _this =this;
     		return new Promise((resolve,reject)=>{
-    			h5alipay(params).then(res=>{
-						if(res.data.indexOf('form') > 0){
-							this.aliHtml = res.data;	
-						};
-						resolve(res.data);
-					})
+    			//跳转支付宝支付页面
+    				window.location.href =  "https://api.tifang.online/coursecart/v1/bill/alipay"+"?billId="+_this.billId+"&needBook="+_this.bookNum+"&deliverAddr="+this.addrValue
+    	// 		h5alipay(params).then(res=>{
+
+					// 	if(res.data.indexOf('form') > 0){
+					// 		this.aliHtml = res.data;	
+					// 	};
+					// 	resolve(res.data);
+					// })
     		})
     	}
     },
