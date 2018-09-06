@@ -6,9 +6,9 @@
         </span>
         <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
         <img src="../../images/info.png" v-else>
-        <div class="imgExclude" v-if="courseList.exclude">
+       <!--  <div class="imgExclude" v-if="courseList.exclude">
           <img src="../../images/noDiscount.png" >  
-        </div>
+        </div> -->
     </div>
     <div class="courseInfo">
       <div class="courseName">{{courseList.title || '课程题目'}}

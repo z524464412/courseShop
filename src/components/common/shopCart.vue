@@ -2,9 +2,9 @@
       <section class="buy_cart_container">
           <section v-if="payList">
 
-            <section class="cart_icon_num buy_cart_info">
+          <!--   <section class="cart_icon_num buy_cart_info">
                 共{{payList.courseList.length}}门课程, 已减<span class="red">￥{{payList.discount}}</span>!<span v-if="payList.bookFee >0">(资料费:{{payList.bookFee}})</span>
-            </section>
+            </section> -->
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
@@ -21,9 +21,9 @@
             </section>
           </section>
           <section v-else>
-            <section class="cart_icon_num buy_cart_info">
+           <!--  <section class="cart_icon_num buy_cart_info">
             共{{allNum}}门课程,已减<span class="red">¥{{nowDiscount}}</span>，再选<span class="red">¥{{needMoney}}</span>减<span class="red">¥{{newDiscount}}</span>!
-            </section>
+            </section> -->
             <section class="cart_icon_num">
                 <div class="cart_icon_container" ref="cartContainer" v-if="noIcon=='index'">
                     <span v-if="allNum" class="cart_list_length">
@@ -471,7 +471,7 @@
         }
       },
       initData(){
-        this.initDiscount();
+        // this.initDiscount();
       },
       initDiscount(){
         var _this =this ;
