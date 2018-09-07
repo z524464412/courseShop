@@ -41,10 +41,8 @@ import { Toast } from 'mint-ui'
         }
       },
       mounted () {
-        console.log(this.$route)
       	this.billId = this.$route.query.id;
       	if(this.billId){
-          console.log(this.billId)
           this.checkType();
       	}
 
@@ -57,9 +55,7 @@ import { Toast } from 'mint-ui'
         checkType(){
           var _this =this;
           this.param.billId = this.billId
-          console.log(222)
           checkPayResult(this.param).then((res)=>{
-            console.log(res)
           if(res.data.respCode == 0){
             this.paySucc = 0;
             setTimeout(function(){
@@ -77,7 +73,6 @@ import { Toast } from 'mint-ui'
         },
         checkAliType(){
           var _this =this;
-          console.log(_this.param)
           checkAliResult(_this.param).then((res)=>{
           if(res.data.respCode == 0){
             this.paySucc = 0;
