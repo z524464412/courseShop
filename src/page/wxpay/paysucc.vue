@@ -77,7 +77,6 @@ import { Toast } from 'mint-ui'
         },
         checkAliType(){
           var _this =this;
-          console.log(_this.param)
           checkAliResult(_this.param).then((res)=>{
           if(res.data.respCode == 0){
             this.paySucc = 0;
