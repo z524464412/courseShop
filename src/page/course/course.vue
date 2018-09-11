@@ -1,30 +1,33 @@
 <template>
     <div class="page-infinite-wrapper" ref="wrapper" :style="{ height: wrapperHeight + 'px' }">
-      <div @click="swipeClick" id="swipeDiv" ref="header">
+    
+    <!-- 隐藏首页轮播 -->
+     <!--  <div @click="swipeClick" id="swipeDiv" ref="header">
         <mt-swipe class="myswipe" :auto="3000" >
           <mt-swipe-item v-for="(banner,index) in 1" :data-value="banner.url" class="swiper-slide">
             <img src="../../images/banner.png">
           </mt-swipe-item>
         </mt-swipe>
-      </div>
+      </div> -->
       <div class="courseLists" >
         <div class="courseheight"></div>
         <div class="isIOS">
+        <search-box @getList="getCourseList" :clearSearBtn="clearSearBtn"></search-box>
           <div class="courseTitle" ref="nav"  :class="{isFixed:isFixed}">
-            <div class="left courseType">{{courseTypeName}}</div>
-            <div class="right courseScreening" @click="selectType(99,'全部课程')">
-              筛选
+            <div class="left courseType" @click="selectType(99,'全部课程','gradeShow')">{{courseTypeName}}</div>
+            <div class="right courseScreening" @click="selectType(99,'全部课程','typeShow')">
+              科目筛选
             </div>
           </div>
         </div>
-          <ul class="page-infinite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
-            <shop-list v-for="courseList in courseLists" :courseList=courseList>
-            </shop-list>
-          </ul>
-          <p v-show="loading" class="page-infinite-loading">
-            <mt-spinner type="fading-circle"></mt-spinner>
-            加载中...
-          </p>
+        <ul class="page-infinite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+          <shop-list v-for="courseList in courseLists" :courseList=courseList>
+          </shop-list>
+        </ul>
+        <p v-show="loading" class="page-infinite-loading">
+          <mt-spinner type="fading-circle"></mt-spinner>
+          加载中...
+        </p>
         <div class="null-empty" v-show="showEmpty">
           <img src="../../images/empty.png">
         </div>
@@ -32,21 +35,34 @@
       <div class="lineheight"></div>
       <shop-cart :allNum=allNum :allPrice=allPrice :discountAll=discountAll :noIcon="'index'"></shop-cart>
       <div class="typeBox" v-show="typeShow">
-        <div @click="selectType('','课程')" class="typeItem active">全部课程</div>
-        <div @click="selectType(typename.name,typename.name)" v-text="typename.name" class="typeItem" v-for="typename in courseTypeList">
+        <div class="subjectBox">
+          <div class="popupTitle">科目</div>
+          <div class="popupTypes">
+            <div class="popupType" @click="clickType(item,'subject',index)" :class="{active : item.check}" v-for='(item,index) in courseTypeList'>
+              {{item.name}}
+            </div>
+          </div>
         </div>
-        <div class="closeBtn" @click="selectType(98)">
-          <img src="../../images/close.png">
+      </div>
+      <div class="typeBox" v-show="gradeShow">
+        <div class="grade-boxs">
+          <div class="grade-box grade-left" >
+            <div class="grade-item" :class="{active : item.check}" v-for="(item,index) in scopeTypes" @click="clickType(item,'scope')">{{item.name}}</div>
+          </div>
+          <div class="grade-box grade-right"  >
+            <div class="grade-items" :class="{active : item.check}" v-for="(item,index) in gradeTypes" @click="clickType(item,'grade')">{{item.name}}</div>
+          </div>
         </div>
       </div>
     </div>
 </template>
 <script>
 var throttle = require('lodash/throttle'); //从lodash中引入的throttle节流函数
+import searchBox from "src/components/common/searchBox"
 import {mapState, mapMutations} from 'vuex'
 import shopCart from 'src/components/common/shopCart'
 import shopList from 'src/components/common/shopList'
-import { courseList , CourseType,discount} from 'src/service/course'
+import { courseList , CourseType,discount,gradeList} from 'src/service/course'
 import { MessageBox } from 'mint-ui';
 import { Indicator } from 'mint-ui';
 import { Spinner } from 'mint-ui';
@@ -54,13 +70,24 @@ import { Spinner } from 'mint-ui';
   export default {
       data() {
         return {
+          subjectsType:false,//学科popup是否显示
+          subjectsArr:[
+            {name:'全部',check:true},
+            {name:'语文',check:false},
+            {name:'数学',check:false},
+            {name:'英语',check:false},
+          ],//学科数组
+          clearSearBtn:true, //是否显示搜索组件的搜索按钮
           banners:[{url:'../../images/banner.png',title:'图片'}],
           isFixed: false, //是否固定的
           throttleScroll: null, //定义一个截流函数的变量
           typeShow:false,//是否显示类型
+          gradeShow:false,//是否显示
           showEmpty: false, //无数据
           loading: false, //底部加载
           listEnd: false, //底部提示
+          scopeTypes:[],//学段类型
+          gradeTypes:[],//学年类型
           courseLists: [],
           lastPage: 1,
           currentPage: 0,
@@ -74,7 +101,7 @@ import { Spinner } from 'mint-ui';
           allPrice:0,
           scopeId:'',
           gradeId:'',
-          courseTypeList:{},
+          courseTypeList:[],
           tag:'',
           apptype:'',
           winStyle: {
@@ -117,11 +144,13 @@ import { Spinner } from 'mint-ui';
          this.throttleScroll = throttle(this.handleScroll, 100);
          this.getCourseType();
          this.getCourseList();
+         this.getGradeList();
          // this.scroll()
       },
       components:{
         shopCart,
-        shopList
+        shopList,
+        searchBox
       },
       computed: {
         ...mapState([
@@ -138,6 +167,11 @@ import { Spinner } from 'mint-ui';
         ...mapMutations([
             'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL','ADD_DISCOUNT','INIT_DISCOUNT'
         ]),
+        //选择课程
+        checkSubject(){
+          console.log(123123)
+        },
+        //获取优惠规则
         getdiscount(){
           var _this =this;
           discount().then(res=>{
@@ -145,6 +179,87 @@ import { Spinner } from 'mint-ui';
              _this.ADD_DISCOUNT(res.data.data)
             }
           })
+        },
+        //年级切换
+        clickType(item,type,index){
+          if( type == 'type'){
+            for (var i = this.courseTypes.length - 1; i >= 0; i--) {
+              this.courseTypes[i].check = false;
+            }
+            this.typeStatus = item.typeStatus;
+          }else if(type == 'subject'){
+            for (var i = this.courseTypeList.length - 1; i >= 0; i--) {
+              this.courseTypeList[i].check =false
+            }
+            this.courseTypeList[index].check =true;
+            this.$set(this.courseTypeList,index,item);
+            this.tag = item.tag;
+            this.searchData();
+
+          }else if(type == 'scope'){
+            let bb = {name:'全部',id:'',check:false};
+            for (var i = this.scopeTypes.length - 1; i >= 0; i--) {
+              this.scopeTypes[i].check =false
+            }
+            // if(item.name == '全部'){
+            //   item.check =true;
+            //    this.gradeTypes =[];
+            //    this.gradeTypes.push(bb);
+            //    return
+            // }
+            this.scopeId = item.id;
+            this.gradeTypes =[];
+            let aa = [];
+            aa = this.getGrade(item.name);
+            for (var i = aa.length - 1; i >= 0; i--) {
+              aa[i].check = false
+            }
+            //添加全部选项
+            this.gradeTypes = aa 
+            // this.gradeTypes[0].check =true;
+          }else if(type == 'grade'){
+            for (var i = this.gradeTypes.length - 1; i >= 0; i--) {
+              this.gradeTypes[i].check =false
+            }
+            this.gradeId = item.id;
+            this.pickerVisible1 = false;
+            this.searchData();
+          }
+          item.check = true;
+        },
+        //选择课程或类型获取课程列表
+        searchData(){
+          $('body').css('overflow','auto');
+          this.gradeShow = false;
+          this.typeShow = false;
+          this.curPage = 1;
+          this.courseLists =[];
+          this.getCourseList();
+        },
+        //获取所有名字
+        getNameDta(arr){
+          var result = new Array();
+          for (var i in arr) {
+            if (arr[i].name != '') {
+              let aa = {};
+              aa.name =arr[i].name
+              aa.id = arr[i].id;
+              aa.check = false;
+              result.push(aa); 
+            }
+          }
+          return result;
+        },
+        //获取二级菜单
+        getGrade: function(placeName) {
+          this.gradeTypes =[];
+          var _this = this;
+          var place = Object.values(_this.allData);
+          for (let item of place) {
+            if (item.name == placeName) {
+               return item.sub;
+            }
+          }
         },
         //下拉加载
         loadMore() {
@@ -159,20 +274,20 @@ import { Spinner } from 'mint-ui';
             }
           }
         },
-        //获取所有类型
-        getCourseType(){
-          var _this =this;
-          var param = {};
-          param.type = 'subject'
-          if(this.scopeId){
-            param.scope = this.scopeId;
-          }else{
-            param.grade = this.gradeId;
-          }
-          CourseType(param).then(res =>{
-            _this.courseTypeList = res.data.data;
-          })
-        },
+        // //获取所有类型
+        // getCourseType(){
+        //   var _this =this;
+        //   var param = {};
+        //   param.type = 'subject'
+        //   if(this.scopeId){
+        //     param.scope = this.scopeId;
+        //   }else{
+        //     param.grade = this.gradeId;
+        //   }
+        //   CourseType(param).then(res =>{
+        //     _this.courseTypeList = res.data.data;
+        //   })
+        // },
         //获取课程列表
         getCourseList(){
           var _this = this;
@@ -188,7 +303,7 @@ import { Spinner } from 'mint-ui';
             setTimeout(()=>{
               Indicator.close();
               if(res.data.respCode == 0){
-                if(res.data.data.classes.length>0){
+                if(res.data.data.classes && res.data.data.classes.length>0){
                   for(let i in res.data.data.classes){
                     if(!isNaN(i)){
                        this.courseLists.push(res.data.data.classes[i])
@@ -237,18 +352,103 @@ import { Spinner } from 'mint-ui';
             }
           }
         },
-        
+        //获取年级列表
+       getGradeList(){
+        let _this =this;
+        let param = {};
+        param.type = 'subject'
+        gradeList(param).then(res =>{
+          console.log(res.data.data)
+          if(res.data && res.data.data){
+            _this.allData = res.data.data;
+            let aa = _this.allData[2];
+            let bb = _this.allData[0];
+            _this.allData[0] = aa;
+            _this.allData[2] = bb;
+            var allName =  this.getNameDta(res.data.data)
+            if(_this.oldgrade){
+              for (var i = _this.allData.length - 1; i >= 0; i--) {
+                for (var j = _this.allData[i].sub.length - 1; j >= 0; j--) {
+                  if(_this.allData[i].sub[j].id ==  _this.oldgrade){
+                      if(allName[i]){
+                        allName[i].check =true; 
+                      }
+                      _this.gradeNowList = _this.getGrade(allName[i].name);
+
+                      for (let o = _this.gradeNowList.length - 1; o >= 0; o--) {
+                        _this.gradeNowList[o].check = false
+                      }
+                      // console.log(_this.gradeNowList)
+                      _this.gradeNowList[j].check = true;
+                     _this.scopeId  = _this.allData[i].id
+                     _this.gradeId  = _this.oldgrade;
+                  }
+                }
+              }
+            }else{
+              if(allName[0]){
+                allName[0].check = true;
+              }
+              _this.gradeNowList = _this.getGrade(allName[0].name);
+              for (let i = _this.gradeNowList.length - 1; i >= 0; i--) {
+                _this.gradeNowList[i].check = false
+              }
+              _this.gradeNowList[0].check = true;
+              _this.gradeId =_this.allData[0].sub[0].id;
+              _this.scopeId = _this.allData[0].id;
+            }
+            this.gradeTypes = _this.gradeNowList;
+            /* 添加全部功能*/
+            // let scopeAll = {name:'全部',id:'',check:true};
+            // if(_this.scopeId){
+            //   scopeAll.check = false
+            // }else{
+            //   scopeAll.check = true;
+            // }
+            _this.scopeTypes =allName;
+            // _this.scopeTypes.unshift(scopeAll)
+            // this.scopeId;//学段(高中小专项)
+            // param.grade = this.gradeId;//年级
+            this.getCourseType();
+            this.getCourseList();
+          }
+        })
+      },
+      //获取所有类型
+        getCourseType(){
+          var _this =this;
+          var param = {};
+          param.type = 'subject'
+          if(this.scopeId){
+            param.scope = this.scopeId;
+          }else{
+            param.grade = this.gradeId;
+          }
+          CourseType(param).then(res =>{
+            if(!res.data.data){
+              _this.courseTypeList =[];
+              return
+            }else{
+              _this.courseTypeList = res.data.data;
+              for (var i = _this.courseTypeList.length - 1; i >= 0; i--) {
+                _this.courseTypeList[i].tag = _this.courseTypeList[i].name
+                _this.courseTypeList[i].check = false
+              }
+              let allCourse = {name:'全部',tag:0,check:true};
+              _this.courseTypeList.unshift(allCourse)
+            }
+          })
+
+        },
         //选择科目
-        selectType(type,name){
+        selectType(type,name,btn){
+          let _this  =this;
           if(type == 99){
             $('body').css('overflow','hidden');
-            this.typeShow =!this.typeShow;
           }else if(type== 98){
-            this.typeShow = !this.typeShow
             $('body').css('overflow','auto');
           }else{
             $('body').css('overflow','auto');
-            
             if(name=='课程'){
               this.courseTypeName = '全部课程'
               this.tag = '';
@@ -260,7 +460,10 @@ import { Spinner } from 'mint-ui';
             this.curPage = 1;
             this.courseLists =[];
             this.getCourseList();
-            this.typeShow =!this.typeShow;
+          }
+          //根据传入
+          if(btn){
+            this[btn] = !this[btn]
           }
         },
         //轮播跳转
@@ -306,6 +509,50 @@ import { Spinner } from 'mint-ui';
 <style lang="scss" scoped>
   @import 'src/style/common';
   @import 'src/style/mixin';
+  .mint-popup{
+    width: 100%;
+    transform: translate(-50%, 0);
+    box-shadow: 0 5px 10px 0 rgba(133,133,133,0.5);
+    &:before{
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: solid transparent;
+      border-width: 10px;
+      border-bottom-color: #fff;
+      content: "";
+      position: absolute;
+      top: -20px;
+      margin-left: -10px;
+    }
+    &.mint-popup-1{
+      &:before{
+        left: 16%;
+      }
+    }  
+  }
+  .popupTypes{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 10px 0;
+    .popupType{
+      font-size: 12px;
+      width: 20%;
+      text-align: center;
+      padding: 8px;
+      background: #F1F3F8;
+      border:1px solid #F1F3F8;
+      color: #4A4A4A;
+      border-radius: 15.5px;
+      margin: 5px 8px;
+    }
+    .active{
+      border:1px solid #5197FC;
+      background: #D7EBFF;
+      color:#4A4A4A
+    }
+  }
   .myswipe img{
     transform: translateY(-2px);
   }
@@ -320,11 +567,24 @@ import { Spinner } from 'mint-ui';
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(38,38,38,0.97);
+        background-color: rgba(73,76,83,0.3);
         z-index: 200;
         text-align: center;
+        padding-top: 97px;
+        .subjectBox{
+          background: #fff;
+          .popupTitle{
+            text-align: left;
+            width: 100%;
+            padding-left: 15px;
+            padding-top: 15px;
+            color: #5197FC;
+            font-size: 14px;
+            font-weight: bold;
+          }
+        }
         .typeItem{
-          border-bottom:2px solid  #303231;
+          // border-bottom:2px solid  #303231;
           color: rgb(155,157,156);
           line-height: 48px;
           width: 100%;
@@ -368,7 +628,7 @@ import { Spinner } from 'mint-ui';
       position: sticky;
       top: -5px;;  
       left: 0; 
-      z-index: 13; 
+      z-index: 201; 
     }
     .courseTitle{
       line-height: 46px;
@@ -428,5 +688,51 @@ import { Spinner } from 'mint-ui';
     width: 100%;
     overflow: scroll;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .grade-boxs{
+    display: flex;
+    flex-wrap: wrap;
+    background: #fff;
+    .grade-box{
+      flex:1;
+      height: 160px;
+      overflow: auto;
+
+      .grade-item{
+        padding: 0px 12px;
+        line-height: 41px;
+        background: #f4f4f4;
+        &.active{
+          background: #fff;
+        }
+      }
+      .grade-items{
+        margin: 0px 12px;
+        line-height: 40px;
+        border-bottom:1px solid #F1F3F8;
+        position:relative;
+        &.active{
+          color: #5197FC;
+          &:before{
+            position: absolute;
+            background: url('../../images/arrow_check.png') no-repeat;
+            background-size: 100% auto;
+            content: '';
+            width: 11px;
+            height: 9px;
+            right: 10px;
+            top: 50%;
+            margin-top: -5.5px;
+          }
+        }
+      }
+    }
+    .grade-left{
+      flex-basis:30%;
+    }
+    .grade-right{
+      flex-basis:70%;
+    }
   }
 </style>

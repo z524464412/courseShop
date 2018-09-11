@@ -100,6 +100,10 @@ export const getArea = params => instance.get('/coursecart/v1/area',{params});
 
 export const getSchool= params => instance.get('/coursecart/v1/school',{params});
 
+//获取所有部门
+
+export const sysDept = params =>instance.get('/oa/v1/sys/dept',{params});
+
 
 
 

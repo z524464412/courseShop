@@ -3,7 +3,7 @@ import { MessageBox,Indicator} from 'mint-ui';
  * 请求错误处理
  */
 export const catchError = function(error){
-    Indicator.close();
+      Indicator.close();
     if(error){
         MessageBox('服务端异常，请联系技术支持');
     }
@@ -25,27 +25,27 @@ export const catchError = function(error){
  * 存储localStorage
  */
 export const setStore = (name, content) => {
-	if (!name) return;
-	if (typeof content !== 'string') {
-		content = JSON.stringify(content);
-	}
-	window.localStorage.setItem(name, content);
+    if (!name) return;
+    if (typeof content !== 'string') {
+        content = JSON.stringify(content);
+    }
+    window.localStorage.setItem(name, content);
 }
 
 /**
  * 获取localStorage
  */
 export const getStore = name => {
-	if (!name) return;
-	return window.localStorage.getItem(name);
+    if (!name) return;
+    return window.localStorage.getItem(name);
 }
 
 /**
  * 删除localStorage
  */
 export const removeStore = name => {
-	if (!name) return;
-	window.localStorage.removeItem(name);
+    if (!name) return;
+    window.localStorage.removeItem(name);
 }
 
 /**
@@ -69,11 +69,11 @@ export const getStyle = (element, attr, NumberMode = 'int') => {
  * 页面到达底部，加载更多
  */
 export const loadMore = (element, callback) => {
-	let windowHeight = window.screen.height;
-	let height;
-	let setTop;
-	let paddingBottom;
-	let marginBottom;
+    let windowHeight = window.screen.height;
+    let height;
+    let setTop;
+    let paddingBottom;
+    let marginBottom;
     let requestFram;
     let oldScrollTop;
 
@@ -81,7 +81,7 @@ export const loadMore = (element, callback) => {
        loadMore();
     }, false)
     //运动开始时获取元素 高度 和 offseTop, pading, margin
-	element.addEventListener('touchstart',() => {
+    element.addEventListener('touchstart',() => {
         height = element.offsetHeight;
         setTop = element.offsetTop;
         paddingBottom = getStyle(element,'paddingBottom');
@@ -95,8 +95,8 @@ export const loadMore = (element, callback) => {
 
     //运动结束时判断是否有惯性运动，惯性运动结束判断是非到达底部
     element.addEventListener('touchend',() => {
-       	oldScrollTop = document.body.scrollTop;
-       	moveEnd();
+        oldScrollTop = document.body.scrollTop;
+        moveEnd();
     },{passive: true})
     
     const moveEnd = () => {
@@ -106,9 +106,9 @@ export const loadMore = (element, callback) => {
                 loadMore();
                 moveEnd();
             }else{
-            	cancelAnimationFrame(requestFram);
-            	//为了防止鼠标抬起时已经渲染好数据从而导致重获取数据，应该重新获取dom高度
-            	height = element.offsetHeight;
+                cancelAnimationFrame(requestFram);
+                //为了防止鼠标抬起时已经渲染好数据从而导致重获取数据，应该重新获取dom高度
+                height = element.offsetHeight;
                 loadMore();
             }
         })
@@ -305,7 +305,7 @@ export const animate = (element, target, duration = 400, mode = 'ease-out', call
 *@param {title, desc, link, icon} title 分享标题，desc 分享描述，link 分享链接，icon 分享图标
 
 */
-var shareOpt = {
+let shareOpt = {
   title:'',
   desc:'',
   link:'',
@@ -343,3 +343,173 @@ export function wxReady(){
           });
         })
 }
+//获取本日日期
+export function getNowDay(){
+    let day2 = new Date();
+    day2.setTime(day2.getTime());
+    let s2 = day2.getFullYear()+"-" + (day2.getMonth()+1) + "-" + day2.getDate();
+    return s2
+}
+//获取昨天日期
+export function beforeDay(){
+  var day1 = new Date();
+  day1.setTime(day1.getTime()-24*60*60*1000);
+  var s1 = day1.getFullYear()+"-" + (day1.getMonth()+1) + "-" + day1.getDate();
+  return s1;
+}
+//获取明天日期
+export function getNextDay(){
+  var day3 = new Date();
+  day3.setTime(day3.getTime()+24*60*60*1000);
+  var s3 = day3.getFullYear()+"-" + (day3.getMonth()+1) + "-" + day3.getDate();
+  return s3;
+}
+//获取当月日期
+export function getMonth(Fn) { 
+    // 获取当前月的第一天    
+    let start = new Date();    
+    start.setDate(1);
+    // 获取当前月的最后一天    
+    let date = new Date();    
+    let currentMonth = date.getMonth();    
+    let nextMonth = ++currentMonth;    
+    let nextMonthFirstDay = new Date(date.getFullYear(), nextMonth, 1);    
+    let oneDay = 1000 * 60 * 60 * 24;    
+    let end = new Date(nextMonthFirstDay - oneDay);
+    let startDate = transferDate(start); // 日期变换    
+    let endDate = transferDate(end); // 日期变换    
+    return startDate + '~' + endDate;    
+}
+//获取当前年
+export function getNowYear(){
+    var myDate = new Date();
+    myDate.getYear(); //获取当前年份(2位)
+    let y = myDate.getFullYear();
+    return y;
+}
+
+//获取周日期格式
+export function getWeek(Fn) {
+    //按周日为一周的最后一天计算    
+    let date = new Date();    
+    //今天是这周的第几天    
+    let today = date.getDay();    
+    //上周日距离今天的天数（负数表示）    
+    let stepSunDay = -today + 1;    
+    // 如果今天是周日    
+    if (today == 0) {    
+    
+        stepSunDay = -7;    
+    }    
+    // 周一距离今天的天数（负数表示）    
+    let stepMonday = 7 - today;    
+    let time = date.getTime();    
+    let monday = new Date(time + stepSunDay * 24 * 3600 * 1000);    
+    let sunday = new Date(time + stepMonday * 24 * 3600 * 1000);    
+    //本周一的日期 （起始日期）    
+    let startDate = transferDate(monday); // 日期变换    
+    //本周日的日期 （结束日期）    
+    let endDate = transferDate(sunday); // 日期变换    
+    return startDate + '~' + endDate;    
+}
+//改变时间格式
+export function getTaskTime(strDate) {
+  console.log("原始时间格式："+strDate);  
+  var date = new Date(strDate);  
+  var y = date.getFullYear();   
+  var m = date.getMonth() + 1;    
+  m = m < 10 ? ('0' + m) : m;    
+  var d = date.getDate();    
+  d = d < 10 ? ('0' + d) : d;    
+  var h = date.getHours();    
+  var minute = date.getMinutes();    
+  minute = minute < 10 ? ('0' + minute) : minute;  
+  // var str = y+"-"+m+"-"+d+" "+h+":"+minute;  
+  var str = y+"-"+m+"-"+d;  
+  console.log("转换时间格式："+str);  
+  return str;  
+}
+function transferDate(date) {  
+        // 年    
+    let year = date.getFullYear();    
+    // 月    
+    let month = date.getMonth() + 1;    
+    // 日    
+    let day = date.getDate();    
+    if (month >= 1 && month <= 9) {    
+        month = "0" + month;    
+    }    
+    if (day >= 0 && day <= 9) {    
+        day = "0" + day;    
+    }    
+    let dateString = year + '-' + month + '-' + day;
+    return dateString;    
+}
+/*
+*图片压缩
+
+*@param {input_file, func}
+
+*/
+export function yasuo(input_file, func) {
+  console.log(input_file)
+  console.log(func)
+    lrz(input_file)
+    .then(function (results) {
+        // 处理成功会执行
+        console.log(results)
+      func(results);
+    })
+    .catch(function (err) {
+      console.error(err);
+        // 处理失败会执行
+    })
+    .always(function () {
+       console.log('压缩结束');
+        // 不管是成功失败，都会执行
+    });
+  // lrz(input_file, {
+  //   width: 750,
+  //   before: function() {
+  //     console.log('压缩开始');
+  //   },
+  //   fail: function(err) {
+  //     console.error(err);
+  //   },
+  //   always: function() {
+  //     console.log('压缩结束');
+  //   },
+  //   done: function(results) {
+  //     console.log(results)
+  //     func(results.base64);
+  //   }
+  // });
+}
+
+// 
+export function convertBase64UrlToBlob(urlData) {
+  // //去掉url的头，并转换为byte
+  // var bytes = window.atob(urlData.split(',')[1]);
+  // //处理异常,将ascii码小于0的转换为大于0
+  // var ab = new ArrayBuffer(bytes.length);
+  // var ia = new Uint8Array(ab);
+  // for (var i = 0; i < bytes.length; i++) {
+  //   ia[i] = bytes.charCodeAt(i);
+  // }
+  // return new Blob([ab], {
+  //   type: 'image/png'
+  // });
+}
+//获取所有的name
+export function getNameDta(arr){
+  var result = new Array();
+  for (var i in arr) {
+    if (arr[i].name != '') {
+      let aa = {};
+      aa.name =arr[i].name
+      aa.id = arr[i].id;
+      result.push(aa);
+    }
+  }
+  return result;
+};

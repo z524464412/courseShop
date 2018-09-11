@@ -1,15 +1,16 @@
 <template>
   <div v-if="courseList" class="courseList" @click="gotoPage()">
-    <div class="courseImg">
+    <!-- 隐藏缩略图 -->
+    <!-- <div class="courseImg">
         <span class="hasBook" v-if="courseList.needBook == 1">
           资料
         </span>
         <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
         <img src="../../images/info.png" v-else>
-       <!--  <div class="imgExclude" v-if="courseList.exclude">
+        <div class="imgExclude" v-if="courseList.exclude">
           <img src="../../images/noDiscount.png" >  
-        </div> -->
-    </div>
+        </div>
+    </div> -->
     <div class="courseInfo">
       <div class="courseName">{{courseList.title || '课程题目'}}
       </div>
@@ -104,8 +105,13 @@ import {setStore} from 'src/config/mUtils'
       },
       //跳转页面
          gotoPage(){
+          //订单支付页面不跳转
           if(this.$route.path == '/orderList'){
             return
+            //创建订单页面
+          }else if(this.$route.path == '/payList'){
+            //显示选择课次详情
+
           }
           if(this.payTitle == '创建订单'){
 

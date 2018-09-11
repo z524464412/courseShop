@@ -527,7 +527,7 @@
         display: flex;
         width: 100%;
         height: 45px;
-         background-color: rgba(255,255,255, 0.9);
+         background-color: rgba(255,255,255, 1);
         .cart_icon_num{
             flex: 1;
             .cart_icon_container{

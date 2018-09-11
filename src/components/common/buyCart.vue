@@ -76,6 +76,7 @@
             position: relative;
             z-index: 12;
             margin:auto;
+            margin-right: 0;
         }
         .cart_button{
             display: flex;

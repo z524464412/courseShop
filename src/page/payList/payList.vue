@@ -23,7 +23,9 @@
         </div>
       </div>
       <div class="item" v-for="(courseList,index) in chooseList" v-cloak>
-        <mt-cell-swipe class="cell_swipe" :data-id="index"  :right="[  
+        <shop-list :noBuy='true' :courseList=courseList :payTitle="'创建订单'" @needBook="needBook" @click="gotoUrl">
+        </shop-list>
+        <!-- <mt-cell-swipe class="cell_swipe" :data-id="index"  :right="[  
                 {  
                     content: '删除',  
                     style: { 'background': 'red', 'color': '#fff', 'width':'100px','text-align':'center','line-height':'107px','font-size':'18px'},  
@@ -32,7 +34,7 @@
             ]">
           <shop-list :noBuy='true' :courseList=courseList :payTitle="'创建订单'" @needBook="needBook">
           </shop-list>
-        </mt-cell-swipe>
+        </mt-cell-swipe> -->
       </div>
      <div class="lineheight"></div>
     <shop-cart :allNum=allNum :discountAll=discountAll :allPrice=allPrice :payTitle="'创建订单'" :needBookIds=needBookIds :bookMoney=bookMoney :addrValue1=addrValue1></shop-cart>   
@@ -94,6 +96,9 @@
         ...mapMutations([
           'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL'
         ]), 
+        gotoUrl(){
+          console.log(123123)
+        },
         checkAddr(type){
           if(type){
             if(!this.addrValue1){
