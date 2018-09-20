@@ -36,7 +36,10 @@
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
                     <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'"></div>
                     <div v-text="allPrice" v-if="path == '/courseDetail'"></div>
-                    <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div>
+                    <!-- 第一版 -->
+                    <!-- <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div> -->
+                    <!-- 第二版 -->
+                    <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>
                 </div>
             </section>
           </section>
@@ -49,7 +52,7 @@
 <script>
   import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { addOrder ,testInit,aliPay,prePay,getToken,AuthLogin} from 'src/service/course'
+  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin} from 'src/service/course'
   import { Toast } from 'mint-ui'
   import { httpUrl } from 'src/config/env';
 	export default{
@@ -71,7 +74,7 @@
         path:''
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1','discountAll'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1','discountAll','checkLessonsLength'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -136,12 +139,32 @@
         let token = '';
         let userToken = getStore('userToken');
         let dingToken = getStore('dingToken');
+        let classes = [];
+        
         _this.token = token
         user = JSON.parse(getStore('user'));
         _this.ids = [];
         for(let cart of Object.values(_this.cartList)){
-           if(cart.num ==1){
+          let checkLesson = {};
+           if(cart.choose){
             _this.ids.push(cart.id);
+            // console.log(cart)
+            checkLesson.id=cart.id;
+            if(cart.needBook){
+              checkLesson.needBook = cart.needBook
+            }else{
+              checkLesson.needBook = 0
+            }
+            if(Object.keys(cart.lessonArr) && Object.keys(cart.lessonArr).length > 0 ){
+              checkLesson.saleUnit = 2
+              checkLesson.lessons = Object.keys(cart.lessonArr);
+            }
+            if(cart.isTrial){
+               checkLesson.isTrial = cart.isTrial
+            }else{
+              checkLesson.isTrial = 0
+            }
+            classes.push(checkLesson);
            }
           }
         if(_this.ids.length<=0 && _this.$route.path !='/orderList' && _this.$route.path !='/courseDetail'){
@@ -159,31 +182,30 @@
           let param = {};
           param.userName=user.name;
           param.phoneNo=user.phone;
-          // param.classes = _this.ids;
-          let ids  =[];
-          let needBookIds =[];
-          let bookArray = Object.values(_this.needBookIds);
-          for (var i = _this.ids.length - 1; i >= 0; i--) {
-            let obj = {};
-            obj.id =_this.ids[i];
-            let aa =_this.ids[i]
-            if(_this.needBookIds[aa] && (_this.needBookIds[aa].needBook == 1)){
-              obj.needBook = 1;
-            }else{
-              obj.needBook = 0;
-            }
-            ids.push(obj)
-          }
-          needBookIds = ids;
+          // param.classes = classes;
+          // let ids  =[];
+          // let needBookIds =[];
+          // let bookArray = Object.values(_this.needBookIds);
+          // for (var i = _this.ids.length - 1; i >= 0; i--) {
+          //   let obj = {};
+          //   obj.id =_this.ids[i];
+          //   let aa =_this.ids[i]
+          //   if(_this.needBookIds[aa] && (_this.needBookIds[aa].needBook == 1)){
+          //     obj.needBook = 1;
+          //   }else{
+          //     obj.needBook = 0;
+          //   }
+          //   ids.push(obj)
+          // }
+          // needBookIds = ids;
           param.deliverAddr = _this.addrValue1;
           param.school = user.schoolName;
-          param.classes = needBookIds;
+          param.classes = classes;
           param.price = _this.allPrice;
           param.scope = user.scope;
           param.grade =user.gradeId
-
+          // param.classes=[];
           if(_this.allPrice){
-            console.log()
              param.price = _this.allPrice - _this.nowDiscount;
           }else{
             param.price = 0
@@ -222,7 +244,10 @@
             token = ''
           }
           if(user.login && user.type == 'wx'){
-            addOrder(param,token).then(res=>{
+            newAddOrder(param,token).then(res=>{
+              if(!res){
+                return
+              }
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
@@ -240,7 +265,7 @@
           }
           if(user.type == 'dingding'){
             param.channel =user.channeId;
-            addOrder(param,token).then(res=>{
+            newAddOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
@@ -256,7 +281,7 @@
                         if(res.data.data.dingToken){
                             setStore('dingToken',res.data.data.dingToken)
                             let ken = 'dingToken='+res.data.data.dingToken;
-                            addOrder(param,ken).then(res=>{
+                            newAddOrder(param,ken).then(res=>{
                               if(res.data.respCode == 0){
                                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
                               }else{

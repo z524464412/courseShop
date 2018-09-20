@@ -14,6 +14,7 @@ const error =r =>require.ensure([],()=>r(require('../page/error/error')),'error'
 
 const testMove =r =>require.ensure([],()=>r(require('../page/wxpay/testMove')),'testMove')
 
+const lessonsList =r =>require.ensure([],()=>r(require('../components/common/lessonsList')),'lessonsList')
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -83,6 +84,12 @@ export default [{
           path: '/testMove',
           component: testMove
         },
+        //选课课次页面
+        {
+          path: '/lessonsList',
+          component: lessonsList
+        },
+        
         
     ]
 }]

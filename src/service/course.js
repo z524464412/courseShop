@@ -46,6 +46,11 @@ export const checkCode = params => instance.get('/coursecart/v1/message/sms/chec
 // export const addOrder = params => instance.post('/v1/bill/createBill',params);
 export const addOrder = (params,token) => instance.post('/coursecart/v1/bill/create?'+token,params);
 
+//创建订单1.1
+
+// export const addOrder = params => instance.post('/v1/bill/createBill',params);
+export const newAddOrder = (params,token) => instance.post('/coursecart/v1.1/bill/create?'+token,params);
+
 //微信签名
 // export const getwxConfig = params =>instance.get('/coursecart/v1/sys/getWeChatSignature',{params});
 export const getwxConfig = params =>instance.get('/coursecart/v1/wechat/auth',{params});
@@ -103,6 +108,13 @@ export const getSchool= params => instance.get('/coursecart/v1/school',{params})
 //获取所有部门
 
 export const sysDept = params =>instance.get('/oa/v1/sys/dept',{params});
+
+//获取所有部门
+
+export const courseFully = params =>instance.get('/coursecart/v1/course/fully',{params});
+
+
+
 
 
 

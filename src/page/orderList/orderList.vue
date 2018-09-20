@@ -52,7 +52,7 @@
       </div> -->
       <div class="items">
         <div class="item" v-for="(item,index) in 1" v-cloak>
-            <shop-list class="courseItem" :noBuy="true" v-for="courseList in courseLists" :courseList=courseList>
+            <shop-list  class="courseItem" :noBuy="true" v-for="courseList in courseLists" :courseList=courseList>
             </shop-list>
         </div>
       </div>
@@ -195,6 +195,10 @@
           })
       },
       methods:{
+        //显示课次列表
+        showLesson(item){
+          console.log(item);
+        },
         showMore(){
           let _this =this;
           let item = document.querySelector('.items');
@@ -242,6 +246,9 @@
     background-color:#d83034;
     border-color: #d83034;
 
+  }
+  .courseList{
+    padding-right:30px;
   }
   .initlabel1{
     line-height:40px;

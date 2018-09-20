@@ -31,4 +31,12 @@ export const ADD_DISCOUNT ="ADD_DISCOUNT"
 export const INIT_DISCOUNT ="INIT_DISCOUNT"
 export const CHOOSE_CART = "CHOOSE_CART"
 export const NEED_BOOK = "NEED_BOOK"
+export const NEW_NEED_BOOK = "NEW_NEED_BOOK"
+export const AUDITION = "AUDITION"
+export const ADD_LESSON = "ADD_LESSON"
+export const REDUCE_LESSON = "REDUCE_LESSON"
+export const ADDALLLESSONS = "ADDALLLESSONS"
+
+
+
 

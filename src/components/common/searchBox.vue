@@ -3,7 +3,7 @@
     <div class="weui-search-bar__form" :class="{mr0:clearSearBtn}" @click="changeInput">
       <div class="weui-search-bar__box">
         <i class="weui-icon-search mintui"></i>
-        <form action="">
+        <form action="javascript:return true;">
           <input type="search" v-model="inputValue" class="weui-search-bar__input" id="searchInput" placeholder="搜索" @keyup.13="chooseInput"
             ref="input1" />
         </form>

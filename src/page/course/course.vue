@@ -33,7 +33,7 @@
         </div>
       </div> 
       <div class="lineheight"></div>
-      <shop-cart :allNum=allNum :allPrice=allPrice :discountAll=discountAll :noIcon="'index'"></shop-cart>
+      <shop-cart :allNum=allNum :allPrice=allPrice :checkLessonsLength=lessonsLength :discountAll=discountAll :noIcon="'index'"></shop-cart>
       <div class="typeBox" v-show="typeShow">
         <div class="subjectBox">
           <div class="popupTitle">科目</div>
@@ -110,7 +110,8 @@ import { Spinner } from 'mint-ui';
             ordernav: 50,
             lovenav: 52
           },
-          discountAll:0
+          discountAll:0,
+          lessonsLength:0
         }
       },
       created(){
@@ -143,7 +144,7 @@ import { Spinner } from 'mint-ui';
         });
          this.throttleScroll = throttle(this.handleScroll, 100);
          this.getCourseType();
-         this.getCourseList();
+         // this.getCourseList();
          this.getGradeList();
          // this.scroll()
       },
@@ -169,7 +170,7 @@ import { Spinner } from 'mint-ui';
         ]),
         //选择课程
         checkSubject(){
-          console.log(123123)
+
         },
         //获取优惠规则
         getdiscount(){
@@ -289,9 +290,15 @@ import { Spinner } from 'mint-ui';
         //   })
         // },
         //获取课程列表
-        getCourseList(){
+        getCourseList(val,clear){
           var _this = this;
           var param = {};
+          if(clear){
+            this.courseLists = [];
+          }
+          if(val && val.inputValue){
+            param.search = encodeURIComponent(val.inputValue);
+          }
           param.scope = this.scopeId;
           param.grade = this.gradeId;
           param.pageSize = this.pageSize;
@@ -337,16 +344,26 @@ import { Spinner } from 'mint-ui';
           _this.allNum = 0;
           _this.allPrice = 0;
           _this.discountAll = 0;
+          _this.lessonsLength = 0;
           for(let cart of Object.values(_this.shopCart)){
-            if(cart.num == 1){
+            if(cart.choose){
               _this.allNum++
-              _this.allPrice += new Number(cart.price);
+              // 第一版订单
+              // _this.allPrice += new Number(cart.price);
+              if(cart.lessonArr){
+                _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
+                _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+                _this.lessonsLength= _this.lessonsLength +_this.checkLessonsLength
+              }
+              if(cart.needBook){
+                _this.allPrice+= 50;
+               }
               if(!cart.exclude){
                 _this.discountAll += new Number(cart.price);
               }
             }
             for(let list of _this.courseLists){
-              if((cart.id == list.id) && (cart.num == 1)){
+              if((cart.id == list.id) && (cart.choose)){
                 list.choose =true;
               }
             }
@@ -358,7 +375,6 @@ import { Spinner } from 'mint-ui';
         let param = {};
         param.type = 'subject'
         gradeList(param).then(res =>{
-          console.log(res.data.data)
           if(res.data && res.data.data){
             _this.allData = res.data.data;
             let aa = _this.allData[2];
@@ -378,7 +394,6 @@ import { Spinner } from 'mint-ui';
                       for (let o = _this.gradeNowList.length - 1; o >= 0; o--) {
                         _this.gradeNowList[o].check = false
                       }
-                      // console.log(_this.gradeNowList)
                       _this.gradeNowList[j].check = true;
                      _this.scopeId  = _this.allData[i].id
                      _this.gradeId  = _this.oldgrade;
@@ -456,7 +471,6 @@ import { Spinner } from 'mint-ui';
               this.courseTypeName = name
               this.tag = name;
             }
-            
             this.curPage = 1;
             this.courseLists =[];
             this.getCourseList();

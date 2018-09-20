@@ -1,6 +1,8 @@
 import {
 	RECORD_ADDRESS,
 	ADD_CART,
+	ADD_LESSON,
+	REDUCE_LESSON,
 	REDUCE_CART,
 	INIT_BUYCART,
 	CLEAR_CART,
@@ -32,6 +34,9 @@ import {
 	INIT_DISCOUNT,
 	CHOOSE_CART,
 	NEED_BOOK,
+	NEW_NEED_BOOK,
+	AUDITION,
+	ADDALLLESSONS
 
 } from './mutation-types.js'
 
@@ -64,15 +69,111 @@ export default {
 		}
 		setStore('bookIds',state.bookIds)
 	},
+	//新的添加资料费
+	[NEW_NEED_BOOK](state,courseId,type){
+		let cart = state.cartList;
+		if(!cart[courseId]){
+		 cart =	JSON.parse(getStore('buyCart'));
+		}
+		let lessonsList = cart[courseId] = (cart[courseId] || {});
+		if(!lessonsList[courseList.lessonId]){
+			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
+			cart[courseList.courseId].needBook = type;
+			state.cartList = {...cart};
+			// 存入localStorage
+			setStore('buyCart', state.cartList);
+		}
+	},
+	//选择所有课次
+	[ADDALLLESSONS](state,{courseList,status}){
+		let cart = state.cartList;
+		console.log(courseList)
+		// if(!cart[courseList.courseId]){
+		//  cart =	JSON.parse(getStore('buyCart'));
+		// }
+		// let lessonsList = cart[courseList.courseId] = (cart[courseList.courseId] || {});
+		// if(!lessonsList[courseList.lessonId]){
+		// 	let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
+		// 	delete lesson[courseList.lessonId];
+		// 	cart[courseList.courseId].checkLessonsPrice = courseList.lessonPrice;
+		// 	if(Object.keys(lessonsList.lessonArr).length == 0){
+		// 		cart[courseList.courseId].choose = false;
+		// 	}
+		// 	state.cartList = {...cart};
+		// 	// 存入localStorage
+		// 	setStore('buyCart', state.cartList);
+		// }
+	},
+	//是否为试听
+	[AUDITION](state,{courseId,typeTiltle,type}){
+		let cart = state.cartList;
+		if(!cart[courseId]){
+		 cart =	JSON.parse(getStore('buyCart'));
+		}
+		cart[courseId][typeTiltle] = type;
+		console.log(cart)
+		state.cartList = {...cart};
+		// 存入localStorage
+		setStore('buyCart', state.cartList);
+	},
 	// 加入购物车
 	[ADD_CART](state, courseList) {
+		// 第一版本
+		// let cart = state.cartList;
+		// if(courseList){
+		// 	courseList.num = 1;
+		// 	courseList.choose = true;
+		// 	cart[courseList.id] = courseList;
+		// 	state.cartList = {...cart}; 
+		// 	//存入localStorage
+		// 	setStore('buyCart', state.cartList);
+		// }
+		// 第二版本
 		let cart = state.cartList;
 		if(courseList){
-			courseList.num = 1;
-			courseList.choose = true;
+			courseList.num = 0;
+			courseList.choose = false;
 			cart[courseList.id] = courseList;
 			state.cartList = {...cart}; 
 			//存入localStorage
+			setStore('buyCart', state.cartList);
+		}
+	},
+	// 加入课次
+	[ADD_LESSON](state, courseList) {
+		let cart = state.cartList;
+		if(!cart[courseList.courseId]){
+		 cart =	JSON.parse(getStore('buyCart'));
+		}
+		let lessonsList = cart[courseList.courseId] = (cart[courseList.courseId] || {});
+		if(!lessonsList[courseList.lessonId]){
+			courseList.num = 1;
+			courseList.choose = true;
+			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
+			lesson[courseList.lessonId] = courseList;
+			cart[courseList.courseId].choose = true;
+			cart[courseList.courseId].checkLessonsPrice = courseList.lessonPrice
+			state.cartList = {...cart}; 
+			// 存入localStorage
+			setStore('buyCart', state.cartList);
+		}
+	},
+	// 移出课次
+	[REDUCE_LESSON](state, courseList) {
+		let cart = state.cartList;
+		if(!cart[courseList.courseId]){
+		 cart =	JSON.parse(getStore('buyCart'));
+		}
+		let lessonsList = cart[courseList.courseId] = (cart[courseList.courseId] || {});
+		if(!lessonsList[courseList.lessonId]){
+			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
+			delete lesson[courseList.lessonId];
+			cart[courseList.courseId].checkLessonsPrice = courseList.lessonPrice;
+			if(Object.keys(lessonsList.lessonArr).length == 0){
+				cart[courseList.courseId].choose = false;
+			}
+			state.cartList = {...cart};
+			// 存入localStorage
 			setStore('buyCart', state.cartList);
 		}
 	},
@@ -83,6 +184,7 @@ export default {
 			if (cart[courseList.id].num > 0) {
 				cart[courseList.id].num = 0
 				courseList.choose = false;
+				cart[courseList.id].choose =false;
 				state.cartList = {...cart};
 				//存入localStorage
 				setStore('buyCart', state.cartList);

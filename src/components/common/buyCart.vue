@@ -6,23 +6,24 @@
             <div class="iconSty" v-show="!btnType" @click.stop="addToCart($event)">
                 <img class="add_icon"   src="../../images/plus.png" > 
             </div>
-            <div class="iconSty" v-show="btnType" @click.stop="removeOutCart($event)"> 
+            <div class="iconSty" v-show="btnType" @click.stop="gotoLesson($event)"> 
                 <img class="add_icon" src="../../images/tick.png">
             </div>
         </section>
-    </section>
+       
+    </section> 
 </template>
 
 <script>
-    
     import {mapState, mapMutations} from 'vuex'
     export default {
     	data(){
             return{
-               showMoveDot: [], //控制下落的小圆点显示隐藏
-               btnType:false
+              showMoveDot: [], //控制下落的小圆点显示隐藏
+              btnType:false,//课程选中还是没有选中
             }
         },
+        
         computed: {
             ...mapState([
                 'cartList'
@@ -31,24 +32,57 @@
         props:['courseList'],
         mounted(){
             this.btnType = this.courseList.choose;
+            this.query = this.$route.query;
         },
         methods: {
              ...mapMutations([
                 'ADD_CART','REDUCE_CART',
             ]),
+            
             removeOutCart(){
                 this.btnType =!this.btnType;
                 this.REDUCE_CART(this.courseList);
             },
+            gotoLesson(){
+              this.param ={};
+              this.param.courseId = this.courseList.id;
+              if(this.query.gradeId){
+                this.param.gradeId = this.query.gradeId
+              }
+              if(this.query.scope){
+                this.param.scope = this.query.scope
+              }
+              this.$router.push({path:'/lessonsList',query:this.param})
+            },
             //加入购物车，计算按钮位置。
             addToCart(event){
+                this.event = event;
+                this.param ={};
+                this.param.courseId = this.courseList.id;
+                if(this.query.gradeId){
+                  this.param.gradeId = this.query.gradeId
+                }
+                if(this.query.scope){
+                  this.param.scope = this.query.scope
+                }
+                this.$router.push({path:'/lessonsList',query:this.param})
+                // vuex控制课程列表
                 this.ADD_CART(this.courseList);
+                // this.btnType =!this.btnType;
+                // let elLeft = event.target.getBoundingClientRect().left;
+                // let elBottom = event.target.getBoundingClientRect().bottom;
+                // this.showMoveDot.push(true);
+                // this.$emit('showMoveDot', this.showMoveDot, elLeft, elBottom);
+
+            },
+            //加入购物车,计算按钮位置
+            addCourse(){
+                let event = this.event;
                 this.btnType =!this.btnType;
                 let elLeft = event.target.getBoundingClientRect().left;
                 let elBottom = event.target.getBoundingClientRect().bottom;
                 this.showMoveDot.push(true);
                 this.$emit('showMoveDot', this.showMoveDot, elLeft, elBottom);
-
             },
             //显示规格列表
             showChooseList(foodScroll){
@@ -65,6 +99,7 @@
 
 <style lang="scss" scoped>
     @import '../../style/mixin';
+  
 	.cart_module{
         .iconSty{
             width: 40px;
@@ -131,5 +166,6 @@
         transform: scale(.7);
     }
     
+
 </style>
 
