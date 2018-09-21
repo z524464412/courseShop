@@ -71,7 +71,8 @@
         billId:'',
         token:'',
         check:false,
-        path:''
+        path:'',
+        query:''
       }
     },
     props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1','discountAll','checkLessonsLength'],
@@ -94,6 +95,7 @@
       // console.log(this.payList)
       let _this = this;
       _this.path = _this.$route.path
+      _this.query = _this.$route.query;
       this.init_platform()
       this.INIT_DISCOUNT();
       this.billId = this.$route.query.id;
@@ -305,8 +307,18 @@
         }else if(_this.$route.path == '/courseDetail'){
           //课程详情页面
             let chooseCart = JSON.parse(getStore('chooseCart'));
-            this.ADD_CART(chooseCart);
-              _this.$router.push({path:'/payList'});
+            _this.param ={};
+            _this.param.courseId = _this.query.id;
+            if(_this.query.gradeId){
+              _this.param.gradeId = _this.query.gradeId
+            }
+            if(_this.query.scope){
+              _this.param.scope = _this.query.scope
+            }
+            // vuex控制课程列表
+            _this.ADD_CART(chooseCart);
+           _this.$router.push({path:'/lessonsList',query:_this.param})
+            // _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){
           if(this.payStatus == 1){
             return

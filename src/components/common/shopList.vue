@@ -112,6 +112,7 @@ import {setStore} from 'src/config/mUtils'
       }
     },
     mounted(){
+      this.query = this.$route.query;
       this.windowHeight = window.innerHeight;
     },
     methods:{
@@ -144,7 +145,7 @@ import {setStore} from 'src/config/mUtils'
 
           }else{
             setStore('chooseCart',this.courseList);
-            this.$router.push({path:'/courseDetail',query:{id:this.courseList.id,price:this.courseList.price}})
+            this.$router.push({path:'/courseDetail',query:{id:this.courseList.id,price:this.courseList.price,courseId:this.courseList.id,gradeId:this.query.gradeId,scope:this.query.scope}})
           }
         },
       //显示加入购物购物特效

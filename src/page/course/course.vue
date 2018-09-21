@@ -1,6 +1,5 @@
 <template>
     <div class="page-infinite-wrapper" ref="wrapper" :style="{ height: wrapperHeight + 'px' }">
-    
     <!-- 隐藏首页轮播 -->
      <!--  <div @click="swipeClick" id="swipeDiv" ref="header">
         <mt-swipe class="myswipe" :auto="3000" >
@@ -34,7 +33,7 @@
       </div> 
       <div class="lineheight"></div>
       <shop-cart :allNum=allNum :allPrice=allPrice :checkLessonsLength=lessonsLength :discountAll=discountAll :noIcon="'index'"></shop-cart>
-      <div class="typeBox" v-show="typeShow">
+      <div class="typeBox" v-show="typeShow" @click.self="hidetypeBox">
         <div class="subjectBox">
           <div class="popupTitle">科目</div>
           <div class="popupTypes">
@@ -44,7 +43,7 @@
           </div>
         </div>
       </div>
-      <div class="typeBox" v-show="gradeShow">
+      <div class="typeBox" v-show="gradeShow" @click.self="hidetypeBox">
         <div class="grade-boxs">
           <div class="grade-box grade-left" >
             <div class="grade-item" :class="{active : item.check}" v-for="(item,index) in scopeTypes" @click="clickType(item,'scope')">{{item.name}}</div>
@@ -168,6 +167,11 @@ import { Spinner } from 'mint-ui';
         ...mapMutations([
             'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL','ADD_DISCOUNT','INIT_DISCOUNT'
         ]),
+        //隐藏遮罩
+        hidetypeBox(){
+          this.typeShow = false
+          this.gradeShow =false
+        },
         //选择课程
         checkSubject(){
 
@@ -230,7 +234,7 @@ import { Spinner } from 'mint-ui';
         },
         //选择课程或类型获取课程列表
         searchData(){
-          $('body').css('overflow','auto');
+          // $('body').css('overflow','auto');
           this.gradeShow = false;
           this.typeShow = false;
           this.curPage = 1;
@@ -459,11 +463,11 @@ import { Spinner } from 'mint-ui';
         selectType(type,name,btn){
           let _this  =this;
           if(type == 99){
-            $('body').css('overflow','hidden');
+            // $('body').css('overflow','hidden');
           }else if(type== 98){
-            $('body').css('overflow','auto');
+            // $('body').css('overflow','auto');
           }else{
-            $('body').css('overflow','auto');
+            // $('body').css('overflow','auto');
             if(name=='课程'){
               this.courseTypeName = '全部课程'
               this.tag = '';

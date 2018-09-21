@@ -190,13 +190,14 @@
     methods: {
       //获取所有部门
       getSysDept() {
-        let params = {};
-        params.onsale = 1;
-        params.token = this.token;
-        sysDept(params).then(res => {
-          this.sysDeptLists = res;
-          let list = this.sysDeptLists;
-        })
+        // alert(123)
+        // let params = {};
+        // params.onsale = 1;
+        // params.token = this.token;
+        // sysDept(params).then(res => {
+        //   this.sysDeptLists = res;
+        //   let list = this.sysDeptLists;
+        // })
       },
       changeInput() {
         $("#searchInput").focus();
