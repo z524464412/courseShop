@@ -44,14 +44,19 @@
          <!--  <div>
             {{courseList.name || '小帅老师1' }}
           </div> -->
-          <div class="gray" v-if="courseList.totalHour">
-            {{'共'+courseList.totalHour+'课时'}}
+          <div class="gray" v-if="courseList.lessons">
+            {{'共'+courseList.lessons+'课次'}}
           </div>
            <div class="gray" v-else>
             {{'共0课时'}}
           </div>
+          
         </div>
-
+        <div class="manName userItem">
+          <div class="coursePrice">
+            课程总价: ￥{{courseList.price}}
+          </div>
+        </div>
         <div class="dataDiv courseMoney" v-if="courseList.needBook && courseList.lessonArr ">
           {{'￥'+((Object.keys(courseList.lessonArr).length)*courseList.checkLessonsPrice +50)}}
         </div>
@@ -183,6 +188,9 @@ import {setStore} from 'src/config/mUtils'
 <style lang="scss" scoped>
   @import 'src/style/common';
   @import 'src/style/mixin';
+  .coursePrice{
+    color: #5197FC;
+  }
   .popupRight {
     width: 100%;
     height: 100%;
