@@ -89,7 +89,7 @@
 import{ mapState,mapMutations} from 'vuex';
 import { Toast ,Indicator,MessageBox} from 'mint-ui';
 import {setStore,getStore,removeStore} from 'src/config/mUtils';
-import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,getArea,getSchool} from 'src/service/course'
+import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,newAddOrder,getChannel,getArea,getSchool} from 'src/service/course'
 
   export default {
       data() {
@@ -587,7 +587,7 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,addOrder,getChannel,ge
               }else{
                 token = ''
               }
-            addOrder(params,token).then(res=>{
+            newAddOrder(params,token).then(res=>{
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else{
