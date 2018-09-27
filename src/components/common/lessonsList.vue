@@ -131,6 +131,9 @@
             if(cart.lessonArr){
               _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
               _this.checkLessonsPrice = cart.checkLessonsPrice*_this.checkLessonsLength  || 0;
+              if(_this.checkLessonsPrice > 0 && _this.needBook){ 
+                  _this.checkLessonsPrice  = _this.checkLessonsPrice+50;
+              }
             }
             for(let list of _this.lessonsList){
               if(cart.lessonArr && cart.lessonArr[list.lessonId]){
@@ -150,6 +153,9 @@
         this.allLessons = !this.allLessons;
         if(_this.allLessons){
           _this.checkLessonsPrice = _this.lessonsList.length * _this.courseDetail.lessonPrice
+          if(_this.checkLessonsPrice > 0 && _this.needBook){
+            _this.checkLessonsPrice  = _this.checkLessonsPrice + 50;
+          }
           _this.checkLessonsLength = _this.lessonsList.length
         }else{
           _this.checkLessonsPrice = 0
@@ -196,6 +202,7 @@
           type:status
         }
         this.AUDITION(param)
+        this.initCartList();
       },
       checklessons(){
         this.lessonsCheck =false;

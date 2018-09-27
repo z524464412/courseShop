@@ -31,6 +31,8 @@ instance.interceptors.response.use(function(response) {
 		return response;
 	}else if(response.data.respMsg.indexOf('accessToken')>0){
 		
+	}else if(response.data.respCode == 30010 || response.data.respCode ==30000){
+		return response;
 	}else{
 		Toast({
 		  message: response.data.respMsg,

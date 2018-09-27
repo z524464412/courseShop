@@ -52,7 +52,7 @@
           </div>
           
         </div>
-        <div class="manName userItem">
+        <div class="manName userItem" v-if="!noBuy">
           <div class="coursePrice">
             课程总价: ￥{{courseList.price}}
           </div>

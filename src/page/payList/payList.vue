@@ -100,13 +100,7 @@
         gotoUrl(){
         },
         checkAddr(type){
-          if(type){
-            if(!this.addrValue1){
-              Toast('请输入地址在保存!')
-            }else{
-              this.showBtn = type;
-            }
-          }
+          this.showBtn = type;
         },
         gotoLogin(){
           this.$router.push({path:'/login',query:{login:false}})

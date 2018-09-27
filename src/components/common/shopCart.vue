@@ -147,6 +147,16 @@
         user = JSON.parse(getStore('user'));
         _this.ids = [];
         for(let cart of Object.values(_this.cartList)){
+          if(cart.needBook && !this.addrValue1){
+            Toast({
+              message: '请填写地址!',
+              position: 'middle',
+              duration: 1000
+            });
+            return
+          }else{
+            this.bookNum = 1;
+          }
           let checkLesson = {};
            if(cart.choose){
             _this.ids.push(cart.id);
@@ -205,6 +215,7 @@
           param.classes = classes;
           param.price = _this.allPrice;
           param.scope = user.scope;
+          // param.grade =user.gradeId
           param.grade =user.gradeId
           // param.classes=[];
           if(_this.allPrice){
@@ -253,7 +264,6 @@
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
-
                 user.login = false;
                 removeStore('userToken');
                 removeStore('user');
