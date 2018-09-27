@@ -15,10 +15,10 @@
       <div class="lessons-type-info lessons-type">
         学习资料
       </div>
-      <div class="lessons-type-name lessons-type" :class="{active:needBook}" @click="changeLessonsType('needBook',1)">
+      <div class="lessons-type-name lessons-type"  :class="{active:needBook,disabled:isTrial}" @click="changeLessonsType('needBook',1)">
         需要
       </div>
-      <div class="lessons-type-name lessons-type" :class="{active:!needBook}" @click="changeLessonsType('needBook',0)">
+      <div class="lessons-type-name lessons-type" :class="{active:!needBook,disabled:isTrial}" @click="changeLessonsType('needBook',0)">
         不需要 
       </div>
     </div>
@@ -164,7 +164,6 @@
         
         for (var i = _this.lessonsList.length - 1; i >= 0; i--) {
           _this.lessonsList[i].choose = this.allLessons;
-          console.log(this.allLessons)
           if(this.allLessons){
             _this.ADD_LESSON(_this.lessonsList[i]);
           }else{
@@ -201,12 +200,18 @@
           typeTiltle:type,
           type:status
         }
+        if(type =='needBook' && this.isTrial){
+           let param = {
+            courseId :this.query.courseId,
+            typeTiltle:type,
+            type:0
+          }
+        }
         this.AUDITION(param)
         this.initCartList();
       },
       checklessons(){
         this.lessonsCheck =false;
-
         this.$router.push({path:'/course',query:this.$route.query})
         return;
       },
@@ -394,11 +399,14 @@
           background: #F1F3F8;
           border-radius: 15.5px;
           text-align: center;
-          
           margin-right: 8px;
           &.active{
             background: #d7ebff;
             color: #5197fc;
+          }
+          &.disabled{
+            background: #F1F3F8;
+            color: #B7BEC7;
           }
         }
       }

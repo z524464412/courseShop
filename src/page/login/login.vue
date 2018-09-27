@@ -491,6 +491,9 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,newAddOrder,getChannel
               setStore('user',info);
             }
           }
+          removeStore('user');
+          info.channeId  = _this.channeId;
+          setStore('user',info);
           if(info.type == 'dingding'){
             if(/^1[3|4|5|6|7|8|9]\d{9}$/.test(this.mobile)){
             }else{
@@ -509,9 +512,6 @@ import { gradeList,AuthLogin,getCodeMsg,manName,checkCode,newAddOrder,getChannel
               },1500)
               return
             }
-            removeStore('user');
-            info.channeId  = _this.channeId;
-            setStore('user',info);
             this.$router.push({path:'/course',query:{gradeId:gradeId,scope:scope}})
           }
           if(info.type == 'wx' && info.login){

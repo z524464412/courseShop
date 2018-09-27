@@ -61,6 +61,7 @@ import searchBox from "src/components/common/searchBox"
 import {mapState, mapMutations} from 'vuex'
 import shopCart from 'src/components/common/shopCart'
 import shopList from 'src/components/common/shopList'
+import {setStore, getStore,removeStore} from 'src/config/mUtils'
 import { courseList , CourseType,discount,gradeList} from 'src/service/course'
 import { MessageBox } from 'mint-ui';
 import { Indicator } from 'mint-ui';
@@ -110,13 +111,16 @@ import { Spinner } from 'mint-ui';
             lovenav: 52
           },
           discountAll:0,
-          lessonsLength:0
+          lessonsLength:0,
+          userInfo:'',//用户信息
         }
       },
       created(){
         Indicator.open('加载中...');
-        this.gradeId = this.$route.query.gradeId;
-        this.scopeId = this.$route.query.scope;
+        this.userInfo = JSON.parse(getStore('user'));
+        this.gradeId = this.userInfo.gradeId;
+        this.scopeId = this.userInfo.scope;
+        this.oldgrade = this.gradeId;
         this.INIT_BUYCART();
         this.getdiscount();
       },
@@ -394,13 +398,13 @@ import { Spinner } from 'mint-ui';
                         allName[i].check =true; 
                       }
                       _this.gradeNowList = _this.getGrade(allName[i].name);
-
                       for (let o = _this.gradeNowList.length - 1; o >= 0; o--) {
                         _this.gradeNowList[o].check = false
                       }
                       _this.gradeNowList[j].check = true;
                      _this.scopeId  = _this.allData[i].id
                      _this.gradeId  = _this.oldgrade;
+
                   }
                 }
               }
@@ -462,6 +466,11 @@ import { Spinner } from 'mint-ui';
         //选择科目
         selectType(type,name,btn){
           let _this  =this;
+          if(btn == 'gradeShow'){
+            _this.typeShow =false;
+          }else{
+            _this.gradeShow =false;
+          }
           if(type == 99){
             // $('body').css('overflow','hidden');
           }else if(type== 98){
