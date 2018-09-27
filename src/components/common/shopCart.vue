@@ -72,10 +72,11 @@
         token:'',
         check:false,
         path:'',
-        query:''
+        query:'',
+        bookNum:0
       }
     },
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','bookNum','addrValue','needBookIds','bookMoney','addrValue1','discountAll','checkLessonsLength'],
+    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','addrValue','needBookIds','bookMoney','addrValue1','discountAll','checkLessonsLength'],
     computed:{
       ...mapState([
           'latitude','longitude','cartList','discount'
@@ -147,7 +148,7 @@
         user = JSON.parse(getStore('user'));
         _this.ids = [];
         for(let cart of Object.values(_this.cartList)){
-          if(cart.needBook && !this.addrValue1){
+          if(cart.needBook && !this.addrValue1 && _this.$route.path=='/payList'){
             Toast({
               message: '请填写地址!',
               position: 'middle',
@@ -155,7 +156,7 @@
             });
             return
           }else{
-            this.bookNum = 1;
+            _this.bookNum = 1;
           }
           let checkLesson = {};
            if(cart.choose){
