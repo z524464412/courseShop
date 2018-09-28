@@ -113,6 +113,7 @@ import { Spinner } from 'mint-ui';
           discountAll:0,
           lessonsLength:0,
           userInfo:'',//用户信息
+          searchTitle:'',//搜索的内容
         }
       },
       created(){
@@ -204,18 +205,12 @@ import { Spinner } from 'mint-ui';
             this.$set(this.courseTypeList,index,item);
             this.tag = item.tag;
             this.searchData();
-
           }else if(type == 'scope'){
             let bb = {name:'全部',id:'',check:false};
             for (var i = this.scopeTypes.length - 1; i >= 0; i--) {
               this.scopeTypes[i].check =false
             }
-            // if(item.name == '全部'){
-            //   item.check =true;
-            //    this.gradeTypes =[];
-            //    this.gradeTypes.push(bb);
-            //    return
-            // }
+
             this.scopeId = item.id;
             this.gradeTypes =[];
             let aa = [];
@@ -242,6 +237,9 @@ import { Spinner } from 'mint-ui';
           this.gradeShow = false;
           this.typeShow = false;
           this.curPage = 1;
+          this.userInfo.gradeId = this.gradeId
+          this.userInfo.scope = this.scopeId
+          setStore('user',this.userInfo)
           this.courseLists =[];
           this.getCourseList();
         },
@@ -302,17 +300,23 @@ import { Spinner } from 'mint-ui';
           var _this = this;
           var param = {};
           if(clear){
-            this.courseLists = [];
+            _this.courseLists = [];
+            _this.curPage = 1;
           }
-          if(val && val.inputValue){
-            param.search = encodeURIComponent(val.inputValue);
+          if(val){
+            _this.searchTitle = val.inputValue;
           }
-          param.scope = this.scopeId;
-          param.grade = this.gradeId;
+          if(val && val.inputValue || _this.searchTitle){
+            param.search = encodeURIComponent(_this.searchTitle);
+          }else{
+            param.scope = _this.scopeId;
+            param.grade = _this.gradeId;
+            if(_this.tag){
+              param.tag = encodeURI(_this.tag);
+            }
+
+          }
           param.pageSize = this.pageSize;
-          if(this.tag){
-            param.tag = encodeURI(this.tag);
-          }
           param.pageNo = _this.curPage;
           courseList(param).then(res =>{
             setTimeout(()=>{
@@ -470,23 +474,6 @@ import { Spinner } from 'mint-ui';
             _this.typeShow =false;
           }else{
             _this.gradeShow =false;
-          }
-          if(type == 99){
-            // $('body').css('overflow','hidden');
-          }else if(type== 98){
-            // $('body').css('overflow','auto');
-          }else{
-            // $('body').css('overflow','auto');
-            if(name=='课程'){
-              this.courseTypeName = '全部课程'
-              this.tag = '';
-            }else{
-              this.courseTypeName = name
-              this.tag = name;
-            }
-            this.curPage = 1;
-            this.courseLists =[];
-            this.getCourseList();
           }
           //根据传入
           if(btn){

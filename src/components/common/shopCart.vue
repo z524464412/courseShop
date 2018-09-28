@@ -35,7 +35,7 @@
                 </div>
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
                     <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'"></div>
-                    <div v-text="allPrice" v-if="path == '/courseDetail'"></div>
+                    <div v-text="'￥'+allPrice" v-if="path == '/courseDetail'"></div>
                     <!-- 第一版 -->
                     <!-- <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div> -->
                     <!-- 第二版 -->
@@ -591,7 +591,7 @@
                     position: absolute;
                     top: 5px;
                     right: 1px;
-                    background-color: rgb(218,46,46);
+                    background-color: #F95353;
                     line-height: 18px;
                     text-align: center;
                     border-radius: 50%;
@@ -611,7 +611,7 @@
                     font-size: 18px;
                     font-weight: bold;
                     margin-bottom: .1rem;
-                    color: rgb(218,46,46);
+                    color: #F95353;
                     span{
                       color: rgb(12,12,12);
                       font-size: 14px;
@@ -658,14 +658,14 @@
         .gotopay{
             position: absolute;
             right: 0;
-            background-color: #d52829;
+            background-color: #F95353;
             @include wh(6.6rem, 100%);
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
             .gotopay_button_style{
-                @include sc(.7rem, #f6cece);
+                @include sc(.7rem, #fff);
                 font-weight: bold;
                 letter-spacing: 2px;
                 &.noPay{

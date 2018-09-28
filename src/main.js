@@ -8,7 +8,7 @@ import store from './store/'
 import {routerMode} from './config/env'
 import './config/rem'
 import FastClick from 'fastclick'
-import {setStore,getStore} from 'src/config/mUtils'
+import {setStore,getStore,removeStore} from 'src/config/mUtils'
 import { getwxConfig,AuthLogin,getDingDing} from 'src/service/course'
 
 if ('addEventListener' in document) {
@@ -137,22 +137,27 @@ function ddConfig(){
         });
     })
 }
-ddConfig();
-wxConfig();
+
+
 function platformType(){
   var ua = window.navigator.userAgent.toLowerCase();
   if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+    wxConfig();
     setStore('type','wx');
   }else if(ua.indexOf('dingtalk') > 0 ){
+    ddConfig();
     setStore('type','dingding');
   }else{
-     setStore('type','wx');
+    wxConfig();
+    setStore('type','wx');
   }
 }
 router.beforeEach((to, from, next) => {
     document.documentElement.scrollTop  = 0;
     document.body.scrollTop  = 0;
-    platformType();
+    if(!getStore('type')){
+      platformType();
+    }
     next();
 })
 

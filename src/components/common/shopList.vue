@@ -189,6 +189,7 @@ import {setStore} from 'src/config/mUtils'
   @import 'src/style/common';
   @import 'src/style/mixin';
   .coursePrice{
+    font-size: 12px;
     color: #5197FC;
   }
   .popupRight {
