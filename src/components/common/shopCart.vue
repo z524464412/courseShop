@@ -302,7 +302,7 @@
                       })
                     },
                     onFail : function(err) {
-                      Toast('钉钉初始化失败:'+err);
+                      Toast('钉钉初始化失败:'+JSON.stringify(err));
                       console.log(err)
                     }
                   })
