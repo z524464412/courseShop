@@ -252,6 +252,7 @@
               if(!res){
                 return
               }
+              Toast(JSON.stringify(res))
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
@@ -266,11 +267,12 @@
               }
             })
           }
+
           if(user.type == 'dingding'){
             param.channel =user.channeId;
             newAddOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
-                 Toast('成功')
+                Toast(JSON.stringify(res))
                  setTimeout(function(){
                   _this.$router.push({path:'/orderList',query:{id:res.data.data}});
                  },1000)
@@ -280,6 +282,7 @@
                   dd.runtime.permission.requestAuthCode({
                     corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
                     onSuccess: function(result) {
+                      Toast('钉钉初始化成功');
                       let params = {};
                       params.code = result.code;
                       AuthLogin(params).then(res=>{
@@ -299,6 +302,7 @@
                       })
                     },
                     onFail : function(err) {
+                      Toast('钉钉初始化失败:'+err);
                       console.log(err)
                     }
                   })
