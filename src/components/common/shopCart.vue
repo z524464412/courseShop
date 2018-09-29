@@ -270,7 +270,10 @@
             param.channel =user.channeId;
             newAddOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
-                _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+                 Toast('成功')
+                 setTimeout(function(){
+                  _this.$router.push({path:'/orderList',query:{id:res.data.data}});
+                 },1000)
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){
                 removeStore('dingToken');
                 dd.ready(function() {
