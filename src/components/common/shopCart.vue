@@ -1,10 +1,6 @@
 <template>
       <section class="buy_cart_container">
           <section v-if="payList">
-
-          <!--   <section class="cart_icon_num buy_cart_info">
-                共{{payList.courseList.length}}门课程, 已减<span class="red">￥{{payList.discount}}</span>!<span v-if="payList.bookFee >0">(资料费:{{payList.bookFee}})</span>
-            </section> -->
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
@@ -21,9 +17,6 @@
             </section>
           </section>
           <section v-else>
-           <!--  <section class="cart_icon_num buy_cart_info">
-            共{{allNum}}门课程,已减<span class="red">¥{{nowDiscount}}</span>，再选<span class="red">¥{{needMoney}}</span>减<span class="red">¥{{newDiscount}}</span>!
-            </section> -->
             <section class="cart_icon_num">
                 <div class="cart_icon_container" ref="cartContainer" v-if="noIcon=='index'">
                     <span v-if="allNum" class="cart_list_length">
@@ -36,9 +29,6 @@
                 <div class="cart_num" :class="{noIcon:noIcon!='index'}">
                     <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'"></div>
                     <div v-text="'￥'+allPrice" v-if="path == '/courseDetail'"></div>
-                    <!-- 第一版 -->
-                    <!-- <div v-if="noIcon!='detail'" class="borderType">¥ {{allPrice || 0}}</div> -->
-                    <!-- 第二版 -->
                     <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>
                 </div>
             </section>
@@ -121,22 +111,22 @@
         return array.filter(item=>item);   
       },   
       gotoPage(){
-        if(this.bookNum > 0 && !this.addrValue){
-          Toast({
-            message: '请填写地址!',
-            position: 'middle',
-            duration: 1000
-          });
-          return
-        }
-        if(this.bookMoney && !this.addrValue1){
-          Toast({
-            message: '请填写地址!',
-            position: 'middle',
-            duration: 1000
-          });
-          return
-        }
+        // if(this.bookNum > 0 && !this.addrValue){
+        //   Toast({
+        //     message: '请填写地址!',
+        //     position: 'middle',
+        //     duration: 1000
+        //   });
+        //   return
+        // }
+        // if(this.bookMoney && !this.addrValue1){
+        //   Toast({
+        //     message: '请填写地址!',
+        //     position: 'middle',
+        //     duration: 1000
+        //   });
+        //   return
+        // }
         let _this = this;
         let user = {};
         let token = '';

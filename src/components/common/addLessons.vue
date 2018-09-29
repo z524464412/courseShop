@@ -30,8 +30,9 @@
               'cartList'
           ]),
         },
-        props:['lessonsList'],
+        props:['lessonsList','lessonsArr'],
         mounted(){
+          
         },
         methods: {
              ...mapMutations([
@@ -49,7 +50,6 @@
                 // let elBottom = event.target.getBoundingClientRect().bottom;
                 // this.showMoveDot.push(true);
                 // this.$emit('showMoveDot', this.showMoveDot, elLeft, elBottom);
-
             }
         },
     }

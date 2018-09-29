@@ -1,25 +1,9 @@
 <template>
   <div v-if="courseList" class="courseList" :class="{gotoLesson:$route.path == '/orderList'}"@click="gotoPage()">
-    <!-- 隐藏缩略图 -->
-    <!-- <div class="courseImg">
-        <span class="hasBook" v-if="courseList.needBook == 1">
-          资料
-        </span>
-        <img :src="imgBaseUrl +courseList.avatar" v-if="courseList.avatar">
-        <img src="../../images/info.png" v-else>
-        <div class="imgExclude" v-if="courseList.exclude">
-          <img src="../../images/noDiscount.png" >  
-        </div>
-    </div> -->
     <div class="courseInfo">
       <div class="courseName">{{courseList.title || '课程题目'}}
       </div>
       <div class="userBox">
-       <!--  <div class="manAvatar" v-if="!noBuy">
-          <img :src="imgBaseUrl + courseList.t_avatar" v-if="courseList.t_avatar">
-          <img src="../../images/avatar.png" v-else>
-        </div> -->
-
         <div v-if="$route.path == '/orderList'" class="userBox">
           <div class="bookSty userItem" v-if="courseList.lessons">
             {{'共'+ courseList.lessons +'课次'}}
@@ -41,9 +25,6 @@
           </span>
         </div>
         <div class="manName userItem" v-if="!noBuy">
-         <!--  <div>
-            {{courseList.name || '小帅老师1' }}
-          </div> -->
           <div class="gray" v-if="courseList.lessons">
             {{'共'+courseList.lessons+'课次'}}
           </div>
@@ -57,11 +38,14 @@
             课程总价: ￥{{courseList.price}}
           </div>
         </div>
-        <div class="dataDiv courseMoney" v-if="courseList.needBook && courseList.lessonArr ">
+        <div class="dataDiv courseMoney" v-if="courseList.needBook && courseList.lessonArr && !courseList.allChoose">
           {{'￥'+((Object.keys(courseList.lessonArr).length)*courseList.checkLessonsPrice +50)}}
         </div>
-        <div class="dataDiv courseMoney" v-if="courseList.lessonArr && !courseList.needBook">
+        <div class="dataDiv courseMoney" v-if="courseList.lessonArr && !courseList.needBook && !courseList.allChoose">
           {{'￥'+((Object.keys(courseList.lessonArr).length)*courseList.checkLessonsPrice)}}
+        </div>
+        <div class="dataDiv courseMoney" v-if="courseList.allChoose">
+          {{'￥'+courseList.original_price}}
         </div>
         <buy-cart v-if="!noBuy" class="coursePlus" :courseList=courseList  @showMoveDot="showMoveDotFun">
         </buy-cart>
@@ -117,6 +101,7 @@ import {setStore} from 'src/config/mUtils'
       }
     },
     mounted(){
+      console.log(this.courseList)
       this.query = this.$route.query;
       this.windowHeight = window.innerHeight;
     },

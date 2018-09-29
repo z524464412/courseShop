@@ -32,7 +32,7 @@
                     handler: () => delBtn(courseList)  
                 }  
             ]">
-          <shop-list class="courseImg" :noBuy='true'  :courseList=courseList :payTitle="'创建订单'" @needBook="needBook">
+          <shop-list class="courseImg" :noBuy='true' :courseList=courseList :payTitle="'创建订单'" @needBook="needBook">
           </shop-list>
         </mt-cell-swipe>
       </div>
@@ -127,24 +127,50 @@
           _this.allNum = 0;
           _this.allPrice = 0;
           _this.discountAll = 0;
-          console.log(_this.shopCart)
+          // for(let cart of Object.values(_this.shopCart)){
+          //   if(cart.choose){
+          //     _this.allNum++
+          //     if(cart.lessonArr){
+          //       _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
+          //       if(!cart.allChoose){
+          //         _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+          //       }else{
+          //         _this.allPrice = _this.allPrice + cart.original_price;
+          //       }
+          //       _this.lessonsLength= _this.lessonsLength +_this.checkLessonsLength
+          //     }
+          //     if(cart.needBook){
+          //       _this.allPrice+= 50;
+          //      }
+          //     if(!cart.exclude){
+          //       _this.discountAll += new Number(cart.price);
+          //     }
+          //   }
+          //   for(let list of _this.courseLists){
+          //     if((cart.id == list.id) && (cart.choose)){
+          //       list.choose =true;
+          //     }
+          //   }
+          // }
           for(let cart of Object.values(_this.shopCart)){
             if(cart.choose){
               if(cart.lessonArr){
                 _this.chooseList.push(cart);
                 _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
-                _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+
+                if(!cart.allChoose){
+                  _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+                }else{
+                  _this.allPrice = _this.allPrice + cart.original_price;
+                }
+
+                // _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+
                if(cart.needBook){
                 _this.allPrice+= 50;
                }
                 _this.lessonsLength= _this.lessonsLength +_this.checkLessonsLength
               }
-          //     _this.allNum++
-          //     _this.allPrice += new Number(cart.price);
-              
-          //     if(!cart.exclude){
-          //       _this.discountAll += new Number(cart.price);
-          //     }
             }
           }
         },

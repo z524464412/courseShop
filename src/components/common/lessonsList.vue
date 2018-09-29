@@ -34,10 +34,10 @@
           <div class="userBox">
             <div class="manName userItem">
               <div class="gray">
-                课节单价: ￥{{courseDetail.lessonPrice}}
+                <span class="blue">课节单价:</span> <span class="red">￥{{courseDetail.lessonPrice}}</span>
               </div>
             </div>
-            <addLessons class="coursePlus" :lessonsList=item @chooseLesson="chooseLesson">
+            <addLessons class="coursePlus" :lessonsArr=lessonsList :lessonsList=item @chooseLesson="chooseLesson">
             </addLessons>
           </div>
         </div>
@@ -128,6 +128,14 @@
         _this.checkLessonsLength = 0;
         for(let cart of Object.values(_this.shopCart)){
           if(_this.query.courseId == cart.id){
+            //初始化是否为试听
+            if(cart.isTrial){
+              _this.isTrial = true;
+            }
+            //初始化是否需要资料费
+            if(cart.needBook){
+              _this.needBook =true;
+            }
             if(cart.lessonArr){
               _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
               _this.checkLessonsPrice = cart.checkLessonsPrice*_this.checkLessonsLength  || 0;
@@ -135,6 +143,14 @@
                   _this.checkLessonsPrice  = _this.checkLessonsPrice+50;
               }
             }
+            //判断是否全部选中
+            if(cart.allChoose){
+              _this.allLessons = true;
+              _this.checkLessonsPrice = cart.original_price
+            }else{
+              _this.allLessons = false;
+            }
+            //初始化选中的课次
             for(let list of _this.lessonsList){
               if(cart.lessonArr && cart.lessonArr[list.lessonId]){
                 list.choose = true;
@@ -161,10 +177,9 @@
           _this.checkLessonsPrice = 0
           _this.checkLessonsLength = 0
         }
-        
         for (var i = _this.lessonsList.length - 1; i >= 0; i--) {
           _this.lessonsList[i].choose = this.allLessons;
-          if(this.allLessons){
+          if(_this.allLessons){
             _this.ADD_LESSON(_this.lessonsList[i]);
           }else{
             _this.REDUCE_LESSON(_this.lessonsList[i]);
@@ -212,7 +227,7 @@
       },
       checklessons(){
         this.lessonsCheck =false;
-        this.$router.push({path:'/course',query:this.$route.query})
+        this.$router.back(1);
         return;
       },
     }
@@ -221,6 +236,9 @@
 <style lang="scss" scoped>
   @import '../../style/common';
   @import '../../style/mixin';
+  .blue{
+    color: #5197FC;
+  }
   .lineHeight{
   	height: 60px;
   }
@@ -277,6 +295,7 @@
             .cart_icon_container{
                 display: flex;
                 position: absolute;
+                color: #5197FC;
                 left: 40px;
     						bottom: 15px;
                 .cart_icon{
@@ -307,7 +326,7 @@
                     font-size: 18px;
                     font-weight: bold;
                     margin-bottom: .1rem;
-                    color: rgb(218,46,46);
+                    color: #F95353;
                     span{
                       // color: rgb(12,12,12);
                       font-size: 14px;
@@ -354,14 +373,14 @@
         .gotopay{
             position: absolute;
             right: 0;
-            background-color: #d52829;
+            background-color: #5197FC;
             @include wh(6.6rem, 100%);
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
             .gotopay_button_style{
-                @include sc(.7rem, #f6cece);
+                @include sc(18px, #fff);
                 font-weight: bold;
                 letter-spacing: 2px;
                 &.noPay{
@@ -386,9 +405,13 @@
       overflow: auto;
       .lessons-type-box{
         display: flex;
-        padding: 10px;
+        padding:  5px 10px;
+        &:nth-child(1){
+          padding-top: 10px;
+        }
         &:nth-child(2){
           border-bottom: 1px solid #F1F3F8;
+          padding-bottom: 10px;
         }
         .lessons-type{
           flex: 0 0 25%;

@@ -87,7 +87,6 @@ export default {
 	//选择所有课次
 	[ADDALLLESSONS](state,{courseList,status}){
 		let cart = state.cartList;
-		console.log(courseList)
 		// if(!cart[courseList.courseId]){
 		//  cart =	JSON.parse(getStore('buyCart'));
 		// }
@@ -140,7 +139,7 @@ export default {
 		}
 	},
 	// 加入课次
-	[ADD_LESSON](state, courseList) {
+	[ADD_LESSON](state,courseList) {
 		let cart = state.cartList;
 		if(!cart[courseList.courseId]){
 		 cart =	JSON.parse(getStore('buyCart'));
@@ -152,6 +151,10 @@ export default {
 			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
 			lesson[courseList.lessonId] = courseList;
 			cart[courseList.courseId].choose = true;
+			if(Object.keys(lesson).length == cart[courseList.courseId].lessons){
+				cart[courseList.courseId].allChoose = true;
+			}
+			cart[courseList.courseId].allPrice = courseList.original_price;
 			cart[courseList.courseId].checkLessonsPrice = courseList.lessonPrice
 			state.cartList = {...cart}; 
 			// 存入localStorage
@@ -161,6 +164,7 @@ export default {
 	// 移出课次
 	[REDUCE_LESSON](state, courseList) {
 		let cart = state.cartList;
+		console.log(courseList)
 		if(!cart[courseList.courseId]){
 		 cart =	JSON.parse(getStore('buyCart'));
 		}
@@ -172,6 +176,7 @@ export default {
 			if(Object.keys(lessonsList.lessonArr).length == 0){
 				cart[courseList.courseId].choose = false;
 			}
+			cart[courseList.courseId].allChoose = false;
 			state.cartList = {...cart};
 			// 存入localStorage
 			setStore('buyCart', state.cartList);

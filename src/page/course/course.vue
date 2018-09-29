@@ -360,11 +360,13 @@ import { Spinner } from 'mint-ui';
           for(let cart of Object.values(_this.shopCart)){
             if(cart.choose){
               _this.allNum++
-              // 第一版订单
-              // _this.allPrice += new Number(cart.price);
               if(cart.lessonArr){
                 _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
-                _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+                if(!cart.allChoose){
+                  _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
+                }else{
+                  _this.allPrice = _this.allPrice + cart.original_price;
+                }
                 _this.lessonsLength= _this.lessonsLength +_this.checkLessonsLength
               }
               if(cart.needBook){
@@ -506,7 +508,7 @@ import { Spinner } from 'mint-ui';
       },
       watch: {
         shopCart: function (value){
-          this.initCartList();
+          // this.initCartList();
         },
         // 'currentPage': function() { //加载到最后一页监控
         //   if (this.lastPage == this.currentPage) {
