@@ -255,7 +255,7 @@
                       Toast('钉钉初始化成功');
                       let params = {};
                       params.code = result.code;
-                      param.tag = 'dev';
+                      // param.tag = 'dev';
                       AuthLogin(params).then(res=>{
                       if(res.data.respCode == 0){
                         if(res.data.data.dingToken){
