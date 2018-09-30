@@ -189,15 +189,15 @@ export default {
 	// 移出购物车
 	[REDUCE_CART](state, courseList) {
 		let cart = state.cartList;
+		console.log(cart);
 		if (cart && cart[courseList.id]) {
-			if (cart[courseList.id].num > 0) {
-				cart[courseList.id].num = 0
-				courseList.choose = false;
-				cart[courseList.id].choose =false;
+			delete cart[courseList.id]
+				// cart[courseList.id].num = 0;
+				// courseList.choose = false;
+				// cart[courseList.id].choose =false;
 				state.cartList = {...cart};
 				//存入localStorage
 				setStore('buyCart', state.cartList);
-			}
 		}
 	},
 	//网页初始化缓存中加入优惠规则

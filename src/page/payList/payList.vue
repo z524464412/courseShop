@@ -23,13 +23,11 @@
         </div>
       </div>
       <div class="item" v-for="(courseList,index) in chooseList" v-cloak>
-        <!-- <shop-list :noBuy='true' :courseList=courseList :payTitle="'创建订单'" @needBook="needBook" @click="gotoUrl">
-        </shop-list> -->
         <mt-cell-swipe class="cell_swipe" :right="[  
                 {  
-                    content: '删除',  
-                    style: { 'background': 'red', 'color': '#fff', 'width':'100px','text-align':'center','line-height':'65px','font-size':'18px'},  
-                    handler: () => delBtn(courseList)  
+                  content: '删除',  
+                  style: { 'background': 'red', 'color': '#fff', 'width':'100px','text-align':'center','line-height':'65px','font-size':'18px'},  
+                  handler: () => delBtn(courseList)  
                 }  
             ]">
           <shop-list class="courseImg" :noBuy='true' :courseList=courseList :payTitle="'创建订单'" @needBook="needBook">
@@ -127,45 +125,19 @@
           _this.allNum = 0;
           _this.allPrice = 0;
           _this.discountAll = 0;
-          // for(let cart of Object.values(_this.shopCart)){
-          //   if(cart.choose){
-          //     _this.allNum++
-          //     if(cart.lessonArr){
-          //       _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
-          //       if(!cart.allChoose){
-          //         _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
-          //       }else{
-          //         _this.allPrice = _this.allPrice + cart.original_price;
-          //       }
-          //       _this.lessonsLength= _this.lessonsLength +_this.checkLessonsLength
-          //     }
-          //     if(cart.needBook){
-          //       _this.allPrice+= 50;
-          //      }
-          //     if(!cart.exclude){
-          //       _this.discountAll += new Number(cart.price);
-          //     }
-          //   }
-          //   for(let list of _this.courseLists){
-          //     if((cart.id == list.id) && (cart.choose)){
-          //       list.choose =true;
-          //     }
-          //   }
-          // }
+          _this.lessonsLength = 0 ;
+          _this.checkLessonsLength = 0 ;
           for(let cart of Object.values(_this.shopCart)){
             if(cart.choose){
               if(cart.lessonArr){
+                console.log(cart)
                 _this.chooseList.push(cart);
                 _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
-
                 if(!cart.allChoose){
                   _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
                 }else{
                   _this.allPrice = _this.allPrice + cart.original_price;
                 }
-
-                // _this.allPrice = _this.allPrice + cart.checkLessonsPrice * _this.checkLessonsLength;
-
                if(cart.needBook){
                 _this.allPrice+= 50;
                }
