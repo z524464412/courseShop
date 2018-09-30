@@ -131,12 +131,22 @@
           bookNum:0
         }
       },
+      created(){
+        let _this = this;
+        var ua = window.navigator.userAgent.toLowerCase();
+        if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+          _this.chooseType = 'wx'
+        }else if(ua.indexOf('dingtalk') > 0 ){
+          _this.chooseType = 'zfb'
+        }
+      },
       mounted () {
           let _this = this;
           _this.type = getStore('type');
           this.query = this.$route.query
           var param ={};
           param.billId = this.query.id;
+          
           let item = document.querySelector('.items');
           orderDetail(param).then(res=>{
             if(res.data.respCode == 0){

@@ -129,6 +129,7 @@ export default {
 		// }
 		// 第二版本
 		let cart = state.cartList;
+		console.log(courseList);
 		if(courseList){
 			courseList.num = 0;
 			courseList.choose = false;
@@ -140,6 +141,7 @@ export default {
 	},
 	// 加入课次
 	[ADD_LESSON](state,courseList) {
+		console.log(courseList)
 		let cart = state.cartList;
 		if(!cart[courseList.courseId]){
 		 cart =	JSON.parse(getStore('buyCart'));
@@ -150,6 +152,8 @@ export default {
 			courseList.choose = true;
 			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
 			lesson[courseList.lessonId] = courseList;
+			console.log(Object.keys(lesson).length)
+			console.log(cart[courseList.courseId])
 			cart[courseList.courseId].choose = true;
 			if(Object.keys(lesson).length == cart[courseList.courseId].lessons){
 				cart[courseList.courseId].allChoose = true;
