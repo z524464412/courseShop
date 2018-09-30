@@ -4,7 +4,9 @@
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
-                      <span>合计:</span>{{'￥'+(Number(payList.pay+bookNum))}}
+                    <span>{{bookNum}}</span>
+                      <!-- <span>合计:</span>{{'￥'+(Number(payList.pay+bookNum))}} -->
+                      <span>合计:</span>{{'￥'+(Number(payList.pay))}}
                     </div>
                     <div v-else>
                         <span>合计:</span>0
@@ -185,9 +187,9 @@
           }else{
             param.price = 0
           }
-          if(_this.bookMoney){
-             param.price +=_this.bookMoney;
-          }
+          // if(_this.bookMoney){
+          //    param.price +=_this.bookMoney;
+          // }
           param.discount = _this.nowDiscount;
           if(user.login && user.type == 'wx' && user.name ==''){
             user.login = false;
@@ -223,7 +225,6 @@
               if(!res){
                 return
               }
-              Toast(JSON.stringify(res))
               if(res.data.respCode == 0){
                 _this.$router.push({path:'/orderList',query:{id:res.data.data}});
               }else if(res.data.respCode == 30010 || res.data.respCode ==30000){

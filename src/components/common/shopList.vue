@@ -64,8 +64,8 @@
           <img src="../../images/tick.png">
       </span>
     </transition>
-    <div class="lineheight"></div> 
-    <div class="lineheight"></div> 
+    <!-- <div class="lineheight"></div> 
+    <div class="lineheight"></div>  -->
         <!-- 筛选 popUp-->
    <!--  <mt-popup v-model="chooseScreening" position="right" class="popupRight">
       <div class="gray" if="courseList.needBook">
