@@ -252,7 +252,7 @@
                   dd.runtime.permission.requestAuthCode({
                     corpId: "ding0fcea94d114a895c35c2f4657eb6378f",
                     onSuccess: function(result) {
-                      Toast('钉钉初始化成功');
+                      // Toast('钉钉初始化成功');
                       let params = {};
                       params.code = result.code;
                       // param.tag = 'dev';
