@@ -42,8 +42,11 @@
         <div class="dataDiv courseMoney" v-if="courseList.lessonArr && !courseList.needBook && !courseList.allChoose">
           {{'￥'+((Object.keys(courseList.lessonArr).length)*courseList.checkLessonsPrice)}}
         </div>
-        <div class="dataDiv courseMoney" v-if="courseList.allChoose">
-          {{'￥'+courseList.original_price}}
+        <div class="dataDiv courseMoney" v-if="courseList.needBook && courseList.allChoose">
+          {{'￥'+(courseList.original_price+50)}}
+        </div>
+         <div class="dataDiv courseMoney" v-if="!courseList.needBook && courseList.allChoose">
+          {{'￥'+(courseList.original_price)}}
         </div>
         <buy-cart v-if="!noBuy" class="coursePlus" :courseList=courseList  @showMoveDot="showMoveDotFun">
         </buy-cart>
