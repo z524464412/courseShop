@@ -12,13 +12,16 @@
               含资料费: <span class="red">50</span>元
             </span>
           </div>
-          <div class="dataDiv courseMoney" id="fz16" v-if="courseList.needBook && courseList.lessonList.length != courseList.lessons">
+          <div class="dataDiv courseMoney" id="fz16" v-if="courseList.needBook && courseList.saleUnit == '2'">
             {{'￥'+(courseList.lessons * courseList.lessonPrice +50)}}
           </div>
-          <div class="dataDiv courseMoney" id="fz16" v-else-if="!courseList.needBook && courseList.lessonList.length != courseList.lessons">
+          <div class="dataDiv courseMoney" id="fz16" v-else-if="!courseList.needBook && courseList.saleUnit == '2'">
             {{'￥'+courseList.lessons * courseList.lessonPrice}}
           </div>
-          <div class="dataDiv courseMoney" id="fz16" v-else>
+          <div class="dataDiv courseMoney" id="fz16" v-else-if="courseList.needBook && courseList.saleUnit == '1'">
+            {{'￥'+(courseList.original_price+50)}}
+          </div>
+          <div class="dataDiv courseMoney" id="fz16" v-else-if="!courseList.needBook && courseList.saleUnit == '1'">
             {{'￥'+courseList.original_price}}
           </div>
         </div>

@@ -4,7 +4,6 @@
             <section class="cart_icon_num">
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
-                    <span>{{bookNum}}</span>
                       <!-- <span>合计:</span>{{'￥'+(Number(payList.pay+bookNum))}} -->
                       <span>合计:</span>{{'￥'+(Number(payList.pay))}}
                     </div>

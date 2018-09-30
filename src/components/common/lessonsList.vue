@@ -128,14 +128,7 @@
         _this.checkLessonsLength = 0;
         for(let cart of Object.values(_this.shopCart)){
           if(_this.query.courseId == cart.id){
-            //初始化是否为试听
-            if(cart.isTrial){
-              _this.isTrial = true;
-            }
-            //初始化是否需要资料费
-            if(cart.needBook){
-              _this.needBook =true;
-            }
+            
             if(cart.lessonArr){
               _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
               _this.checkLessonsPrice = cart.checkLessonsPrice*_this.checkLessonsLength  || 0;
@@ -146,9 +139,25 @@
             //判断是否全部选中
             if(cart.allChoose){
               _this.allLessons = true;
-              _this.checkLessonsPrice = cart.original_price
+              if(!cart.needBook){
+                _this.checkLessonsPrice = cart.original_price  
+              }else{
+                 _this.checkLessonsPrice = cart.original_price+50;
+              }
             }else{
               _this.allLessons = false;
+            }
+            //初始化是否为试听
+            if(cart.isTrial){
+              _this.isTrial = true;
+              if(_this.needBook){
+                 _this.needBook = false;
+                 _this.checkLessonsPrice = _this.checkLessonsPrice-50;
+              }
+            }
+            //初始化是否需要资料费
+            if(cart.needBook){
+              _this.needBook =true;
             }
             //初始化选中的课次
             for(let list of _this.lessonsList){
