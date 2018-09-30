@@ -118,7 +118,8 @@ function ddConfig(){
       })
       dd.ready(function() {
           dd.runtime.permission.requestAuthCode({
-            corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
+            // corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
+            corpId: "ding0fcea94d114a895c35c2f4657eb6378f",
             onSuccess: function(result) {
               let param = {};
               param.code = result.code;

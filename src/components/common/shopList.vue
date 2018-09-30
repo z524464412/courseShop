@@ -4,6 +4,7 @@
       <div class="courseName">{{courseList.title || '课程题目'}}
       </div>
       <div class="userBox">
+        <!-- 支付页面开始 -->
         <div v-if="$route.path == '/orderList'" class="userBox">
           <div class="bookSty userItem" v-if="courseList.lessons">
             {{'共'+ courseList.lessons +'课次'}}
@@ -11,11 +12,14 @@
               含资料费: <span class="red">50</span>元
             </span>
           </div>
-          <div class="dataDiv courseMoney" id="fz16" v-if="courseList.needBook">
+          <div class="dataDiv courseMoney" id="fz16" v-if="courseList.needBook && courseList.lessonList.length != courseList.lessons">
             {{'￥'+(courseList.lessons * courseList.lessonPrice +50)}}
           </div>
-          <div class="dataDiv courseMoney" id="fz16" else>
+          <div class="dataDiv courseMoney" id="fz16" v-else-if="!courseList.needBook && courseList.lessonList.length != courseList.lessons">
             {{'￥'+courseList.lessons * courseList.lessonPrice}}
+          </div>
+          <div class="dataDiv courseMoney" id="fz16" v-else>
+            {{'￥'+courseList.original_price}}
           </div>
         </div>
         <div class="bookSty userItem" v-if="courseList.lessonArr">

@@ -111,29 +111,12 @@
         return array.filter(item=>item);   
       },   
       gotoPage(){
-        // if(this.bookNum > 0 && !this.addrValue){
-        //   Toast({
-        //     message: '请填写地址!',
-        //     position: 'middle',
-        //     duration: 1000
-        //   });
-        //   return
-        // }
-        // if(this.bookMoney && !this.addrValue1){
-        //   Toast({
-        //     message: '请填写地址!',
-        //     position: 'middle',
-        //     duration: 1000
-        //   });
-        //   return
-        // }
         let _this = this;
         let user = {};
         let token = '';
         let userToken = getStore('userToken');
         let dingToken = getStore('dingToken');
         let classes = [];
-        
         _this.token = token
         user = JSON.parse(getStore('user'));
         _this.ids = [];
@@ -151,17 +134,21 @@
           let checkLesson = {};
            if(cart.choose){
             _this.ids.push(cart.id);
-            // console.log(cart)
             checkLesson.id=cart.id;
             if(cart.needBook){
               checkLesson.needBook = cart.needBook
             }else{
               checkLesson.needBook = 0
             }
-            if(Object.keys(cart.lessonArr) && Object.keys(cart.lessonArr).length > 0 ){
-              checkLesson.saleUnit = 2
-              checkLesson.lessons = Object.keys(cart.lessonArr);
+            if(cart.allChoose){
+              checkLesson.saleUnit = 1;
+            }else{
+              if(Object.keys(cart.lessonArr) && Object.keys(cart.lessonArr).length > 0 ){
+                checkLesson.saleUnit = 2
+                checkLesson.lessons = Object.keys(cart.lessonArr);
+              }
             }
+            
             if(cart.isTrial){
                checkLesson.isTrial = cart.isTrial
             }else{
@@ -185,22 +172,6 @@
           let param = {};
           param.userName=user.name;
           param.phoneNo=user.phone;
-          // param.classes = classes;
-          // let ids  =[];
-          // let needBookIds =[];
-          // let bookArray = Object.values(_this.needBookIds);
-          // for (var i = _this.ids.length - 1; i >= 0; i--) {
-          //   let obj = {};
-          //   obj.id =_this.ids[i];
-          //   let aa =_this.ids[i]
-          //   if(_this.needBookIds[aa] && (_this.needBookIds[aa].needBook == 1)){
-          //     obj.needBook = 1;
-          //   }else{
-          //     obj.needBook = 0;
-          //   }
-          //   ids.push(obj)
-          // }
-          // needBookIds = ids;
           param.deliverAddr = _this.addrValue1;
           param.school = user.schoolName;
           param.classes = classes;
@@ -272,7 +243,6 @@
             param.channel =user.channeId;
             newAddOrder(param,token).then(res=>{
               if(res.data.respCode == 0){
-                Toast(JSON.stringify(res))
                  setTimeout(function(){
                   _this.$router.push({path:'/orderList',query:{id:res.data.data}});
                  },1000)
@@ -280,7 +250,7 @@
                 removeStore('dingToken');
                 dd.ready(function() {
                   dd.runtime.permission.requestAuthCode({
-                    corpId: "ding3dbee29ec52c1ef435c2f4657eb6378f",
+                    corpId: "ding0fcea94d114a895c35c2f4657eb6378f",
                     onSuccess: function(result) {
                       Toast('钉钉初始化成功');
                       let params = {};
