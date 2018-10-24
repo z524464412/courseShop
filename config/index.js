@@ -18,6 +18,7 @@ module.exports = {
         productionGzipExtensions: ['js', 'css']
     },
     dev: {
+        host: '192.168.1.72',
         env: {
             NODE_ENV: '"development"'
         },

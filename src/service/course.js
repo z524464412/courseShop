@@ -109,9 +109,15 @@ export const getSchool= params => instance.get('/coursecart/v1/school',{params})
 
 export const sysDept = params =>instance.get('/oa/v1/sys/dept',{params});
 
-//获取所有部门
+//获取课程详情及课次
 
 export const courseFully = params =>instance.get('/coursecart/v1/course/fully',{params});
+
+//获取订单金额
+
+export const getAmount = (params,token) =>instance.post('/coursecart/v1.1/bill/amount?'+token,params);
+
+
 
 
 

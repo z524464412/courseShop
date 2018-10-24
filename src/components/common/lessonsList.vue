@@ -201,6 +201,7 @@
         let _this = this;
         let param = {};
         param.courseId =this.query.courseId;
+        param.needLesson =0;
         courseFully(param).then(res=>{
           if(res.data && res.data.data[0]){
             _this.courseDetail = res.data.data[0];

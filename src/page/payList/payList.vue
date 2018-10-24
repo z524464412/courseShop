@@ -130,7 +130,6 @@
           for(let cart of Object.values(_this.shopCart)){
             if(cart.choose){
               if(cart.lessonArr){
-                console.log(cart)
                 _this.chooseList.push(cart);
                 _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
                 if(!cart.allChoose){

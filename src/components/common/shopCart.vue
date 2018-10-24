@@ -17,21 +17,51 @@
                 </div>
             </section>
           </section>
+          <section class="cart_icon_num" v-else-if="path == '/payList'">
+            <section class="buy_cart_info" v-if="amountData.discountLinked || amountData.discountSinge   || amountData.discount || amountData.renewals">
+              <span v-if="amountData.discountSinge">
+                单报优惠:{{amountData.discountSinge}}元
+              </span>
+              <span v-if="amountData.discountLinked">
+                连报优惠:{{amountData.discountLinked}}元
+              </span>
+              <span v-if="amountData.discount">
+                满减优惠:{{amountData.discount}}元
+              </span>
+              <span v-if="amountData.renewals">
+                部门优惠:{{amountData.renewals}}元
+              </span>
+              <span>共优惠{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}元</span>
+            </section>
+            <div class="cart_num noIcon">
+                <div class="priceDiv">
+                  <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'">
+                  </div>
+                </div>
+                <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>
+            </div>
+          </section>
           <section v-else>
             <section class="cart_icon_num">
-                <div class="cart_icon_container" ref="cartContainer" v-if="noIcon=='index'">
-                    <span v-if="allNum" class="cart_list_length">
-                        {{allNum}}
-                    </span>
-                    <div class="cart_icon noIcon" @click="gotoPage">
-                      <img src="../../images/package.png">  
-                    </div>
-                </div>
-                <div class="cart_num" :class="{noIcon:noIcon!='index'}">
-                    <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'"></div>
-                    <div v-text="'￥'+allPrice" v-if="path == '/courseDetail'"></div>
-                    <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>
-                </div>
+              <!-- 满减优惠规则样式 -->
+              <!-- <section class="buy_cart_info">
+              共{{allNum}}门课程,已减<span class="red">¥{{nowDiscount}}</span>，再选<span class="red">¥{{needMoney}}</span>减<span class="red">¥{{newDiscount}}</span>!
+              </section> -->
+              <!-- 服务部优惠规则 -->
+
+              <div class="cart_icon_container" ref="cartContainer" v-if="noIcon=='index'">
+                  <span v-if="allNum" class="cart_list_length">
+                      {{allNum}}
+                  </span>
+                  <div class="cart_icon noIcon" @click="gotoPage">
+                    <img src="../../images/package.png">  
+                  </div>
+              </div>
+              <div class="cart_num" :class="{noIcon:noIcon!='index'}">
+                  <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'"></div>
+                  <div v-text="'￥'+allPrice" v-if="path == '/courseDetail'"></div>
+                  <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>
+              </div>
             </section>
           </section>
           <div @click="gotoPage" class="gotopay" :class="{noPay:btnChoose}">
@@ -43,7 +73,7 @@
 <script>
   import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin} from 'src/service/course'
+  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin,getAmount} from 'src/service/course'
   import { Toast } from 'mint-ui'
   import { httpUrl } from 'src/config/env';
 	export default{
@@ -64,53 +94,139 @@
         check:false,
         path:'',
         query:'',
-        bookNum:0
+        bookNum:0,
+        userToken:'',//用户token
+        amountData:'',//接口返回的订单价格
       }
     },
+
     props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','addrValue','needBookIds','bookMoney','addrValue1','discountAll','checkLessonsLength'],
     computed:{
       ...mapState([
-          'latitude','longitude','cartList','discount'
+          'cartList','discount'
       ]),
       //当前商店购物信息
       shopCart: function (){
           return {...this.cartList};
       },
+      //当前优惠规则
       discountList:function(){
         return {...this.discount};
       }
     },
     created(){
-      
+      this.INIT_BUYCART()
     },
     mounted(){
-      // console.log(this.payList)
+
       let _this = this;
-      _this.path = _this.$route.path
-      _this.query = _this.$route.query;
-      this.init_platform()
-      this.INIT_DISCOUNT();
-      this.billId = this.$route.query.id;
+      _this.path = _this.$route.path;     //获取路由路径
+      _this.query = _this.$route.query;   //获取路由query
+      this.init_platform()    //判断浏览器
+      this.INIT_DISCOUNT();   //初始化满减优惠
+      this.billId = this.$route.query.id; //
       let token = this.getQueryStringByName('code');
       if( _this.$route.path=='/orderList' && !token && _this.platform=='wx'){
         let appId = 'wxc04e9bfb36836d54';
         let url = window.location.origin+'/#/orderList?id='+this.billId;
-        // let url = window.location.origin+'/#/orderList?id='+this.billId;
-        // let url = window.location.origin+'/order/';
         let svc = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' 
         + appId + '&redirect_uri=' + encodeURIComponent(url) 
         + '&response_type=code&scope=snsapi_base&state=10106767#wechat_redirect';
         window.location.href = svc;
       }
+      if(getStore('user')){
+        this.user = JSON.parse(getStore('user'));
+      }else{
+        this.user ={};
+      }
+      let userToken = getStore('userToken');
+      let dingToken = getStore('dingToken');
+      this.userToken = userToken || dingToken;
+      if(path == '/payList'){
+         _this.getPayMoney();
+      }
     },
     methods:{
       //vuex数据
       ...mapMutations([
-          'RECORD_ADDRESS','ADD_CART','REDUCE_CART','INIT_BUYCART','CLEAR_CART','RECORD_SHOPDETAIL','ADD_DISCOUNT','INIT_DISCOUNT'
+          'ADD_CART','INIT_DISCOUNT','INIT_BUYCART'
       ]),
       filter_array(array) {    
         return array.filter(item=>item);   
-      },   
+      },
+      //获取所有需要付款的金额  
+      getPayMoney(){
+        let param = this.getParams();
+        let userToken = getStore('userToken');
+        let dingToken = getStore('dingToken');
+        let token ='';
+        let needBook;
+        if(this.bookNum){
+          this.bookNum =1;
+          needBook = '&needBook='+this.bookNum
+        }else{
+          needBook=''
+        }
+        // if(userToken){
+        //   // token = 'userToken='+userToken+needBook
+        //   
+        // }else if(dingToken){
+        //   token = 'dingToken='+dingToken+needBook
+        // }else{
+        //   token = ''
+        // }
+        token = 'dingToken=b32f8039d88649c39d03e8fe30d14649'+needBook;
+       
+        getAmount(param,token).then(res=>{
+          this.amountData = res;
+          if(this.amountData.discountLinked && this.amountData.discountSinge   && this.amountData.discount && this.amountData.renewals){
+            this.amountData.count = 4;
+          }
+        })
+      },
+      //获取课程
+      getParams(){
+        let _this =this;
+        let user = this.user;
+        let param ={};
+        let classes = [];
+        for(let cart of Object.values(_this.shopCart)){
+            let checkLesson = {};
+          if(cart.choose){
+            checkLesson.id=cart.id;
+            if(cart.needBook){
+              checkLesson.needBook = cart.needBook
+            }else{
+              checkLesson.needBook = 0
+            }
+            if(cart.allChoose){
+              checkLesson.saleUnit = 1;
+            }else{
+              if(Object.keys(cart.lessonArr) && Object.keys(cart.lessonArr).length > 0 ){
+                checkLesson.saleUnit = 2
+                checkLesson.lessons = Object.keys(cart.lessonArr);
+              }
+            }
+            classes.push(checkLesson);
+          }
+        }
+        param.userName=user.name;
+        param.phoneNo=user.phone;
+        param.deliverAddr = _this.addrValue1;
+        param.school = user.schoolName;
+        param.classes = classes;
+        param.price = _this.allPrice;
+        param.scope = user.scope;
+        param.grade =user.gradeId
+        if(_this.allPrice){
+           param.price = _this.allPrice - _this.nowDiscount;
+        }else{
+          param.price = 0
+        }
+        param.discount = _this.nowDiscount;
+        return param;
+      },
+      //确认选择订单
       gotoPage(){
         let _this = this;
         let user = {};
@@ -119,8 +235,12 @@
         let dingToken = getStore('dingToken');
         let classes = [];
         _this.token = token
-        user = JSON.parse(getStore('user'));
+        if(_this.user){
+           user = this.user;
+        }
         _this.ids = [];
+        //判断课次是否全选传入不同类型
+        //全选saleUnit类型判断 (1课程,2课次)传入课次需要传选中课次的数组lessons;
         for(let cart of Object.values(_this.cartList)){
           if(cart.needBook && !this.addrValue1 && _this.$route.path=='/payList'){
             Toast({
@@ -149,7 +269,6 @@
                 checkLesson.lessons = Object.keys(cart.lessonArr);
               }
             }
-            
             if(cart.isTrial){
                checkLesson.isTrial = cart.isTrial
             }else{
@@ -171,25 +290,24 @@
         if(_this.$route.path == '/payList'){
           //书包列表页面
           let param = {};
-          param.userName=user.name;
-          param.phoneNo=user.phone;
-          param.deliverAddr = _this.addrValue1;
-          param.school = user.schoolName;
-          param.classes = classes;
-          param.price = _this.allPrice;
-          param.scope = user.scope;
+          param = _this.getParams() || {};
+          console.log(param)
+          // param.userName=user.name;
+          // param.phoneNo=user.phone;
+          // param.deliverAddr = _this.addrValue1;
+          // param.school = user.schoolName;
+          // param.classes = classes;
+          // param.price = _this.allPrice;
+          // param.scope = user.scope;
+          // // param.grade =user.gradeId
           // param.grade =user.gradeId
-          param.grade =user.gradeId
-          // param.classes=[];
-          if(_this.allPrice){
-             param.price = _this.allPrice - _this.nowDiscount;
-          }else{
-            param.price = 0
-          }
-          // if(_this.bookMoney){
-          //    param.price +=_this.bookMoney;
+          // // param.classes=[];
+          // if(_this.allPrice){
+          //    param.price = _this.allPrice - _this.nowDiscount;
+          // }else{
+          //   param.price = 0
           // }
-          param.discount = _this.nowDiscount;
+          // param.discount = _this.nowDiscount;
           if(user.login && user.type == 'wx' && user.name ==''){
             user.login = false;
             setStore('user',user);
@@ -197,8 +315,6 @@
             _this.$router.push({path:'/login',query:param});
           }
           let token = '';
-          let userToken = getStore('userToken');
-          let dingToken = getStore('dingToken');
           let needBook;
           let deliverAddr = this.addrValue || '';
           if(this.bookNum){
@@ -354,7 +470,6 @@
         param.billId = this.billId;
         //api接口地址
         if(httpUrl && httpUrl.indexOf('tfapi') > 0){
-          // window.location.href = window.location.origin+"/v1/pay/alipay"+"?billId="+param.billId
           if(_this.bookNum){
             _this.bookNum = 1
           }
@@ -486,9 +601,11 @@
           this.platform = 'order'
         }
       },
+      //初始化金额
       initData(){
-        // this.initDiscount();
+        this.getPayMoney();
       },
+      //初始化满减规则
       initDiscount(){
         var _this =this ;
         var Things = Object.values(this.discountList)
@@ -615,13 +732,14 @@
             }
         }
         .buy_cart_info{
-          position: absolute;
-          height: 30px;
-          line-height: 30px;
+          position: relative;
           width: 100%;
           text-align: center;
           background: rgba(253,249,216,0.9);
           top:-30px;
+          span{
+            font-size: 12px;
+          }
         }
         .gotopay{
             position: absolute;

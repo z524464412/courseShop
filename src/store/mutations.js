@@ -152,7 +152,7 @@ export default {
 			courseList.choose = true;
 			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
 			lesson[courseList.lessonId] = courseList;
-			console.log(Object.keys(lesson).length)
+			console.log(lesson)
 			console.log(cart[courseList.courseId])
 			cart[courseList.courseId].choose = true;
 			if(Object.keys(lesson).length == cart[courseList.courseId].lessons){
@@ -160,7 +160,8 @@ export default {
 			}
 			cart[courseList.courseId].allPrice = courseList.original_price;
 			cart[courseList.courseId].checkLessonsPrice = courseList.lessonPrice
-			state.cartList = {...cart}; 
+			state.cartList = {...cart};
+			console.log(cart) 
 			// 存入localStorage
 			setStore('buyCart', state.cartList);
 		}
@@ -182,6 +183,7 @@ export default {
 			}
 			cart[courseList.courseId].allChoose = false;
 			state.cartList = {...cart};
+			console.log(cart)
 			// 存入localStorage
 			setStore('buyCart', state.cartList);
 		}
