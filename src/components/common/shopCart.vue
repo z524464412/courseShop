@@ -33,6 +33,7 @@
               </span>
               <span>共优惠{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}元</span>
             </section>
+            <section class="buy_cart_info" v-else>暂无优惠</section>
             <div class="cart_num noIcon">
                 <div class="priceDiv">
                   <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'">
@@ -167,15 +168,15 @@
         }else{
           needBook=''
         }
-        // if(userToken){
-        //   // token = 'userToken='+userToken+needBook
-        //   
-        // }else if(dingToken){
-        //   token = 'dingToken='+dingToken+needBook
-        // }else{
-        //   token = ''
-        // }
-        token = 'dingToken=b32f8039d88649c39d03e8fe30d14649'+needBook;
+        if(userToken){
+          // token = 'userToken='+userToken+needBook
+          
+        }else if(dingToken){
+          token = 'dingToken='+dingToken+needBook
+        }else{
+          token = ''
+        }
+        // token = 'dingToken=b32f8039d88649c39d03e8fe30d14649'+needBook;
        
         getAmount(param,token).then(res=>{
           this.amountData = res;
@@ -736,6 +737,7 @@
           width: 100%;
           text-align: center;
           background: rgba(253,249,216,0.9);
+          min-height: 30px;
           top:-30px;
           span{
             font-size: 12px;
