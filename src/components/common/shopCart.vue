@@ -143,7 +143,7 @@
       let userToken = getStore('userToken');
       let dingToken = getStore('dingToken');
       this.userToken = userToken || dingToken;
-      if(path == '/payList'){
+      if(this.path == '/payList'){
          _this.getPayMoney();
       }
     },
@@ -169,14 +169,13 @@
           needBook=''
         }
         if(userToken){
-          // token = 'userToken='+userToken+needBook
+          token = 'userToken='+userToken+needBook
           
         }else if(dingToken){
           token = 'dingToken='+dingToken+needBook
         }else{
           token = ''
         }
-        // token = 'dingToken=b32f8039d88649c39d03e8fe30d14649'+needBook;
        
         getAmount(param,token).then(res=>{
           this.amountData = res;

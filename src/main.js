@@ -10,7 +10,7 @@ import './config/rem'
 import FastClick from 'fastclick'
 import {setStore,getStore,removeStore} from 'src/config/mUtils'
 import { getwxConfig,AuthLogin,getDingDing} from 'src/service/course'
-
+import './config/vconsole'
 if ('addEventListener' in document) {
     document.addEventListener('DOMContentLoaded', function() {
         FastClick.attach(document.body);
