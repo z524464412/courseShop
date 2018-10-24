@@ -36,7 +36,7 @@
             <section class="buy_cart_info" v-else>暂无优惠</section>
             <div class="cart_num noIcon">
                 <div class="priceDiv">
-                  <div v-text="allPrice == 0 ? 0 : '￥'+(allPrice-nowDiscount+(bookMoney || 0))" v-if="allPrice && path !='/courseDetail'">
+                  <div>{{'￥'+amountData.pay}}
                   </div>
                 </div>
                 <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>
@@ -49,7 +49,6 @@
               共{{allNum}}门课程,已减<span class="red">¥{{nowDiscount}}</span>，再选<span class="red">¥{{needMoney}}</span>减<span class="red">¥{{newDiscount}}</span>!
               </section> -->
               <!-- 服务部优惠规则 -->
-
               <div class="cart_icon_container" ref="cartContainer" v-if="noIcon=='index'">
                   <span v-if="allNum" class="cart_list_length">
                       {{allNum}}
@@ -176,12 +175,11 @@
         }else{
           token = ''
         }
-       
         getAmount(param,token).then(res=>{
-          this.amountData = res;
-          if(this.amountData.discountLinked && this.amountData.discountSinge   && this.amountData.discount && this.amountData.renewals){
-            this.amountData.count = 4;
+          if(res.data.data){
+             this.amountData = res.data.data;
           }
+          console.log(this.amountData)
         })
       },
       //获取课程
