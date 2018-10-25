@@ -20,18 +20,19 @@
           <section class="cart_icon_num" v-else-if="path == '/payList'">
             <section class="buy_cart_info" v-if="amountData.discountLinked || amountData.discountSinge   || amountData.discount || amountData.renewals">
               <span v-if="amountData.discountSinge">
-                单报优惠:{{amountData.discountSinge}}元
+                单报优惠:<span class="red">{{amountData.discountSinge}}</span>元
               </span>
               <span v-if="amountData.discountLinked">
-                连报优惠:{{amountData.discountLinked}}元
+                连报优惠:<span class="red">{{amountData.discountLinked}}</span>元
               </span>
               <span v-if="amountData.discount">
-                满减优惠:{{amountData.discount}}元
+                满减优惠:<span class="red">{{amountData.discount}}</span>元
               </span>
               <span v-if="amountData.renewals">
-                部门优惠:{{amountData.renewals}}元
+                部门优惠:<span class="red">{{amountData.renewals}}</span>元
               </span>
-              <span>共优惠{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}元</span>
+              <span>共优惠<span class="red">{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}元</span>
+              </span>
             </section>
             <section class="buy_cart_info" v-else>暂无优惠</section>
             <div class="cart_num noIcon">
@@ -601,7 +602,9 @@
       },
       //初始化金额
       initData(){
-        this.getPayMoney();
+        if(this.path == '/payList'){
+         this.getPayMoney();
+        }
       },
       //初始化满减规则
       initDiscount(){
