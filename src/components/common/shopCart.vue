@@ -1,7 +1,23 @@
 <template>
       <section class="buy_cart_container">
-          <section v-if="payList">
-            <section class="cart_icon_num">
+          <section v-if="payList" class="cart_icon_num">
+                <section class="buy_cart_info" v-if="amountData.discountLinked || amountData.discountSinge   || amountData.discount || amountData.renewals">
+                <span v-if="amountData.discountSinge">
+                  单报优惠:<span class="red">{{amountData.discountSinge}}</span>元
+                </span>
+                <span v-if="amountData.discountLinked">
+                  连报优惠:<span class="red">{{amountData.discountLinked}}</span>元
+                </span>
+                <span v-if="amountData.discount">
+                  满减优惠:<span class="red">{{amountData.discount}}</span>元
+                </span>
+                <span v-if="amountData.renewals">
+                  部门优惠:<span class="red">{{amountData.renewals}}</span>元
+                </span>
+                <span>共优惠<span class="red">{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}</span>元
+                </span>
+              </section>
+              <section class="buy_cart_info" v-else>暂无优惠</section>
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
                       <!-- <span>合计:</span>{{'￥'+(Number(payList.pay+bookNum))}} -->
@@ -15,7 +31,6 @@
                         <span>立减:￥{{Number(payList.discount)}}</span>
                     </div>
                 </div>
-            </section>
           </section>
           <section class="cart_icon_num" v-else-if="path == '/payList'">
             <section class="buy_cart_info" v-if="amountData.discountLinked || amountData.discountSinge   || amountData.discount || amountData.renewals">
@@ -146,7 +161,7 @@
       let userToken = getStore('userToken');
       let dingToken = getStore('dingToken');
       this.userToken = userToken || dingToken;
-      if(this.path == '/payList'){
+      if(this.path == '/payList' || this.path == '/orderList'){
          _this.getPayMoney();
       }
     },
