@@ -37,7 +37,10 @@
             <section class="buy_cart_info" v-else>暂无优惠</section>
             <div class="cart_num noIcon">
                 <div class="priceDiv">
-                  <div>{{'￥'+amountData.pay}}
+                  <div v-if="amountData.pay">{{'￥'+amountData.pay}}
+                  </div>
+                  <div v-else>
+                    ￥{{allPrice}}
                   </div>
                 </div>
                 <div v-if="noIcon!='detail'">共{{checkLessonsLength || 0}}课次</div>

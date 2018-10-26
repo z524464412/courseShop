@@ -128,7 +128,6 @@
         _this.checkLessonsLength = 0;
         for(let cart of Object.values(_this.shopCart)){
           if(_this.query.courseId == cart.id){
-            
             if(cart.lessonArr){
               _this.checkLessonsLength = Object.keys(cart.lessonArr).length || 0;
               _this.checkLessonsPrice = cart.checkLessonsPrice*_this.checkLessonsLength  || 0;
