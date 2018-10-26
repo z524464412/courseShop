@@ -28,7 +28,9 @@ module.exports = {
         context: [ //代理路径
             '/coursecart'
         ],
-        proxypath: 'http://api.tifangedu.com',
+        // proxypath: 'http://api.tifangedu.com',
+        proxypath: 'http://dev.api.tifangedu.com',
+        
         // CSS Sourcemaps off by default because relative paths are "buggy"
         // with this option, according to the CSS-Loader README
         // (https://github.com/webpack/css-loader#sourcemaps)

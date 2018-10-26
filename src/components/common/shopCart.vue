@@ -31,7 +31,7 @@
               <span v-if="amountData.renewals">
                 部门优惠:<span class="red">{{amountData.renewals}}</span>元
               </span>
-              <span>共优惠<span class="red">{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}元</span>
+              <span>共优惠<span class="red">{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}</span>元
               </span>
             </section>
             <section class="buy_cart_info" v-else>暂无优惠</section>
@@ -739,6 +739,7 @@
           background: rgba(253,249,216,0.9);
           min-height: 30px;
           top:-30px;
+          line-height: 30px;
           span{
             font-size: 12px;
           }
