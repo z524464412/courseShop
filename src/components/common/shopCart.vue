@@ -163,7 +163,7 @@
       let userToken = getStore('userToken');
       let dingToken = getStore('dingToken');
       this.userToken = userToken || dingToken;
-      if(this.path == '/payList' || this.path == '/orderList'){
+      if(this.path == '/payList'){
          _this.getPayMoney();
       }
     },
