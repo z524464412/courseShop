@@ -21,14 +21,14 @@
                 <div class="cart_num noIcon">
                     <div v-if="payList.pay">
                       <!-- <span>合计:</span>{{'￥'+(Number(payList.pay+bookNum))}} -->
-                      <span>合计:</span>{{'￥'+(Number(payList.pay))}}
+                      <span>合计:</span>{{'￥'+(Number(amountData.pay))}}
                     </div>
                     <div v-else>
                         <span>合计:</span>0
                     </div>
                     <div v-if="noIcon!='detail'">
-                        <span>总价:￥<span class="borderType">{{Number(payList.pay)+Number(payList.discount)}}</span></span>
-                        <span>立减:￥{{Number(payList.discount)}}</span>
+                        <span>总价:￥<span class="borderType">{{amountData.pay}}</span></span>
+                        <span>立减:￥{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}</span>
                     </div>
                 </div>
           </section>
@@ -93,8 +93,9 @@
   import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
   import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin,getAmount} from 'src/service/course'
-  import { Toast } from 'mint-ui'
+  import { Toast,MessageBox } from 'mint-ui'
   import { httpUrl } from 'src/config/env';
+
 	export default{
     data(){
       return{
@@ -116,6 +117,7 @@
         bookNum:0,
         userToken:'',//用户token
         amountData:'',//接口返回的订单价格
+        confirm:false,//判断价格是否变化
       }
     },
 
@@ -174,7 +176,8 @@
         return array.filter(item=>item);   
       },
       //获取所有需要付款的金额  
-      getPayMoney(){
+      getPayMoney(pay){
+        let _this =this;
         let param = this.getParams();
         let userToken = getStore('userToken');
         let dingToken = getStore('dingToken');
@@ -194,11 +197,42 @@
         }else{
           token = ''
         }
+        if(_this.buyCourse){
+          // param.classes = _this.buyCourse.courseList;
+          for(const courseList of _this.buyCourse.courseList){
+            if(courseList.saleUnit != 2){
+              courseList.lessons =[];
+              continue;
+            }
+            courseList.lessons = [];
+            for(const lesson of courseList.lessonList){
+              courseList.lessons.push(lesson.lessonId);
+            }
+          }
+          param.classes = _this.buyCourse.courseList;
+        }
+        if(pay){
+          param.billId = _this.billId;
+        }
         getAmount(param,token).then(res=>{
           if(res.data.data){
-             this.amountData = res.data.data;
+            if(!pay){
+              _this.amountData = res.data.data;
+            }
+            if(pay){
+              if((_this.amountData.pay != res.data.data.pay)){
+                MessageBox.confirm('价格已变动,刷新后重试!!').then(action => {
+                  window.location.reload();
+                });
+              }else{
+                if(_this.chooseType == 'wx'){
+                   this.wechatPay();
+                }else if (_this.chooseType == 'zfb'){
+                  this.aliPay();
+                }
+              }
+            }
           }
-          console.log(this.amountData)
         })
       },
       //获取课程
@@ -308,23 +342,6 @@
           //书包列表页面
           let param = {};
           param = _this.getParams() || {};
-          console.log(param)
-          // param.userName=user.name;
-          // param.phoneNo=user.phone;
-          // param.deliverAddr = _this.addrValue1;
-          // param.school = user.schoolName;
-          // param.classes = classes;
-          // param.price = _this.allPrice;
-          // param.scope = user.scope;
-          // // param.grade =user.gradeId
-          // param.grade =user.gradeId
-          // // param.classes=[];
-          // if(_this.allPrice){
-          //    param.price = _this.allPrice - _this.nowDiscount;
-          // }else{
-          //   param.price = 0
-          // }
-          // param.discount = _this.nowDiscount;
           if(user.login && user.type == 'wx' && user.name ==''){
             user.login = false;
             setStore('user',user);
@@ -432,6 +449,8 @@
            _this.$router.push({path:'/lessonsList',query:_this.param})
             // _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){
+          _this.getPayMoney('pay')
+          // return;
           if(this.payStatus == 1){
             return
           }
@@ -456,11 +475,6 @@
             this.h5AliPay();
             return;
           } 
-          if(_this.chooseType == 'wx'){
-             this.wechatPay();
-          }else if (_this.chooseType == 'zfb'){
-            this.aliPay();
-          }
         }else{
           _this.$router.push({path:'/payList'});
         }
@@ -664,6 +678,12 @@
         this.initDiscount();
       },
       bookMoney:function(){
+      },
+      payList:function(values){
+        if(this.payList){
+          this.buyCourse = JSON.parse(JSON.stringify(this.payList))
+          this.getPayMoney();
+        }
       }
     }
 	}
