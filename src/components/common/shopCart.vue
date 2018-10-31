@@ -27,7 +27,7 @@
                         <span>合计:</span>0
                     </div>
                     <div v-if="noIcon!='detail'">
-                        <span>总价:￥<span class="borderType">{{amountData.pay}}</span></span>
+                        <span>总价:￥<span class="borderType">{{amountData.amount}}</span></span>
                         <span>立减:￥{{amountData.discountLinked+amountData.discountSinge  +amountData.discount+amountData.renewals}}</span>
                     </div>
                 </div>
