@@ -173,7 +173,13 @@
         status: '',
       }
     },
-    props: ['type', 'timeType', 'clearSearBtn', 'open','deptShow'],
+    props: ['type', 'timeType', 'clearSearBtn', 'open','deptShow','searchTitle'],
+    created(){
+      if(this.searchTitle){
+        this.inputValue = this.searchTitle;
+        this.checkInput = true;
+      }
+    },
     mounted() {
       let _this = this;
       _this.token = getStore('dingToken');

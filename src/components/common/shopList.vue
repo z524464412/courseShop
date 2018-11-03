@@ -102,7 +102,6 @@ import {setStore} from 'src/config/mUtils'
       }
     },
     mounted(){
-      console.log(this.courseList)
       this.query = this.$route.query;
       this.windowHeight = window.innerHeight;
     },

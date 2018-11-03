@@ -235,8 +235,8 @@
       },
       checklessons(){
         this.lessonsCheck =false;
-        this.$router.push({path:'/course',query:this.$route.query})
-        // this.$router.back(1);
+        // this.$router.push({path:'/course',query:this.$route.query})
+        this.$router.back(1);
         return;
       },
     }

@@ -11,15 +11,15 @@
       <div class="courseLists" >
         <div class="courseheight"></div>
         <div class="isIOS">
-        <search-box @getList="getCourseList" :clearSearBtn="clearSearBtn"></search-box>
+        <searchBox @getList="getCourseList" :clearSearBtn="clearSearBtn" :searchTitle="searchTitle"></searchBox>
           <div class="courseTitle" ref="nav"  :class="{isFixed:isFixed}">
             <div class="left courseType" @click="selectType(99,'全部课程','gradeShow')">{{courseTypeName}}</div>
             <div class="right courseScreening" @click="selectType(99,'全部课程','typeShow')">
-              科目筛选
+              {{tagName}}
             </div>
           </div>
         </div>
-        <ul class="page-infinite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+        <ul class="page-infinite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20" infinite-scroll-immediate-check='false'>
           <shop-list v-for="courseList in courseLists" :courseList=courseList>
           </shop-list>
         </ul>
@@ -77,6 +77,7 @@ import { Spinner } from 'mint-ui';
             {name:'数学',check:false},
             {name:'英语',check:false},
           ],//学科数组
+          tagName:'科目筛选',//科目筛选
           clearSearBtn:true, //是否显示搜索组件的搜索按钮
           banners:[{url:'../../images/banner.png',title:'图片'}],
           isFixed: false, //是否固定的
@@ -114,9 +115,23 @@ import { Spinner } from 'mint-ui';
           lessonsLength:0,
           userInfo:'',//用户信息
           searchTitle:'',//搜索的内容
+          query:''
         }
       },
       created(){
+        this.query = this.$route.query;
+        if(this.query){
+          //获取query上面的搜索项
+          this.searchTitle = this.query.searchTitle;
+          //获取query上面类型选项
+          this.tag = this.query.tag;
+          if(!this.query.tag){
+            this.tagName='科目筛选'
+          }else{
+            this.tagName = this.query.tag;
+          }
+          
+        }
         Indicator.open('加载中...');
         this.userInfo = JSON.parse(getStore('user'));
         this.gradeId = this.userInfo.gradeId;
@@ -192,6 +207,7 @@ import { Spinner } from 'mint-ui';
         },
         //年级切换
         clickType(item,type,index){
+          let _this =this;
           if( type == 'type'){
             for (var i = this.courseTypes.length - 1; i >= 0; i--) {
               this.courseTypes[i].check = false;
@@ -204,13 +220,33 @@ import { Spinner } from 'mint-ui';
             this.courseTypeList[index].check =true;
             this.$set(this.courseTypeList,index,item);
             this.tag = item.tag;
-            this.searchData();
+            if(!item.tag){
+              this.tagName ='科目筛选';
+            }else{
+              this.tagName = item.tag;
+            }
+            // if(!item.tag){
+            //   let param={}
+            //   param.tag = '';
+            //   let query = JSON.parse(JSON.stringify(_this.query));
+            //   console.log(this.query);
+            //   param = Object.assign(param,_this.query)
+            //   _this.$router.replace({path:'/course',query:param})
+            // }else{
+            //   let param={}
+            //   param.tag = item.tag;
+            //   if(_this.query && _this.query.tag){
+            //     delete _this.query.tag
+            //   }
+            //   param = Object.assign(param,_this.query)
+             
+            // }
+            _this.searchData();
           }else if(type == 'scope'){
             let bb = {name:'全部',id:'',check:false};
             for (var i = this.scopeTypes.length - 1; i >= 0; i--) {
               this.scopeTypes[i].check =false
             }
-
             this.scopeId = item.id;
             this.gradeTypes =[];
             let aa = [];
@@ -240,8 +276,19 @@ import { Spinner } from 'mint-ui';
           this.userInfo.gradeId = this.gradeId
           this.userInfo.scope = this.scopeId
           setStore('user',this.userInfo)
+          this.gotoMyself();
           this.courseLists =[];
           this.getCourseList();
+        },
+        //改变自身筛选
+        gotoMyself(){
+          let _this =this;
+          let param ={};
+          param.tag=_this.tag;
+          param.grade=_this.gradeId;
+          param.scope=_this.scopeId;
+          param.searchTitle=_this.searchTitle;
+           _this.$router.replace({path:'/course',query:param})
         },
         //获取所有名字
         getNameDta(arr){
@@ -305,19 +352,32 @@ import { Spinner } from 'mint-ui';
           }
           if(val){
             _this.searchTitle = val.inputValue;
+            if(val.inputValue){
+              let param={}
+              param.searchTitle = val.inputValue;
+              this.searchTitle = val.inputValue
+            }else{
+              this.searchTitle = '';
+            } 
+            this.gotoMyself();
           }
           if(val && val.inputValue || _this.searchTitle){
             param.search = encodeURIComponent(_this.searchTitle);
           }else{
             param.scope = _this.scopeId;
-            param.grade = _this.gradeId;
-            if(_this.tag){
+            param.grade = _this.gradeId; 
+          }
+          if(_this.tag){
               param.tag = encodeURI(_this.tag);
-            }
-
+          }else{
+            param.tag =''
+          }
+          if(param.tag == 0){
+            param.tag =''
           }
           param.pageSize = this.pageSize;
           param.pageNo = _this.curPage;
+          console.log('param',param)
           courseList(param).then(res =>{
             setTimeout(()=>{
               Indicator.close();
@@ -458,13 +518,25 @@ import { Spinner } from 'mint-ui';
               _this.courseTypeList =[];
               return
             }else{
+              let queryTag = false;
               _this.courseTypeList = res.data.data;
               for (var i = _this.courseTypeList.length - 1; i >= 0; i--) {
                 _this.courseTypeList[i].tag = _this.courseTypeList[i].name
                 _this.courseTypeList[i].check = false
+                if(_this.query && _this.courseTypeList[i].tag == _this.query.tag){
+                  queryTag =true;
+                  // _this.tagName = _this.query.tag;
+                  _this.courseTypeList[i].check = true
+                }else{
+                  // _this.tagName = '科目筛选';
+                }
               }
               let allCourse = {name:'全部',tag:0,check:true};
               _this.courseTypeList.unshift(allCourse)
+              if(queryTag){
+                _this.courseTypeList[0].check = false;
+              }
+              
             }
           })
 
