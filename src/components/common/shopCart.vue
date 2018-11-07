@@ -239,12 +239,11 @@
                   window.location.reload();
                 });
               }else{
-                if(_this.chooseType == 'wx'){
-                  alert(2222)
-                   this.wechatPay();
-                }else if (_this.chooseType == 'zfb'){
-                  this.aliPay();
-                }
+                // if(_this.chooseType == 'wx'){
+                //    this.wechatPay();
+                // }else if (_this.chooseType == 'zfb'){
+                //   this.aliPay();
+                // }
               }
             }
           }
@@ -465,23 +464,6 @@
            _this.$router.push({path:'/lessonsList',query:_this.param})
             // _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){
-          if (true) {
-            let param = {};
-            param.billId = this.query.id;
-            if( this.chooseType == 'zfb'){
-              param.type = 1;
-            }else{
-              param.type = 2;
-            }
-            console.log(param);
-            quickpassPay(param).then(res=>{
-              console.log(res);
-              if(res.data.data){
-                window.location.href = res.data.data;
-              }
-            })
-            return
-          }
           if(this.payStatus == 1){
             return
           }
@@ -501,6 +483,23 @@
             })
             return
           }
+          if (true) {
+            let param = {};
+            param.billId = this.query.id;
+            if( this.chooseType == 'zfb'){
+              param.type = 1;
+            }else{
+              param.type = 2;
+            }
+            quickpassPay(param).then(res=>{
+              console.log(res);
+              if(res.data.data){
+                window.location.href = res.data.data;
+              }
+            })
+            return
+          }
+         
           _this.getPayMoney('pay')
 
           if(_this.payList.pay < 0.01){
