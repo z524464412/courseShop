@@ -94,6 +94,12 @@ export const h5alipay = params => instance.get('/coursecart/v1/bill/alipay',{par
 // 广分支付
 export const quickpassPay = params => instance.get('/coursecart/v1.3/bill/pay/quickpass/url',{params})
 
+// 广分支付成功
+export const quickpassPaySucc = params => instance.get('/coursecart/v1.3/bill/pay/quickpass/success',{params})
+
+// 支付方式(第三方或支付宝微信)
+export const sysPayParam = params => instance.get('/coursecart/v1/sys/param',{params})
+
 
 
 //获取openId

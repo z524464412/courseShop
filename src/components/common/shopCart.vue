@@ -92,7 +92,8 @@
 <script>
   import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin,getAmount,quickpassPay} from 'src/service/course'
+  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin,getAmount,quickpassPay,
+  sysPayParam} from 'src/service/course'
   import { Toast,MessageBox } from 'mint-ui'
   import { httpUrl } from 'src/config/env';
 
@@ -153,7 +154,7 @@
       this.INIT_BUYCART()
     },
     mounted(){
-
+      this.getSysPayType();
       let _this = this;
       _this.path = _this.$route.path;     //获取路由路径
       _this.query = _this.$route.query;   //获取路由query
@@ -180,12 +181,27 @@
       if(this.path == '/payList'){
          _this.getPayMoney();
       }
+      
     },
     methods:{
       //vuex数据
       ...mapMutations([
           'ADD_CART','INIT_DISCOUNT','INIT_BUYCART'
       ]),
+      //获取系统的支付方式
+      getSysPayType(){
+        let param ={};
+        param.dip='CART_BILL_PAY_METHOD';
+        sysPayParam(param).then(res=>{
+          if(res.data.respCode == 0){
+            if(res.data.data[0].value== 'quick-pass'){
+              this.sysPayType = 'quick-pass';
+            }else{
+              this.sysPayType =false;
+            }
+          }
+        })
+      },
       filter_array(array) {    
         return array.filter(item=>item);   
       },
@@ -483,7 +499,7 @@
             })
             return
           }
-          if (true) {
+          if (_this.sysPayType) {
             let param = {};
             param.billId = this.query.id;
             if( this.chooseType == 'zfb'){
@@ -497,17 +513,14 @@
                 window.location.href = res.data.data;
               }
             })
-            return
+          }else{
+            _this.getPayMoney('pay')
+            if(_this.payList.pay < 0.01){
+              this.check =true;
+              this.h5AliPay();
+              return;
+            }
           }
-         
-          _this.getPayMoney('pay')
-
-          if(_this.payList.pay < 0.01){
-            this.check =true;
-            this.h5AliPay();
-            return;
-          }
-
         }else{
           _this.$router.push({path:'/payList'});
         }

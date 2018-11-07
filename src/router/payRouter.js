@@ -1,6 +1,6 @@
 import payvue from '../payvue'
 
-const paysucc =r =>require.ensure([],()=>r(require('../page/wxpay/paysucc')),'paysucc')
+const queryPaySucc =r =>require.ensure([],()=>r(require('../page/wxpay/queryPaySucc')),'queryPaySucc')
 
 export default [{
     path: '/',
@@ -9,7 +9,12 @@ export default [{
         //地址为空时跳转home页面
         {
           path: '',
-          redirect: '/paysucc'
-        } 
+          redirect: '/queryPaySucc'
+        },
+         //登录
+        {
+          path: '/queryPaySucc',
+          component: queryPaySucc
+        },
     ]
 }]
