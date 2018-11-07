@@ -59,8 +59,8 @@ var webpackConfig = merge(baseWebpackConfig, {
             chunks:['manifest','vendor','app']
         }),
         new HtmlWebpackPlugin({
-            filename: config.build.page,
-            template: 'page.html',
+            filename: config.build.pay,
+            template: 'pay.html',
             inject: true,
             minify: {
                 removeComments: true,
@@ -71,7 +71,7 @@ var webpackConfig = merge(baseWebpackConfig, {
             },
             // necessary to consistently work with multiple chunks via CommonsChunkPlugin
             chunksSortMode: 'dependency',
-            chunks:['manifest','vendor','page']
+            chunks:['manifest','vendor','pay']
         }),
         // split vendor js into its own file
         new webpack.optimize.CommonsChunkPlugin({

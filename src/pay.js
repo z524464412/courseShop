@@ -1,11 +1,9 @@
 import Vue from 'vue'
 import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
-import App from './App'
 import VueRouter from 'vue-router'
-import routes from './router/payRouter'
-import store from './store/'
-import {routerMode} from './config/env'
+import payRouter from './router/payRouter'
+// import {routerMode} from './config/env'
 import './config/rem'
 import FastClick from 'fastclick'
 
@@ -20,11 +18,10 @@ Vue.use(MintUI)
 Vue.use(VueRouter)
 
 const router = new VueRouter({
-	routes,
-	mode: routerMode,
+	payRouter,
+	mode: 'hash',
 })
 router.beforeEach((to, from, next) => {
-
     document.documentElement.scrollTop  = 0;
     document.body.scrollTop  = 0;
     next();
@@ -32,5 +29,4 @@ router.beforeEach((to, from, next) => {
 
 new Vue({
 	router,
-	store,
 }).$mount('#pay')
