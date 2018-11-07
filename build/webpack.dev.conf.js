@@ -33,7 +33,15 @@ module.exports = merge(baseWebpackConfig, {
             filename: 'index.html',
             template: 'index.html',
             favicon: 'favicon1.ico',
-            inject: true
+            inject: true,
+            chunks:['app']
+        }),
+         new HtmlWebpackPlugin({
+            filename: 'pay.html',
+            template: 'pay.html',
+            favicon: 'favicon1.ico',
+            inject: true,
+            chunks:['pay']
         })
     ]
 })

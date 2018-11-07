@@ -1,16 +1,5 @@
 <template>
   <div class="orderList">
-      <!-- <div class="userItems">
-        <div class="userItem">
-          <div>姓名:<span class="red">{{payList.userName}}</span></div>
-          <div>手机号码:<span class="red">{{payList.phoneNo}}</span></div>
-        </div>
-        <div class="userItem">
-          <mt-button disabled type="danger" v-if="payStatus == 1" v-show="!btnType" @click="checkBtn">已确认</mt-button>
-          <mt-button v-else  type="danger" v-show="!btnType" @click="checkBtn">已确认</mt-button>
-          <mt-button type="danger" v-show="btnType" plain @click="checkBtn">确认</mt-button>
-        </div>
-      </div> -->
       <div class="checkBox">
          <div class="checkName">
           <span>{{payList.userName}}</span><span class="">{{payList.phoneNo}}</span>
@@ -23,33 +12,6 @@
           <span>{{payList.deliverAddr}}</span> 
         </div>
       </div>
-      <!-- <div v-if="!payStatus">
-        <div class="initlabel" @click="chooseAddr" >
-          <div class="addrText">
-            资料费(每课<span class="red">￥50</span>):<span class="red">{{'￥'+courseLists.length *50}}</span>
-          </div>
-          <div class="tickIcon" >
-            <img src="../../images/tick.png" v-show="needBook">
-          </div>
-          <div class="noChoose" v-show="!needBook">
-          </div> 
-        </div>
-        <div class="initlabel" v-show="needBook">
-          <div>
-            <input type="text" name="addrText" placeholder="请输入地址" v-model="addrValue">
-          </div>
-        </div>
-      </div> -->
-      <!-- <div v-else>
-        <div v-if="needBook">
-          <div class="initlabel1">
-              <span>资料费(每课<span class="red">￥50</span>):<span class="red">{{'￥'+courseLists.length *50}}</span></span>
-          </div>
-          <div class="initlabel1">
-            <span>邮寄地址: </span><span>{{addrValue}}</span>
-          </div>
-        </div>
-      </div> -->
       <div class="items">
         <div class="item" v-for="(item,index) in 1" v-cloak>
             <shop-list  class="courseItem" :noBuy="true" v-for="courseList in courseLists" :courseList=courseList>

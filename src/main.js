@@ -125,7 +125,7 @@ function ddConfig(){
             onSuccess: function(result) {
               let param = {};
               param.code = result.code;
-              param.tag = 'dev'; 
+              // param.tag = 'dev'; 
               AuthLogin(param).then(res=>{
                 if(res.data.respCode == 0){
                   if(res.data.data.dingToken){

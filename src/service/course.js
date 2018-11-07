@@ -90,6 +90,12 @@ export const checkAliResult = params =>instance.post('/coursecart/v1/bill/pay/re
 export const prePay = params =>instance.get('/coursecart/v1/bill/wxopen',{params});
 export const h5alipay = params => instance.get('/coursecart/v1/bill/alipay',{params})
 
+
+// 广分支付
+export const quickpassPay = params => instance.get('/coursecart/v1.3/bill/pay/quickpass/url',{params})
+
+
+
 //获取openId
 // export const getToken = params =>instance.get('/coursecart/v1/sys/getWeChatUserToken',{params});
 export const getToken = params =>instance.get('/coursecart/v1/wechat/openid',{params});

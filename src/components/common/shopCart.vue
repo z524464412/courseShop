@@ -92,7 +92,7 @@
 <script>
   import {setStore, getStore,removeStore} from 'src/config/mUtils'
   import {mapState, mapMutations} from 'vuex'
-  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin,getAmount} from 'src/service/course'
+  import { newAddOrder ,testInit,aliPay,prePay,getToken,AuthLogin,getAmount,quickpassPay} from 'src/service/course'
   import { Toast,MessageBox } from 'mint-ui'
   import { httpUrl } from 'src/config/env';
 
@@ -121,7 +121,21 @@
       }
     },
 
-    props:['noIcon','allNum','allPrice','payTitle','payList','btnChoose','chooseType','payStatus','addrValue','needBookIds','bookMoney','addrValue1','discountAll','checkLessonsLength'],
+    props:[
+    'noIcon',
+    'allNum',
+    'allPrice',
+    'payTitle',
+    'payList',
+    'btnChoose',
+    'chooseType',
+    'payStatus',//是否支付(1,已支付)
+    'addrValue',
+    'needBookIds',
+    'bookMoney',
+    'addrValue1',
+    'discountAll',
+    'checkLessonsLength'],
     computed:{
       ...mapState([
           'cartList','discount'
@@ -226,6 +240,7 @@
                 });
               }else{
                 if(_this.chooseType == 'wx'){
+                  alert(2222)
                    this.wechatPay();
                 }else if (_this.chooseType == 'zfb'){
                   this.aliPay();
@@ -383,6 +398,7 @@
                 // setStore('user',user);
                 param.login = false;
                 _this.$router.push({path:'/login',query:param});
+
               }else{
                 Toast(res.data.respMsg);
               }
@@ -449,8 +465,23 @@
            _this.$router.push({path:'/lessonsList',query:_this.param})
             // _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){
-          _this.getPayMoney('pay')
-          // return;
+          if (true) {
+            let param = {};
+            param.billId = this.query.id;
+            if( this.chooseType == 'zfb'){
+              param.type = 1;
+            }else{
+              param.type = 2;
+            }
+            console.log(param);
+            quickpassPay(param).then(res=>{
+              console.log(res);
+              if(res.data.data){
+                window.location.href = res.data.data;
+              }
+            })
+            return
+          }
           if(this.payStatus == 1){
             return
           }
@@ -470,11 +501,14 @@
             })
             return
           }
+          _this.getPayMoney('pay')
+
           if(_this.payList.pay < 0.01){
             this.check =true;
             this.h5AliPay();
             return;
-          } 
+          }
+
         }else{
           _this.$router.push({path:'/payList'});
         }
