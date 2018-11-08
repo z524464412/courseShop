@@ -29,7 +29,7 @@
       <div class="lessons-check-checkList" v-for="(item,index) in lessonsList">
         <div class="courseInfo">
           <div class="courseName">
-            第{{item.index}}课：{{item.lessonBegin}}
+            第{{item.index}}课：{{item.lesson}}
           </div>
           <div class="userBox">
             <div class="manName userItem">
