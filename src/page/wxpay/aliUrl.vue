@@ -47,23 +47,34 @@ export default {
 			if(this.bookNum){
 				this.bookNum = 1
 			}
-			params.needBook = this.bookNum;
-			params.deliverAddr = encodeURIComponent(this.addrValue);
-			var ua = navigator.userAgent.toLowerCase();
-			if((ua.match(/MicroMessenger/i) != "micromessenger") || _this.check){
-				if(httpUrl && httpUrl.indexOf('tfapi') > 0){
-					_this.getAliForm(params).then(res=>{
-						// setTimeout(function(){
-							// console.log(document.forms[0])
-							document.forms[0].submit();
-						// },500)
-					})
+			if(this.$route.query.url){	
+				_this.showHtml =true;
+				var ua = navigator.userAgent.toLowerCase();
+				if((ua.match(/MicroMessenger/i) == "micromessenger")){
+
 				}else{
-					window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+						window.location.replace( this.$route.query.url)
 				}
 			}else{
-				this.showHtml =true;
+				params.needBook = this.bookNum;
+				params.deliverAddr = encodeURIComponent(this.addrValue);
+				var ua = navigator.userAgent.toLowerCase();
+				if((ua.match(/MicroMessenger/i) != "micromessenger") || _this.check){
+					if(httpUrl && httpUrl.indexOf('tfapi') > 0){
+						_this.getAliForm(params).then(res=>{
+							// setTimeout(function(){
+								// console.log(document.forms[0])
+								document.forms[0].submit();
+							// },500)
+						})
+					}else{
+						window.location.replace( window.location.origin+"/coursecart/rest/v1/bill/doBillPayAlipay"+"?billId="+_this.billId)
+					}
+				}else{
+					this.showHtml =true;
+				}
 			}
+			
     },
     methods:{
     	getAliForm(params){

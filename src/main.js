@@ -11,7 +11,7 @@ import FastClick from 'fastclick'
 import {setStore,getStore,removeStore} from 'src/config/mUtils'
 import { getwxConfig,AuthLogin,getDingDing} from 'src/service/course'
 
-import './config/vconsole'
+// import './config/vconsole'
 
 if ('addEventListener' in document) {
     document.addEventListener('DOMContentLoaded', function() {
@@ -146,13 +146,13 @@ function ddConfig(){
 function platformType(){
   var ua = window.navigator.userAgent.toLowerCase();
   if(ua.match(/MicroMessenger/i) == 'micromessenger'){
-    wxConfig();
+    // wxConfig();
     setStore('type','wx');
   }else if(ua.indexOf('dingtalk') > 0 ){
     ddConfig();
     setStore('type','dingding');
   }else{
-    wxConfig();
+    // wxConfig();
     setStore('type','wx');
   }
 }

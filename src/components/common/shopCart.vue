@@ -265,9 +265,12 @@
                     param.type = 2;
                   }
                   quickpassPay(param).then(res=>{
-                    console.log(res);
                     if(res.data.data){
-                      window.location.href = res.data.data;
+                      if(_this.chooseType == 'zfb'){
+                         _this.$router.push({path:'/aliUrl',query:{url:res.data.data}});
+                      }else{
+                        window.location.href = res.data.data;
+                      }
                     }
                   })
                 }else{
