@@ -29,7 +29,7 @@ function sendSuccess(){
 		query = GetRequest() ;
 		let param = {};
 		param.midNo = query.down_trade_no;
-		param.transNo = query.order;
+		param.transNo = query.up_trade_no;
 		param.pay = query.total_amount;
 		quickpassPaySucc(param).then(res=>{
 			if(res.data.respCode == 0){
