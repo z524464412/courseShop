@@ -11,7 +11,7 @@ import FastClick from 'fastclick'
 import {setStore,getStore,removeStore} from 'src/config/mUtils'
 import { getwxConfig,AuthLogin,getDingDing} from 'src/service/course'
 
-// import './config/vconsole'
+import './config/vconsole'
 
 if ('addEventListener' in document) {
     document.addEventListener('DOMContentLoaded', function() {
@@ -125,7 +125,7 @@ function ddConfig(){
             onSuccess: function(result) {
               let param = {};
               param.code = result.code;
-              // param.tag = 'dev'; 
+              param.tag = 'dev'; 
               AuthLogin(param).then(res=>{
                 if(res.data.respCode == 0){
                   if(res.data.data.dingToken){
