@@ -1,28 +1,30 @@
 <template>
  	<div class="lessons-container cart_module">
-    <div class="lessons-type-box">
-      <div class="lessons-type-info lessons-type">
-        报名课次
+    <div class="lessonsType-container">
+      <div class="lessons-type-box">
+        <div class="lessons-type-info lessons-type">
+          报名课次
+        </div>
+        <div class="lessons-type-name lessons-type" :class="{active:!isTrial}" @click="changeLessonsType('isTrial',0)">
+          报名
+        </div>
+        <div class="lessons-type-name lessons-type" :class="{active:isTrial}" @click="changeLessonsType('isTrial',1)">
+          试听
+        </div>
       </div>
-      <div class="lessons-type-name lessons-type" :class="{active:!isTrial}" @click="changeLessonsType('isTrial',0)">
-        报名
-      </div>
-      <div class="lessons-type-name lessons-type" :class="{active:isTrial}" @click="changeLessonsType('isTrial',1)">
-        试听
+      <div class="lessons-type-box">
+        <div class="lessons-type-info lessons-type">
+          学习资料
+        </div>
+        <div class="lessons-type-name lessons-type"  :class="{active:needBook,disabled:isTrial}" @click="changeLessonsType('needBook',1)">
+          需要
+        </div>
+        <div class="lessons-type-name lessons-type" :class="{active:!needBook,disabled:isTrial}" @click="changeLessonsType('needBook',0)">
+          不需要 
+        </div>
       </div>
     </div>
-    <div class="lessons-type-box">
-      <div class="lessons-type-info lessons-type">
-        学习资料
-      </div>
-      <div class="lessons-type-name lessons-type"  :class="{active:needBook,disabled:isTrial}" @click="changeLessonsType('needBook',1)">
-        需要
-      </div>
-      <div class="lessons-type-name lessons-type" :class="{active:!needBook,disabled:isTrial}" @click="changeLessonsType('needBook',0)">
-        不需要 
-      </div>
-    </div>
-    <div class="lessons-check-container">
+    <div class="lessons-check-container mt100">
       <div class="lessons-check-info">
         选课课次
       </div>
@@ -262,6 +264,9 @@
 <style lang="scss" scoped>
   @import '../../style/common';
   @import '../../style/mixin';
+  .mt100{
+    margin-top: 100px !important;
+  }
   .blue{
     color: #5197FC;
   }
@@ -429,6 +434,12 @@
       background: #fff;
       z-index: 999;
       overflow: auto;
+      .lessonsType-container{
+        position: fixed;
+        width: 100%;
+        background: #fff;
+        z-index: 13;
+      }
       .lessons-type-box{
         display: flex;
         padding:  5px 10px;
