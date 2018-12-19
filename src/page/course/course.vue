@@ -137,7 +137,7 @@ import { Spinner } from 'mint-ui';
         this.gradeId = this.userInfo.gradeId;
         this.scopeId = this.userInfo.scope;
         this.oldgrade = this.gradeId;
-        this.INIT_BUYCART();
+        this.INIT_BUYCART();//获取本地选中的课程课次
         this.getdiscount();
       },
       mounted () {

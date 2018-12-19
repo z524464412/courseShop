@@ -143,6 +143,8 @@ export default {
 	[ADD_LESSON](state,courseList) {
 		console.log(courseList)
 		let cart = state.cartList;
+		//初始化时候先看本地时候有这值
+		//获取本地数据
 		if(!cart[courseList.courseId]){
 		 cart =	JSON.parse(getStore('buyCart'));
 		}
@@ -155,6 +157,7 @@ export default {
 			console.log(lesson)
 			console.log(cart[courseList.courseId])
 			cart[courseList.courseId].choose = true;
+			//先要知道所有的课次数量与当前选中的数量对比
 			if(Object.keys(lesson).length == cart[courseList.courseId].lessons){
 				cart[courseList.courseId].allChoose = true;
 			}
@@ -175,6 +178,7 @@ export default {
 		}
 		let lessonsList = cart[courseList.courseId] = (cart[courseList.courseId] || {});
 		if(!lessonsList[courseList.lessonId]){
+			//选中的课次
 			let lesson  = lessonsList['lessonArr'] = (lessonsList['lessonArr'] || {});
 			delete lesson[courseList.lessonId];
 			cart[courseList.courseId].checkLessonsPrice = courseList.lessonPrice;

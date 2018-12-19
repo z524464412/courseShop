@@ -486,6 +486,7 @@
             })
           }
         }else if(_this.$route.path == '/courseDetail'){
+          console.log(this.cartList);
           //课程详情页面
             let chooseCart = JSON.parse(getStore('chooseCart'));
             _this.param ={};
@@ -497,7 +498,12 @@
               _this.param.scope = _this.query.scope
             }
             // vuex控制课程列表
-            _this.ADD_CART(chooseCart);
+            let cartList = Object.keys(this.cartList);
+            if(this.cartList && this.cartList[chooseCart.id]){
+              
+            }else{
+              _this.ADD_CART(chooseCart);
+            }
            _this.$router.push({path:'/lessonsList',query:_this.param})
             // _this.$router.push({path:'/payList'});
         }else if(_this.$route.path == '/orderList'){

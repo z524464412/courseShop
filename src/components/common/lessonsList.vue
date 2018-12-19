@@ -67,7 +67,7 @@
               </div>
           </div>
         </section>
-       <div  class="gotopay" @click.stop="checklessons">
+       <div  class="gotopay" @click="checklessons">
        <section class="gotopay_button_style"  v-text="'确定'">
        </section>
       </div>
@@ -90,9 +90,24 @@
           needBook:false,//是否需要资料费
           query:'',//url传入query参数
           allLessons:false,//是否选中所有课次
-
+          fromPath:'',//来自的路径
 			}
 		},
+    //进入路由前
+    beforeRouteEnter (to, from, next) {
+      console.log(to);
+      console.log(from);
+      next(vm=>{
+        vm.fromPath = from.path;
+      });
+      // 在渲染该组件的对应路由被 confirm 前调用
+      // 不！能！获取组件实例 `this`
+      // 因为当守卫执行前，组件实例还没被创建
+    },
+    beforeRouteLeave (to, from, next) {
+      console.log(this.fromPath);
+      next();
+    },
     computed: {
       ...mapState([
           'cartList'
@@ -101,7 +116,6 @@
       shopCart: function (){
         return {...this.cartList};
       },
-
     },
      watch: {
       shopCart: function (value){
@@ -235,8 +249,11 @@
       },
       checklessons(){
         this.lessonsCheck =false;
-        // this.$router.push({path:'/course',query:this.$route.query})
-        this.$router.back(1);
+        if(this.fromPath == '/courseDetail'){
+          this.$router.push({path:'/course',query:this.$route.query})
+        }else{
+          this.$router.back(1);
+        }
         return;
       },
     }
